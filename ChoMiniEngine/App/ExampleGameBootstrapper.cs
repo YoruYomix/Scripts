@@ -4,7 +4,8 @@ using Yoru.ChoMiniEngine;
 
 public class ExampleGameBootstrapper : MonoBehaviour
 {
-    [SerializeField] Transform imageRoot;
+    [SerializeField] Transform rootKR;
+    [SerializeField] Transform rootJP;
     ChoMiniContainer _container;
 
     public static ExampleGameBootstrapper instance { get; private set; }
@@ -27,29 +28,34 @@ public class ExampleGameBootstrapper : MonoBehaviour
         // -------------------------
         // 0. 모든 이미지 비활성화
         // -------------------------
-        foreach (Transform child in imageRoot.GetComponentsInChildren<Transform>(true))
+        foreach (Transform child in rootKR.GetComponentsInChildren<Transform>(true))
         {
-            if (child != imageRoot)   // 루트 제외
+            if (child != rootKR)   // 루트 제외
                 child.gameObject.SetActive(false);
         }
-
+        foreach (Transform child in rootJP.GetComponentsInChildren<Transform>(true))
+        {
+            if (child != rootJP)   // 루트 제외
+                child.gameObject.SetActive(false);
+        }
+        var builder = new ChoMiniContainer.Builder();
         // -------------------------
         // 1. FlowContainer 구성
         // -------------------------
-        _container = ChoMiniContainer.Create()
- 
-            // Installer
-            .Register<ChoMiniGameObjectSourceInstaller>("KR").Using(imageRoot)
-
+        builder.Installer<ChoMiniGameObjectSourceInstaller>()
+                .When(() => false).Select("KR")
+                .When(() => true).Select("JP");
+        builder
+            .RegisterInstaller<ChoMiniGameObjectSourceInstaller>("KR", rootKR)
+            .RegisterInstaller<ChoMiniGameObjectSourceInstaller>("JP", rootJP)
             // Providers
-            .Register<ImageActionProvider>()
-            .Register<DefaultActivationProvider>()
+            .RegisterProvider<ImageActionProvider>()
+            .RegisterProvider<DefaultActivationProvider>()
 
             // Factory
-            .RegisterFactory<ChoMiniSequenceFactory>("Default")
+            .RegisterFactory<ChoMiniSequenceFactory>("Default");
 
-            // Orchestrator / Runner / MessagePipe 생략 시 기본값 자동 적용
-            .Build();
+        _container = builder.Build();
 
         // -------------------------
         // 2. SessionOptions 만들기
@@ -58,7 +64,7 @@ public class ExampleGameBootstrapper : MonoBehaviour
         {
             InstallerKey = "KR",
             FactoryKey = "Default",
-            SceneRoot = imageRoot,
+            SceneRoot = rootKR,
             UserData = null
         };
 

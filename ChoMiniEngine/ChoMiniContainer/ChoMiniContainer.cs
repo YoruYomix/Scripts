@@ -24,172 +24,147 @@ namespace Yoru.ChoMiniEngine
 
         // Core
         private Func<ChoMiniNodeRunner> _nodeRunnerFactory;
-        private Func<ChoMiniCommandContext> _msgFactory;
         private Func<ChoMiniOrchestrator> _orchestratorFactory;
-        internal ChoMiniCommandContext _globalContext;
-
 
         private ChoMiniContainer() { }
 
         // ===========================================================
         // Scope creation
         // ===========================================================
-        public static ChoMiniContainerBuilder Create()
-        {
-            return new ChoMiniContainerBuilder();
-        }
-
-        // --------------------------
-        // 세션(스코프) 생성
-        // --------------------------
         public ChoMiniLifetimeScope CreateScope(FlowSessionOptions options)
         {
-            // Installer 선택
-            if (!_installers.TryGetValue(options.InstallerKey, out var installerFunc))
-                throw new Exception($"Installer '{options.InstallerKey}' not registered");
+            // ---------- Resolve Installer Key (Strict) ----------
+            string installerKey = ResolveInstallerKey();
+
+            if (!_installers.TryGetValue(installerKey, out var installerFunc))
+                throw new Exception($"Installer '{installerKey}' not registered");
 
             IChoMiniInstaller installer = installerFunc(options.SceneRoot);
             List<Transform> targets = installer.InstallTargets();
 
-
-            // 메시지 컨텍스트
+            // ---------- Context ----------
             ChoMiniCommandContext commandContext = ChoMiniEngine.CommandContext;
+            ChoMiniLocalMessageContext localMsg = new ChoMiniLocalMessageContext();
 
-            ChoMiniLocalMessageContext _localMsg = new ChoMiniLocalMessageContext();
-
-            // Orchestrator & Runner
-            ChoMiniNodeRunner nodeRunner = _nodeRunnerFactory();
+            // ---------- Orchestrator & Runner ----------
+            ChoMiniNodeRunner runner = _nodeRunnerFactory();
             ChoMiniOrchestrator orchestrator = _orchestratorFactory();
 
-            // Factory 선택
+            // ---------- Factory ----------
             if (!_factories.TryGetValue(options.FactoryKey, out var factoryFunc))
                 throw new Exception($"Factory '{options.FactoryKey}' not registered");
 
             ChoMiniSequenceFactory factory = factoryFunc();
 
-            // 초기화
             factory.Initialize(
                 targets,
                 _providers,
-                _localMsg.SkipSubscriber
+                localMsg.SkipSubscriber
             );
 
-            return new ChoMiniLifetimeScope(orchestrator, factory, commandContext, _localMsg);
+            return new ChoMiniLifetimeScope(
+                orchestrator,
+                factory,
+                commandContext,
+                localMsg
+                );
+        }
+
+        private string ResolveInstallerKey()
+        {
+            foreach (var rule in _installerRules)
+            {
+                foreach (var (cond, key) in rule.Entries)
+                {
+                    if (cond())
+                        return key;
+                }
+            }
+         
+            throw new Exception("No Installer matched (Strict)");
         }
 
         // ===========================================================
         // Builder
         // ===========================================================
-        public sealed class ChoMiniContainerBuilder
+        public sealed class Builder
         {
             private readonly ChoMiniContainer _c = new ChoMiniContainer();
 
-
             // ---------- Installer DSL ----------
-            public ChoMiniInstallerBuilder<TInstaller> Register<TInstaller>(string key)
+            public ChoMiniInstallerRuleBuilder Installer<TInstaller>()
                 where TInstaller : IChoMiniInstaller
             {
-                return new ChoMiniInstallerBuilder<TInstaller>(_c, key);
+                                var rule = new ChoMiniInstallerRule
+                {
+                    InstallerType = typeof(TInstaller)
+                };
+
+                _c._installerRules.Add(rule);
+                return new ChoMiniInstallerRuleBuilder(rule);
             }
 
-            public sealed class ChoMiniInstallerBuilder<TInstaller>
+            // 실제 Installer 생성자 등록 (key → ctor)
+            public Builder RegisterInstaller<TInstaller>(string key, Transform root)
                 where TInstaller : IChoMiniInstaller
             {
-                private readonly ChoMiniContainer _c;
-                private readonly string _key;
-                private readonly Type _installerType;
+                Type t = typeof(TInstaller);
 
-                public ChoMiniInstallerBuilder(ChoMiniContainer c, string key)
-                {
-                    _c = c;
-                    _key = key;
-                    _installerType = typeof(TInstaller);   // 🔥 핵심
-                }
+                _c._installers[key] = _ =>  
+                    (IChoMiniInstaller)Activator.CreateInstance(
+                        t,
+                        new object[] { root }
+                    ); 
 
-                public ChoMiniContainerBuilder Using(Transform root)
-                {
-                    _c._installers[_key] = (sceneRoot) =>
-                    {
-                        return (IChoMiniInstaller)Activator.CreateInstance(
-                            _installerType,
-                            new object[] { root }          // root 생성자 매칭
-                        );
-                    };
-
-                    return new ChoMiniContainerBuilder(_c);
-                }
+                return this;
             }
 
-
-            // ---------- Provider DSL ----------
-            public ChoMiniContainerBuilder Register<TProvider>()
+            // ---------- Provider ----------
+            public Builder RegisterProvider<TProvider>()
                 where TProvider : IChoMiniActionProvider, new()
             {
                 _c._providers.Add(() => new TProvider());
                 return this;
             }
 
-            // ---------- Factory DSL ----------
-            public ChoMiniContainerBuilder RegisterFactory<TFactory>(string key)
+            // ---------- Factory ----------
+            public Builder RegisterFactory<TFactory>(string key)
                 where TFactory : ChoMiniSequenceFactory, new()
             {
                 _c._factories[key] = () => new TFactory();
                 return this;
             }
 
-            // ---------- Runner/Orchestrator/MessagePipe ----------
-            public ChoMiniContainerBuilder UseNodeRunner(Func<ChoMiniNodeRunner> f)
+            // ---------- Core ----------
+            public Builder UseNodeRunner(Func<ChoMiniNodeRunner> f)
             {
                 _c._nodeRunnerFactory = f;
                 return this;
             }
 
-            public ChoMiniContainerBuilder UseOrchestrator(Func<ChoMiniOrchestrator> f)
+            public Builder UseOrchestrator(Func<ChoMiniOrchestrator> f)
             {
                 _c._orchestratorFactory = f;
                 return this;
             }
 
-            public ChoMiniContainerBuilder UseMessagePipe(Func<ChoMiniCommandContext> f)
-            {
-                _c._msgFactory = f;
-                return this;
-            }
-
-
-
-
             public ChoMiniContainer Build()
             {
-                if (_c._msgFactory == null)
-                    _c._msgFactory = () => new ChoMiniCommandContext();
-
-                if (_c._nodeRunnerFactory == null)
-                    _c._nodeRunnerFactory = () => new ChoMiniNodeRunner();
-
-                if (_c._orchestratorFactory == null)
-                    _c._orchestratorFactory = () =>
-                        new ChoMiniOrchestrator(
-                            new ChoMiniNodeRunner());
+                _c._nodeRunnerFactory ??= () => new ChoMiniNodeRunner();
+                _c._orchestratorFactory ??= () =>
+                    new ChoMiniOrchestrator(new ChoMiniNodeRunner());
 
                 return _c;
             }
-
-            // 내부 생성자
-            private ChoMiniContainerBuilder(ChoMiniContainer c)
-            {
-                _c = c;
-            }
-            public ChoMiniContainerBuilder() { }
         }
 
 
         public abstract class BaseChoMiniRegisterBuilder
         {
-            protected readonly ChoMiniContainerBuilder _parent;
+            protected readonly Builder _parent;
             protected readonly List<string> _conditions = new List<string>();
 
-            protected BaseChoMiniRegisterBuilder(ChoMiniContainerBuilder parent)
+            protected BaseChoMiniRegisterBuilder(Builder parent)
             {
                 _parent = parent;
             }
@@ -202,7 +177,7 @@ namespace Yoru.ChoMiniEngine
 
             // 앞으로 .Not() .Until() .Except() 등도 여기에 추가하면 됨.
 
-            public abstract ChoMiniContainerBuilder End();
+            public abstract Builder End();
         }
     }
 }
