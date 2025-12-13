@@ -14,7 +14,7 @@ namespace Yoru.ChoMiniEngine
         public void CollectEffects(GameObject go, ChoMiniNode node)
         {
             Debug.Log("콜렉트 이펙트" + go.name);
-            node.Effects.Add(new ActivationAction(go));
+            node.Actions.Add(new ActivationAction(go));
         }
     }
     public class ImageActionProvider : IChoMiniActionProvider
@@ -24,8 +24,8 @@ namespace Yoru.ChoMiniEngine
             var img = go.GetComponent<Image>();
             if (img == null) return;
 
-            node.Effects.Add(new ActivationAction(go));
-            node.Effects.Add(new FadeInAction(img));
+            node.Actions.Add(new ActivationAction(go));
+            node.Actions.Add(new FadeInAction(img));
         }
     }
 
@@ -43,9 +43,9 @@ namespace Yoru.ChoMiniEngine
             _loopPlayer = new LoopPlayer();
 
             // 인덱스 0은 초기 재생용 → 루프 제외
-            for (int i = 1; i < node.Effects.Count; i++)
+            for (int i = 1; i < node.Actions.Count; i++)
             {
-                IChoMiniNodeAction effect = node.Effects[i];
+                IChoMiniNodeAction effect = node.Actions[i];
                 float duration = effect.GetRequiredDuration();
                 _loopPlayer.Register(effect, duration);
             }

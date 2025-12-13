@@ -8,7 +8,7 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniNode : IDisposable
     {
         public float Duration;
-        public List<IChoMiniNodeAction> Effects = new List<IChoMiniNodeAction>();
+        public List<IChoMiniNodeAction> Actions = new List<IChoMiniNodeAction>();
         public GameObject gameObject;
 
         private IDisposable _skipSubscription;  ///< 구독 핸들 (나중에 필요하면 Dispose)

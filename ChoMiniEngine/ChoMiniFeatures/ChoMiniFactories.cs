@@ -78,7 +78,7 @@ namespace Yoru.ChoMiniEngine
 
             // Duration 계산: 이벤트 리스트의 모든 듀레이션중 가장 큰 값이 노드 자체의 듀레이션 됨
             float maxDuration = 0f;
-            foreach (var effect in node.Effects)
+            foreach (var effect in node.Actions)
                 maxDuration = Mathf.Max(maxDuration, effect.GetRequiredDuration());
 
             node.Duration = maxDuration;
