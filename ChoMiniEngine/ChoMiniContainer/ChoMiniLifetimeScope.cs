@@ -1,10 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Unity;
 using UnityEngine;
-
 
 namespace Yoru.ChoMiniEngine
 {
@@ -25,6 +22,7 @@ namespace Yoru.ChoMiniEngine
         readonly ChoMiniLocalMessageContext _localMsg;
         private readonly ChoMiniSequenceFactory _factory;
         readonly ChoMiniCommandContext _msg;
+
 
         private bool _disposed;
 
@@ -65,34 +63,16 @@ namespace Yoru.ChoMiniEngine
         public async UniTask BootAsync()
         {
 
+
             var installerKey = _installerKeyResolver.Resolve();
 
             if (!_resources.TryGetValue(installerKey, out var resource))
                 throw new Exception(
                     $"Resource not bound for installer '{installerKey}'");
 
-            UnityEngine.Debug.Log(_resources["KR"]);
-            UnityEngine.Debug.Log($"_installer null? {_installer == null}");
-            UnityEngine.Debug.Log($"_factories null? {_factoryCreators == null}");
-            UnityEngine.Debug.Log($"_providers null? {_providerCreators == null}");
-            UnityEngine.Debug.Log($"_localMsg null? {_localMsg == null}");
-
-            if (_factoryCreators != null)
-            {
-                UnityEngine.Debug.Log($"factories has Default? {_factoryCreators.ContainsKey("Default")}");
-                UnityEngine.Debug.Log($"factory func null? {_factoryCreators.TryGetValue("Default", out var f) && f == null}");
-            }
-            if (_localMsg != null)
-            {
-                UnityEngine.Debug.Log($"SkipSubscriber null? {_localMsg.SkipSubscriber == null}");
-            }
-            _installerKey = "KR";
-            if (!_resources.TryGetValue(_installerKey, out var resource))
-                throw new Exception(
-                    $"Resource not bound for installer '{_installerKey}'");
 
             _installer.Bind(resource);
-            UnityEngine.Debug.Log(resource);
+    
             var targets = _installer.InstallTargets();
 
 
