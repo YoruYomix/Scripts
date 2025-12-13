@@ -1,17 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Yoru.ChoMiniEngine;
 
 
 public class ExampleGameBootstrapper : MonoBehaviour
 {
     [SerializeField] Transform imageRoot;
-    ChoMiniNodeRunner _nodeRunner;
-    ChoMiniOrchestrator _orchestrator;
-    ChoMiniSequenceFactory _currentFactory;
-
-    ChoMiniLifetimeScope _scope;
-
     ChoMiniContainer _container;
 
     public static ExampleGameBootstrapper instance { get; private set; }
@@ -46,7 +39,7 @@ public class ExampleGameBootstrapper : MonoBehaviour
         _container = ChoMiniContainer.Create()
  
             // Installer
-            .Register<UIRootInstaller>("KR").Using(imageRoot)
+            .Register<ChoMiniGameObjectSourceInstaller>("KR").Using(imageRoot)
 
             // Providers
             .Register<ImageActionProvider>()
@@ -72,9 +65,7 @@ public class ExampleGameBootstrapper : MonoBehaviour
         // -------------------------
         // 3. Scope 생성
         // -------------------------
-        _scope = _container.CreateScope(options);
-
-
+        ChoMiniLifetimeScope _scope = _container.CreateScope(options);
     }
 
 }

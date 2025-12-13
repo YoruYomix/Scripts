@@ -12,10 +12,10 @@ namespace Yoru.ChoMiniEngine
     {
         public List<Transform> InstallTargets();
     };
-    public class UIRootInstaller : IChoMiniInstaller
+    public class ChoMiniGameObjectSourceInstaller : IChoMiniInstaller
     {
         private readonly Transform _root;
-        public UIRootInstaller(Transform root)
+        public ChoMiniGameObjectSourceInstaller(Transform root)
         {
             _root = root;
         }
