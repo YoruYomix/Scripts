@@ -80,18 +80,17 @@ public class ExampleGameBootstrapper : MonoBehaviour
         //InputView inputView = FindObjectOfType<InputView>();
         //inputView.Initialize(_msg);
 
-
     }
 
     private async void Start()
     {
-        Debug.Log("🔥 테스트 시작됨");
-        await _scope.PlayAsync();
-        Debug.Log("🔥 테스트 완전히 종료됨");
+        //Debug.Log("🔥 테스트 시작됨");
+        //await _scope.PlayAsync();
+        //Debug.Log("🔥 테스트 완전히 종료됨");
 
 
-        _scope.Dispose();
-        _scope = null;
+        //_scope.Dispose();
+        //_scope = null;
     }
 
 

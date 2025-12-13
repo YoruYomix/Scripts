@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using MessagePipe;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,16 +14,35 @@ namespace Yoru.ChoMiniEngine
         private ChoMiniSequenceFactory _factory;
         public Action OnComplate;
         ChoMiniLocalMessageContext _localMsg;
+        private readonly ISubscriber<ChoMiniCommandAdvanceRequested> _advanceSubscriber;
 
-
+        private bool _hasStarted = false;
         public ChoMiniOrchestrator(
             ChoMiniNodeRunner runner)
         {
             _runner = runner;
+            _advanceSubscriber = ChoMiniEngine.CommandContext.AdvanceSubscriber;
+            _advanceSubscriber.Subscribe(_ =>
+            {
+                OnAdvance();
+            });
         }
         public void Initialize(ChoMiniLocalMessageContext localMessageContext)
         {
             _localMsg = localMessageContext;
+        }
+
+        private void OnAdvance()
+        {
+            if (!_hasStarted)
+            {
+                _hasStarted = true;
+                PlaySequence().Forget();
+            }
+            else
+            {
+                _localMsg.SkipPublisher.Publish(new ChoMiniLocalSkipRequested());
+            }
         }
 
         public void SetFactory(ChoMiniSequenceFactory factory) { _factory = factory; }

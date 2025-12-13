@@ -19,7 +19,7 @@ namespace Yoru.ChoMiniEngine
 
         ISubscriber<SequenceStartMessage> _sequenceStartMessage;
         ISubscriber<SequenceEndMessage> _sequenceEndSubscriber;
-        ISubscriber<ChoMiniCommandAdvanceRequested> _skipSubscriber;
+        ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
 
         public ChoMiniSequenceFactory()
         {
@@ -47,7 +47,7 @@ namespace Yoru.ChoMiniEngine
         public void Initialize(
             List<Transform> targets,
             List<Func<IChoMiniActionProvider>> providerFactories,
-            ISubscriber<ChoMiniCommandAdvanceRequested> skipSubscriber)
+            ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
             _targets = targets;
             _providerFactories = providerFactories;

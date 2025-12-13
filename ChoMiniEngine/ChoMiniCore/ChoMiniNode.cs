@@ -13,7 +13,7 @@ namespace Yoru.ChoMiniEngine
 
         private IDisposable _skipSubscription;  ///< 구독 핸들 (나중에 필요하면 Dispose)
 
-        public ChoMiniNode(ISubscriber<ChoMiniCommandAdvanceRequested> skipSubscriber, GameObject gameObject)
+        public ChoMiniNode(ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber, GameObject gameObject)
         {
             this.gameObject = gameObject;
             _skipSubscription = skipSubscriber.Subscribe(msg =>

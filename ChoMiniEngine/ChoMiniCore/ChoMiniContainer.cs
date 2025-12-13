@@ -65,7 +65,7 @@ namespace Yoru.ChoMiniEngine
             factory.Initialize(
                 targets,
                 _providers,
-                commandContext.SkipSubscriber
+                _localMsg.SkipSubscriber
             );
 
             return new ChoMiniLifetimeScope(orchestrator, factory, commandContext, _localMsg);
