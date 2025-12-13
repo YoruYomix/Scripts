@@ -6,17 +6,23 @@ namespace Yoru.ChoMiniEngine
 {
     public sealed class ChoMiniContainer
     {
-        // Installer / Factory / Provider 저장소
+        // --------------------------
+        // Installer storage
+        // --------------------------
         internal readonly Dictionary<string, Func<Transform, IChoMiniInstaller>> _installers
-            = new Dictionary<string, Func<Transform, IChoMiniInstaller>>();
+            = new();
 
+        internal readonly List<ChoMiniInstallerRule> _installerRules
+            = new();
+
+        // Factory / Provider
         internal readonly Dictionary<string, Func<ChoMiniSequenceFactory>> _factories
-            = new Dictionary<string, Func<ChoMiniSequenceFactory>>();
+            = new();
 
         internal readonly List<Func<IChoMiniActionProvider>> _providers
-            = new List<Func<IChoMiniActionProvider>>();
+            = new();
 
-        // Runner / Orchestrator / MessagePipe
+        // Core
         private Func<ChoMiniNodeRunner> _nodeRunnerFactory;
         private Func<ChoMiniCommandContext> _msgFactory;
         private Func<ChoMiniOrchestrator> _orchestratorFactory;
@@ -25,9 +31,9 @@ namespace Yoru.ChoMiniEngine
 
         private ChoMiniContainer() { }
 
-        // --------------------------
-        // 생성 시작
-        // --------------------------
+        // ===========================================================
+        // Scope creation
+        // ===========================================================
         public static ChoMiniContainerBuilder Create()
         {
             return new ChoMiniContainerBuilder();
