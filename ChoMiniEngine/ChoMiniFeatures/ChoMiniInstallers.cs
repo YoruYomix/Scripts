@@ -1,35 +1,65 @@
 
 
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 
 namespace Yoru.ChoMiniEngine
 {
+    public interface IInstallerResource
+    {
+    }
     /// 인스톨러
     /// 
     public interface IChoMiniInstaller
     {
-        public List<Transform> InstallTargets();
+        void Bind(IInstallerResource resource);
+        List<Transform> InstallTargets();
     };
-    public class ChoMiniGameObjectSourceInstaller : IChoMiniInstaller
+    public class ChoMiniGameObjectInstallerResource : IInstallerResource
     {
-        private readonly Transform _root;
-        public ChoMiniGameObjectSourceInstaller(Transform root)
+        public Transform Root
+        {
+            get
+            {
+                return _root;
+            }
+        }
+        public Transform _root;
+        public ChoMiniGameObjectInstallerResource(Transform root)
         {
             _root = root;
+        }
+    }
+
+    public sealed class ChoMiniGameObjectSourceInstaller
+    : IChoMiniInstaller
+    {
+        private ChoMiniGameObjectInstallerResource _resource;
+
+        public void Bind(IInstallerResource resource)
+        {
+            _resource = resource as ChoMiniGameObjectInstallerResource
+                ?? throw new Exception(
+                    "Invalid resource for GameObjectInstaller");
         }
 
         public List<Transform> InstallTargets()
         {
-            List<Transform> result = new List<Transform>();
+            if (_resource == null)
+                throw new Exception("Installer not bound");
 
-            foreach (var t in YoruUtilitys.GetAllTransforms(_root))
+            var list = new List<Transform>();
+
+            foreach (Transform child in
+                     _resource.Root.GetComponentsInChildren<Transform>(true))
             {
-                if (t == _root) continue;
-                result.Add(t);
+                if (child != _resource.Root)
+                    list.Add(child);
             }
-            return result;
+
+            return list;
         }
     }
 

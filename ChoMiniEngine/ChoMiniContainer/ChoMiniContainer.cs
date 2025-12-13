@@ -110,12 +110,7 @@ namespace Yoru.ChoMiniEngine
             {
                 Type t = typeof(TInstaller);
 
-                _c._installers[key] = _ =>  
-                    (IChoMiniInstaller)Activator.CreateInstance(
-                        t,
-                        new object[] { root }
-                    ); 
-
+                _c._installers[key] = typeof(TInstaller);
                 return this;
             }
 

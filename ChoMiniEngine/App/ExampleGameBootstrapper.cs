@@ -42,12 +42,12 @@ public class ExampleGameBootstrapper : MonoBehaviour
         // -------------------------
         // 1. FlowContainer 구성
         // -------------------------
-        builder.Installer<ChoMiniGameObjectSourceInstaller>()
+        builder.Installer<ChoMiniGameObjectInstallerResource>()
                 .When(() => false).Select("KR")
                 .When(() => true).Select("JP");
         builder
-            .RegisterInstaller<ChoMiniGameObjectSourceInstaller>("KR", rootKR)
-            .RegisterInstaller<ChoMiniGameObjectSourceInstaller>("JP", rootJP)
+            .RegisterInstaller<ChoMiniGameObjectInstallerResource>("KR", rootKR)
+            .RegisterInstaller<ChoMiniGameObjectInstallerResource>("JP", rootJP)
             // Providers
             .RegisterProvider<ImageActionProvider>()
             .RegisterProvider<DefaultActivationProvider>()
