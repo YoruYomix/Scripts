@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using Yoru.ChoMiniEngine;
 
 
 public class PageBootstrapper : MonoBehaviour
 {
     [SerializeField] Transform imageRoot;
-    FlowNodeRunner _nodeRunner;
-    FlowOrchestrator _orchestrator;
-    FlowSequenceFactory _currentFactory;
+    ChoMiniNodeRunner _nodeRunner;
+    ChoMiniOrchestrator _orchestrator;
+    ChoMiniSequenceFactory _currentFactory;
     GlobalMessageContext _msg;
-    FlowLifetimeScope _scope;
+    ChoMiniLifetimeScope _scope;
 
-    FlowContainer _container;
+    ChoMiniContainer _container;
 
     public static PageBootstrapper instance { get; private set; }
     void Awake()
@@ -45,7 +46,7 @@ public class PageBootstrapper : MonoBehaviour
         // -------------------------
         // 1. FlowContainer 구성
         // -------------------------
-        _container = FlowContainer.Create()
+        _container = ChoMiniContainer.Create()
             // 메세지 파이프
             .SubscribeGlobalMessages(_msg)
 
@@ -53,11 +54,11 @@ public class PageBootstrapper : MonoBehaviour
             .Register<UIRootInstaller>("KR").Using(imageRoot)
 
             // Providers
-            .Register<ImageEffectProvider>()
+            .Register<ImageActionProvider>()
             .Register<DefaultActivationProvider>()
 
             // Factory
-            .RegisterFactory<FlowSequenceFactory>("Default")
+            .RegisterFactory<ChoMiniSequenceFactory>("Default")
 
             // Orchestrator / Runner / MessagePipe 생략 시 기본값 자동 적용
             .Build();
