@@ -1,12 +1,62 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\TS\\Assets\\scripts\\",
-  "Documents": [],
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TS\\Assets\\scripts\\FlowEngine\\Core\\FlowContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:FlowEngine\\Core\\FlowContainer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\TS\\Assets\\scripts\\FlowEngine\\Features.meta||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:FlowEngine\\Features.meta||{8B382828-6202-11D1-8870-0000F87579D2}"
+    }
+  ],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": []
+      "DocumentGroups": [
+        {
+          "DockedWidth": 98,
+          "SelectedChildIndex": 2,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{116d2292-e37d-41cd-a077-ebacac4c8cc4}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "FlowContainer.cs",
+              "DocumentMoniker": "D:\\TS\\Assets\\scripts\\FlowEngine\\Core\\FlowContainer.cs",
+              "RelativeDocumentMoniker": "FlowEngine\\Core\\FlowContainer.cs",
+              "ToolTip": "D:\\TS\\Assets\\scripts\\FlowEngine\\Core\\FlowContainer.cs",
+              "RelativeToolTip": "FlowEngine\\Core\\FlowContainer.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAUAAAADAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T00:50:07.495Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Features.meta",
+              "DocumentMoniker": "D:\\TS\\Assets\\scripts\\FlowEngine\\Features.meta",
+              "RelativeDocumentMoniker": "FlowEngine\\Features.meta",
+              "ToolTip": "D:\\TS\\Assets\\scripts\\FlowEngine\\Features.meta",
+              "RelativeToolTip": "FlowEngine\\Features.meta",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-13T00:50:02.703Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
     }
   ]
 }
