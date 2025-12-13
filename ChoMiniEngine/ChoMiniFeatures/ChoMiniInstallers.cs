@@ -9,6 +9,7 @@ namespace Yoru.ChoMiniEngine
 {
     public interface IInstallerResource
     {
+
     }
     /// 인스톨러
     /// 

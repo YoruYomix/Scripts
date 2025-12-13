@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    // ³ëµå ÆÑÅä¸®¸¦ ¹Ş¾Æ ÆÑÅä¸®¿¡¼­ ³ª¿À´Â ³ëµå ¸®½ºÆ®¸¦ Àç»ıÇÑ´Ù
+    // ë…¸ë“œ íŒ©í† ë¦¬ë¥¼ ë°›ì•„ íŒ©í† ë¦¬ì—ì„œ ë‚˜ì˜¤ëŠ” ë…¸ë“œ ë¦¬ìŠ¤íŠ¸ë¥¼ ì¬ìƒí•œë‹¤
     public class ChoMiniOrchestrator : IDisposable
     {
         private readonly ChoMiniNodeRunner _runner;
@@ -57,24 +57,55 @@ namespace Yoru.ChoMiniEngine
 
         public async UniTask PlaySequence()
         {
+            Debug.Log("â–¶ PlaySequence ENTER");
 
-            List<ChoMiniNode> nodes = new List<ChoMiniNode>();
+            Debug.Log($"runner null? {_runner == null}");
+            Debug.Log($"factory null? {_factory == null}");
+
+            // ---- Count ì²´í¬ ----
+            Debug.Log("â–¶ before factory.Count");
+            Debug.Log(_factory);
+            Debug.Log(_factory.Count);
             int count = _factory.Count;
+            Debug.Log($"â–¶ factory.Count = {count}");
+
+            var nodes = new List<ChoMiniNode>();
+
             for (int i = 0; i < count; i++)
             {
+                Debug.Log($"â–¶ before Create() index={i}");
+
                 ChoMiniNode flowNode = _factory.Create();
+
+                Debug.Log(
+                    flowNode == null
+                        ? $"âŒ Create() returned NULL at index {i}"
+                        : $"âœ… Create() OK at index {i} : {flowNode}"
+                );
+
                 nodes.Add(flowNode);
             }
 
-            // ¸ğµç ³ëµå ¼øÂ÷ Àç»ı
+            Debug.Log($"â–¶ nodes created: {nodes.Count}");
+
+            // ---- RunNode ì²´í¬ ----
+            int runIndex = 0;
             foreach (var node in nodes)
-                await _runner.RunNode(node);  // ³ëµå ÇÏ³ª ³¡³¯ ¶§ ±îÁö ´ë±â  
+            {
+                Debug.Log($"â–¶ before RunNode index={runIndex}, node null? {node == null}");
 
-            Debug.Log("¸®½ºÆ® ÀüÃ¼ Àç»ı ¿Ï·á");
+                await _runner.RunNode(node);
 
-            // ½ÃÄö½º Á¾·á ¹æ¼Û
+                Debug.Log($"â–¶ after RunNode index={runIndex}");
+                runIndex++;
+            }
+
+            Debug.Log("â–¶ PlaySequence COMPLETE");
+            Debug.Log("â–¶ ë¦¬ìŠ¤íŠ¸ ì „ì²´ ì¬ìƒ ì™„ë£Œ");
+
             _onComplete?.Invoke();
         }
+
 
         public void Dispose()
         {

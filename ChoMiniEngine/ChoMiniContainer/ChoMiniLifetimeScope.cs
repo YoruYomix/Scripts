@@ -1,5 +1,9 @@
 using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using Unity;
+using UnityEngine;
 
 
 namespace Yoru.ChoMiniEngine
@@ -12,30 +16,91 @@ namespace Yoru.ChoMiniEngine
     /// </summary>
     public sealed class ChoMiniLifetimeScope : IDisposable
     {
+        private readonly IInstallerKeyResolver _installerKeyResolver;
+        private readonly IChoMiniInstaller _installer;
         private readonly ChoMiniOrchestrator _orchestrator;
-        private readonly ChoMiniSequenceFactory _factory;
-        private readonly ChoMiniCommandContext _msg;
+        private readonly List<Func<IChoMiniActionProvider>> _providerCreators;
+        private readonly Dictionary<string, Func<ChoMiniSequenceFactory>> _factoryCreators;
+        private readonly Dictionary<string, IInstallerResource> _resources = new();
         readonly ChoMiniLocalMessageContext _localMsg;
+        private readonly ChoMiniSequenceFactory _factory;
+        readonly ChoMiniCommandContext _msg;
 
         private bool _disposed;
 
         public ChoMiniLifetimeScope(
+            IInstallerKeyResolver installerKeyResolver,
+            IChoMiniInstaller installer,
             ChoMiniOrchestrator orchestrator,
-            ChoMiniSequenceFactory factory,
-            ChoMiniCommandContext msg,
-            ChoMiniLocalMessageContext localMsg)
+            Dictionary<string, Func<ChoMiniSequenceFactory>> factories,
+            List<Func<IChoMiniActionProvider>> providers,
+            ChoMiniCommandContext msg)
         {
-            _orchestrator = orchestrator;
-            _factory = factory;
+            _installerKeyResolver = installerKeyResolver
+                ?? throw new ArgumentNullException(nameof(installerKeyResolver));
+            _installer = installer ?? throw new ArgumentNullException(nameof(installer));
+            _orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
+            _factoryCreators = factories ?? throw new ArgumentNullException(nameof(factories));
+            _providerCreators = providers ?? throw new ArgumentNullException(nameof(providers));
+            _localMsg = new ChoMiniLocalMessageContext();
             _msg = msg;
-            _localMsg = localMsg;
 
-
+            _factory = _factoryCreators["Default"]();
             _orchestrator.Initialize(_localMsg, Dispose);
 
             // 지금 구조에선 오케스트레이터가 팩토리를 알고 있어야 하니까
             // 스코프 생성 시점에 한 번만 묶어준다.
             _orchestrator.SetFactory(_factory);
+        }
+
+        public ChoMiniLifetimeScope Bind<TInstaller>(
+            string key,
+            IInstallerResource resource)
+            where TInstaller : IChoMiniInstaller
+                {
+                    _resources[key] = resource;
+                    return this;
+                }
+
+        public async UniTask BootAsync()
+        {
+
+            var installerKey = _installerKeyResolver.Resolve();
+
+            if (!_resources.TryGetValue(installerKey, out var resource))
+                throw new Exception(
+                    $"Resource not bound for installer '{installerKey}'");
+
+            UnityEngine.Debug.Log(_resources["KR"]);
+            UnityEngine.Debug.Log($"_installer null? {_installer == null}");
+            UnityEngine.Debug.Log($"_factories null? {_factoryCreators == null}");
+            UnityEngine.Debug.Log($"_providers null? {_providerCreators == null}");
+            UnityEngine.Debug.Log($"_localMsg null? {_localMsg == null}");
+
+            if (_factoryCreators != null)
+            {
+                UnityEngine.Debug.Log($"factories has Default? {_factoryCreators.ContainsKey("Default")}");
+                UnityEngine.Debug.Log($"factory func null? {_factoryCreators.TryGetValue("Default", out var f) && f == null}");
+            }
+            if (_localMsg != null)
+            {
+                UnityEngine.Debug.Log($"SkipSubscriber null? {_localMsg.SkipSubscriber == null}");
+            }
+            _installerKey = "KR";
+            if (!_resources.TryGetValue(_installerKey, out var resource))
+                throw new Exception(
+                    $"Resource not bound for installer '{_installerKey}'");
+
+            _installer.Bind(resource);
+            UnityEngine.Debug.Log(resource);
+            var targets = _installer.InstallTargets();
+
+
+            _factory.Initialize(
+                targets,
+                _providerCreators,
+                _localMsg.SkipSubscriber
+            );
         }
 
         /// <summary>

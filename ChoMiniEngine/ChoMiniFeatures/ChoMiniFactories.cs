@@ -15,10 +15,17 @@ namespace Yoru.ChoMiniEngine
 
         LoopProvider _mockLoopProvider;
         int _index = 0;
-        public int Count => _targets.Count;
+        public int Count
+        {
+            get
+            {
+                Debug.Log(_targets);
+                return _targets.Count;
+            }
+        
+        }
 
-        ISubscriber<SequenceStartMessage> _sequenceStartMessage;
-        ISubscriber<SequenceEndMessage> _sequenceEndSubscriber;
+
         ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
 
         public ChoMiniSequenceFactory()
@@ -49,6 +56,7 @@ namespace Yoru.ChoMiniEngine
             List<Func<IChoMiniActionProvider>> providerFactories,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
+            Debug.Log("∆—≈‰∏Æ ≈∏∞Ÿ:" + targets);
             _targets = targets;
             _providerFactories = providerFactories;
             _skipSubscriber = skipSubscriber;

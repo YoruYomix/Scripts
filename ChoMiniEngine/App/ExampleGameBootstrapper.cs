@@ -42,12 +42,10 @@ public class ExampleGameBootstrapper : MonoBehaviour
         // -------------------------
         // 1. FlowContainer 구성
         // -------------------------
-        builder.Installer<ChoMiniGameObjectInstallerResource>()
+        builder.Installer<ChoMiniGameObjectSourceInstaller>()
                 .When(() => false).Select("KR")
                 .When(() => true).Select("JP");
         builder
-            .RegisterInstaller<ChoMiniGameObjectInstallerResource>("KR", rootKR)
-            .RegisterInstaller<ChoMiniGameObjectInstallerResource>("JP", rootJP)
             // Providers
             .RegisterProvider<ImageActionProvider>()
             .RegisterProvider<DefaultActivationProvider>()
@@ -57,21 +55,16 @@ public class ExampleGameBootstrapper : MonoBehaviour
 
         _container = builder.Build();
 
-        // -------------------------
-        // 2. SessionOptions 만들기
-        // -------------------------
-        var options = new FlowSessionOptions
-        {
-            InstallerKey = "KR",
-            FactoryKey = "Default",
-            SceneRoot = rootKR,
-            UserData = null
-        };
 
         // -------------------------
         // 3. Scope 생성
         // -------------------------
-        ChoMiniLifetimeScope _scope = _container.CreateScope(options);
+        ChoMiniLifetimeScope _scope = _container.CreateScope();
+        _scope
+            .Bind<ChoMiniGameObjectSourceInstaller>("KR", new ChoMiniGameObjectInstallerResource(rootKR))
+            .Bind<ChoMiniGameObjectSourceInstaller>("JP", new ChoMiniGameObjectInstallerResource(rootJP));
+
+        _scope.BootAsync();
     }
 
 }

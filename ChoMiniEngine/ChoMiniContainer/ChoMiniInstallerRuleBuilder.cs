@@ -11,6 +11,12 @@ namespace Yoru.ChoMiniEngine
         public Type InstallerType;
         public readonly List<(Func<bool> Condition, string Key)> Entries
             = new List<(Func<bool>, string)>();
+
+        public void Add(Func<bool> Condition, string Key)
+        {
+            Entries.Add((Condition, Key));
+        }
+        
     }
 
     public sealed class ChoMiniInstallerRuleBuilder
@@ -33,6 +39,9 @@ namespace Yoru.ChoMiniEngine
         {
             if (_pendingCondition == null)
                 throw new Exception("Select() called without When()");
+
+            if (string.IsNullOrEmpty(key))
+                throw new Exception("Installer key cannot be null or empty");
 
             _rule.Entries.Add((_pendingCondition, key));
             _pendingCondition = null;
