@@ -75,24 +75,7 @@ public class ExampleGameBootstrapper : MonoBehaviour
         _scope = _container.CreateScope(options);
 
 
-
-        // 3. UX 구성
-        //InputView inputView = FindObjectOfType<InputView>();
-        //inputView.Initialize(_msg);
-
     }
-
-    private async void Start()
-    {
-        //Debug.Log("🔥 테스트 시작됨");
-        //await _scope.PlayAsync();
-        //Debug.Log("🔥 테스트 완전히 종료됨");
-
-
-        //_scope.Dispose();
-        //_scope = null;
-    }
-
 
 }
 
