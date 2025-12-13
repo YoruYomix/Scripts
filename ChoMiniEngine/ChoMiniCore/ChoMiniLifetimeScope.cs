@@ -31,7 +31,7 @@ namespace Yoru.ChoMiniEngine
             _localMsg = localMsg;
 
 
-            _orchestrator.Initialize(_localMsg);
+            _orchestrator.Initialize(_localMsg, Dispose);
 
             // 지금 구조에선 오케스트레이터가 팩토리를 알고 있어야 하니까
             // 스코프 생성 시점에 한 번만 묶어준다.
@@ -62,6 +62,8 @@ namespace Yoru.ChoMiniEngine
         {
             if (_disposed) return;
             _disposed = true;
+
+            _orchestrator?.Dispose();
 
             // 메시지파이프 컨텍스트 정리 (구독 해제 등)
             // _msg?.Dispose();

@@ -62,8 +62,6 @@ namespace Yoru.ChoMiniEngine
             var t = _targets[_index];
             _index = (_index + 1) % _targets.Count;
 
-
-
             GameObject go = t.gameObject;
             ChoMiniNode node = new ChoMiniNode(_skipSubscriber, go);
             Debug.Log("팩토리 내부의 크리에이트: " + go.name);

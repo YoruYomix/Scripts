@@ -8,32 +8,39 @@ using UnityEngine;
 namespace Yoru.ChoMiniEngine
 {
     // 노드 팩토리를 받아 팩토리에서 나오는 노드 리스트를 재생한다
-    public class ChoMiniOrchestrator
+    public class ChoMiniOrchestrator : IDisposable
     {
         private readonly ChoMiniNodeRunner _runner;
         private ChoMiniSequenceFactory _factory;
-        public Action OnComplate;
+        private Action _onComplete;
         ChoMiniLocalMessageContext _localMsg;
         private readonly ISubscriber<ChoMiniCommandAdvanceRequested> _advanceSubscriber;
 
         private bool _hasStarted = false;
+        private bool _disposed = false;
+
+        private IDisposable _advanceSubscription;
+
         public ChoMiniOrchestrator(
             ChoMiniNodeRunner runner)
         {
             _runner = runner;
             _advanceSubscriber = ChoMiniEngine.CommandContext.AdvanceSubscriber;
-            _advanceSubscriber.Subscribe(_ =>
+            _advanceSubscription = _advanceSubscriber.Subscribe(_ =>
             {
                 OnAdvance();
             });
         }
-        public void Initialize(ChoMiniLocalMessageContext localMessageContext)
+        public void Initialize(ChoMiniLocalMessageContext localMessageContext, Action OnComplate)
         {
             _localMsg = localMessageContext;
+            _onComplete = OnComplate;
         }
 
         private void OnAdvance()
         {
+            if (_disposed) return;
+
             if (!_hasStarted)
             {
                 _hasStarted = true;
@@ -41,6 +48,7 @@ namespace Yoru.ChoMiniEngine
             }
             else
             {
+                if (_localMsg == null) return;
                 _localMsg.SkipPublisher.Publish(new ChoMiniLocalSkipRequested());
             }
         }
@@ -65,7 +73,17 @@ namespace Yoru.ChoMiniEngine
             Debug.Log("리스트 전체 재생 완료");
 
             // 시퀀스 종료 방송
-            OnComplate?.Invoke();
+            _onComplete?.Invoke();
+        }
+
+        public void Dispose()
+        {
+            _disposed = true;
+
+            _advanceSubscription?.Dispose();
+            _advanceSubscription = null;
+
+            _onComplete = null;
         }
     }
 }
