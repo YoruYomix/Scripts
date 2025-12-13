@@ -1,29 +1,29 @@
 using MessagePipe;
 
 
-public struct SkipAllNodesMessage { }
+public struct ChoMiniCommandAdvanceRequested { }
 public struct SequenceStartMessage { }
 public struct SequenceEndMessage { }
 
-public class GlobalMessageContext
+public class ChoMiniCommandContext
 {
 
-    public IPublisher<SkipAllNodesMessage> SkipAllPublisher { get; private set; }
-    public ISubscriber<SkipAllNodesMessage> SkipAllSubscriber { get; private set; }
+    public IPublisher<ChoMiniCommandAdvanceRequested> SkipPublisher { get; private set; }
+    public ISubscriber<ChoMiniCommandAdvanceRequested> SkipSubscriber { get; private set; }
 
 
-    public GlobalMessageContext()
+    public ChoMiniCommandContext()
     {
         var builder = new BuiltinContainerBuilder();
 
         builder.AddMessagePipe();
-        builder.AddMessageBroker<SkipAllNodesMessage>();
+        builder.AddMessageBroker<ChoMiniCommandAdvanceRequested>();
 
         var provider = builder.BuildServiceProvider();
 
         // 스킵 인풋에 연결됨. 노드들의 듀레이션을 0으로 만든다.
-        SkipAllPublisher = provider.GetRequiredService<IPublisher<SkipAllNodesMessage>>();
-        SkipAllSubscriber = provider.GetRequiredService<ISubscriber<SkipAllNodesMessage>>();
+        SkipPublisher = provider.GetRequiredService<IPublisher<ChoMiniCommandAdvanceRequested>>();
+        SkipSubscriber = provider.GetRequiredService<ISubscriber<ChoMiniCommandAdvanceRequested>>();
     }
 }
 
@@ -31,7 +31,7 @@ public class GlobalMessageContext
 
 
 
-public class LocalMessageContext
+public class ChoMiniLocalMessageContext
 {
     public IPublisher<SequenceStartMessage> StartPublisher { get; }
     public ISubscriber<SequenceStartMessage> StartSubscriber { get; }
@@ -39,7 +39,7 @@ public class LocalMessageContext
     public IPublisher<SequenceEndMessage> EndPublisher { get; }
     public ISubscriber<SequenceEndMessage> EndSubscriber { get; }
 
-    public LocalMessageContext()
+    public ChoMiniLocalMessageContext()
     {
         var builder = new BuiltinContainerBuilder();
         builder.AddMessagePipe();

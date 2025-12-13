@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using MessagePipe;
+using UnityEditor.VersionControl;
+using UnityEngine;
 
 
 namespace Yoru.ChoMiniEngine
@@ -12,6 +14,11 @@ namespace Yoru.ChoMiniEngine
     public static class ChoMiniEngine
     {
         private static bool _booted = false;
+
+        private static ChoMiniCommandContext _commandContext;
+
+        public static ChoMiniCommandContext CommandContext
+            => _commandContext;
 
         /// <summary>
         /// 🌟 게임 시작 시 반드시 한 번 호출해야 하는 함수!
@@ -35,6 +42,8 @@ namespace Yoru.ChoMiniEngine
                 // ---------------------------------------------------------
                 // 1) 📡 MessagePipe 글로벌 설정
                 // ---------------------------------------------------------
+                _commandContext = new ChoMiniCommandContext();
+
 
 
                 Debug.Log("📡 [ChoMiniEngine] MessagePipe 준비 완료! (초미니 이벤트 버스 구축!)");
@@ -43,6 +52,9 @@ namespace Yoru.ChoMiniEngine
                 // ---------------------------------------------------------
                 // 2) 🎮 ChoMiniCommand 내부 Publisher 연결
                 // ---------------------------------------------------------
+                ChoMiniCommand.Initialize(
+                    _commandContext.SkipPublisher
+                );
 
 
                 Debug.Log("🎮 [ChoMiniEngine] 초미니 커맨드 시스템 연결 완료! (Play/Skip/Pause 등 작동!)");

@@ -18,9 +18,9 @@ namespace Yoru.ChoMiniEngine
 
         // Runner / Orchestrator / MessagePipe
         private Func<ChoMiniNodeRunner> _nodeRunnerFactory;
-        private Func<GlobalMessageContext> _msgFactory;
+        private Func<ChoMiniCommandContext> _msgFactory;
         private Func<ChoMiniOrchestrator> _orchestratorFactory;
-        internal GlobalMessageContext _globalContext;
+        internal ChoMiniCommandContext _globalContext;
 
 
         private ChoMiniContainer() { }
@@ -47,8 +47,9 @@ namespace Yoru.ChoMiniEngine
 
 
             // 메시지 컨텍스트
-            GlobalMessageContext msg = _globalContext;
-            LocalMessageContext _localMsg = new LocalMessageContext();
+            ChoMiniCommandContext commandContext = ChoMiniEngine.CommandContext;
+
+            ChoMiniLocalMessageContext _localMsg = new ChoMiniLocalMessageContext();
 
             // Orchestrator & Runner
             ChoMiniNodeRunner nodeRunner = _nodeRunnerFactory();
@@ -64,10 +65,10 @@ namespace Yoru.ChoMiniEngine
             factory.Initialize(
                 targets,
                 _providers,
-                msg.SkipAllSubscriber
+                commandContext.SkipSubscriber
             );
 
-            return new ChoMiniLifetimeScope(orchestrator, factory, msg, _localMsg);
+            return new ChoMiniLifetimeScope(orchestrator, factory, commandContext, _localMsg);
         }
 
         // ===========================================================
@@ -143,23 +144,19 @@ namespace Yoru.ChoMiniEngine
                 return this;
             }
 
-            public ChoMiniContainerBuilder UseMessagePipe(Func<GlobalMessageContext> f)
+            public ChoMiniContainerBuilder UseMessagePipe(Func<ChoMiniCommandContext> f)
             {
                 _c._msgFactory = f;
                 return this;
             }
 
-            public ChoMiniContainerBuilder SubscribeGlobalMessages(GlobalMessageContext global)
-            {
-                _c._globalContext = global;
-                return this;
-            }
+
 
 
             public ChoMiniContainer Build()
             {
                 if (_c._msgFactory == null)
-                    _c._msgFactory = () => new GlobalMessageContext();
+                    _c._msgFactory = () => new ChoMiniCommandContext();
 
                 if (_c._nodeRunnerFactory == null)
                     _c._nodeRunnerFactory = () => new ChoMiniNodeRunner();

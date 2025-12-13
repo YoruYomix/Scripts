@@ -3,18 +3,18 @@ using UnityEngine;
 using Yoru.ChoMiniEngine;
 
 
-public class PageBootstrapper : MonoBehaviour
+public class ExampleGameBootstrapper : MonoBehaviour
 {
     [SerializeField] Transform imageRoot;
     ChoMiniNodeRunner _nodeRunner;
     ChoMiniOrchestrator _orchestrator;
     ChoMiniSequenceFactory _currentFactory;
-    GlobalMessageContext _msg;
+
     ChoMiniLifetimeScope _scope;
 
     ChoMiniContainer _container;
 
-    public static PageBootstrapper instance { get; private set; }
+    public static ExampleGameBootstrapper instance { get; private set; }
     void Awake()
     {
         if (instance != null && instance != this)
@@ -24,16 +24,13 @@ public class PageBootstrapper : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+
+        ChoMiniEngine.Boot();
         Configure();
     }
 
     void Configure()
     {
-
-        // 메시지파이프 컨텍스트 생성
-        _msg = new GlobalMessageContext();
-
-
         // -------------------------
         // 0. 모든 이미지 비활성화
         // -------------------------
@@ -47,9 +44,7 @@ public class PageBootstrapper : MonoBehaviour
         // 1. FlowContainer 구성
         // -------------------------
         _container = ChoMiniContainer.Create()
-            // 메세지 파이프
-            .SubscribeGlobalMessages(_msg)
-
+ 
             // Installer
             .Register<UIRootInstaller>("KR").Using(imageRoot)
 
@@ -82,8 +77,8 @@ public class PageBootstrapper : MonoBehaviour
 
 
         // 3. UX 구성
-        InputView inputView = FindObjectOfType<InputView>();
-        inputView.Initialize(_msg);
+        //InputView inputView = FindObjectOfType<InputView>();
+        //inputView.Initialize(_msg);
 
 
     }

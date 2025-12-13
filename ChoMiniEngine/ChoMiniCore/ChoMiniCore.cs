@@ -33,7 +33,7 @@ namespace Yoru.ChoMiniEngine
         private readonly ChoMiniNodeRunner _runner;
         private ChoMiniSequenceFactory _factory;
         public Action OnComplate;
-        LocalMessageContext _localMsg;
+        ChoMiniLocalMessageContext _localMsg;
 
 
         public ChoMiniOrchestrator(
@@ -41,7 +41,7 @@ namespace Yoru.ChoMiniEngine
         {
             _runner = runner;
         }
-        public void Initialize(LocalMessageContext localMessageContext)
+        public void Initialize(ChoMiniLocalMessageContext localMessageContext)
         {
             _localMsg = localMessageContext;
         }

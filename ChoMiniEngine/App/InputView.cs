@@ -1,16 +1,12 @@
 ﻿using MessagePipe;
 using UnityEngine;
 using UnityEngine.UI;
+using Yoru.ChoMiniEngine;
 
 public class InputView : MonoBehaviour
 {
     public Button skipButton;
-    private GlobalMessageContext _msg;
 
-    public void Initialize(GlobalMessageContext msg)
-    {
-        _msg = msg;
-    }
 
     private void Start()
     {
@@ -24,8 +20,8 @@ public class InputView : MonoBehaviour
 
     private void OnSkipClicked()
     {
+        ChoMiniCommand.Advance();
         Debug.LogWarning("스킵 클릭됨");
-        _msg.SkipAllPublisher.Publish(new SkipAllNodesMessage());
 
     }
 }

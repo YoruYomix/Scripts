@@ -14,16 +14,16 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly ChoMiniOrchestrator _orchestrator;
         private readonly ChoMiniSequenceFactory _factory;
-        private readonly GlobalMessageContext _msg;
-        readonly LocalMessageContext _localMsg;
+        private readonly ChoMiniCommandContext _msg;
+        readonly ChoMiniLocalMessageContext _localMsg;
 
         private bool _disposed;
 
         public ChoMiniLifetimeScope(
             ChoMiniOrchestrator orchestrator,
             ChoMiniSequenceFactory factory,
-            GlobalMessageContext msg,
-            LocalMessageContext localMsg)
+            ChoMiniCommandContext msg,
+            ChoMiniLocalMessageContext localMsg)
         {
             _orchestrator = orchestrator;
             _factory = factory;
