@@ -25,7 +25,7 @@ namespace Yoru.ChoMiniEngine
             ChoMiniNodeRunner runner)
         {
             _runner = runner;
-            _advanceSubscriber = Engine.CommandContext.AdvanceSubscriber;
+            _advanceSubscriber = ChoMiniBootstrapper.CommandContext.AdvanceSubscriber;
             _advanceSubscription = _advanceSubscriber.Subscribe(_ =>
             {
                 OnAdvance();

@@ -10,7 +10,7 @@ namespace Yoru.ChoMiniEngine
     /// - 🎮 ChoMiniCommand 연결
     /// - 🔒 중복 부팅 방지
     /// </summary>
-    public static class Engine
+    public static class ChoMiniBootstrapper
     {
         private static bool _booted = false;
 

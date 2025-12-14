@@ -43,7 +43,7 @@ namespace Yoru.ChoMiniEngine
                 orchestrator,
                 _factories,
                 _providers,
-                Engine.CommandContext
+                ChoMiniBootstrapper.CommandContext
                 );
         }
 

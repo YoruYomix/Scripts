@@ -20,7 +20,7 @@ namespace Yoru.ExampleGame
             instance = this;
             DontDestroyOnLoad(gameObject);
 
-            ChoMiniEngine.Engine.Boot();
+            ChoMiniBootstrapper.Boot();
             Configure();
         }
 
@@ -39,7 +39,9 @@ namespace Yoru.ExampleGame
                 if (child != rootJP)   // 루트 제외
                     child.gameObject.SetActive(false);
             }
-            var builder = new ChoMiniContainer.Builder();
+
+
+            ChoMiniContainer.Builder builder = new ChoMiniContainer.Builder();
             // -------------------------
             // 1. FlowContainer 구성
             // -------------------------
