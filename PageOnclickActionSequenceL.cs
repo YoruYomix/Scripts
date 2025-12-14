@@ -144,8 +144,3 @@ public class PageOnclickActionSequenceL : PageOnclickActionSequenceBase
     }
 }
 
-public enum Language
-{
-    KR,
-    JP
-}

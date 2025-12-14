@@ -40,34 +40,16 @@ namespace Yoru.ExampleGame
                     child.gameObject.SetActive(false);
             }
 
-
-            ChoMiniContainer.Builder builder = new ChoMiniContainer.Builder();
-            // -------------------------
-            // 1. FlowContainer 구성
-            // -------------------------
-            builder.Installer<ChoMiniGameObjectSourceInstaller>()
-                    .When(() => false).Select("KR")
-                    .When(() => true).Select("JP");
-            builder
-                // Providers
-                .RegisterProvider<ImageActionProvider>()
-                .RegisterProvider<DefaultActivationProvider>()
-
-                // Factory
-                .RegisterFactory<ChoMiniSequenceFactory>("Default");
-
-            _container = builder.Build();
+            _container = ChoMiniContainer.Create()
+                .RegisterInstaller<ChoMiniGameObjectInstaller>()
+                    .Base(Skin.Xmas)
+                .RegisterInstaller<ChoMiniStringInstaller>()
+                    .Base(Language.KR)
 
 
-            // -------------------------
-            // 3. Scope 생성
-            // -------------------------
-            ChoMiniLifetimeScope _scope = _container.CreateScope();
-            _scope
-                .Bind<ChoMiniGameObjectSourceInstaller>("KR", new ChoMiniGameObjectInstallerResource(rootKR))
-                .Bind<ChoMiniGameObjectSourceInstaller>("JP", new ChoMiniGameObjectInstallerResource(rootJP));
+                .Build();
 
-            _scope.BootAsync();
+            _container.DebugPrint();
         }
 
     }
@@ -75,3 +57,13 @@ namespace Yoru.ExampleGame
 
 }
 
+public enum Language
+{
+    KR,
+    JP
+}
+public enum Skin
+{
+    Default,
+    Xmas
+}

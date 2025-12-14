@@ -7,61 +7,43 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    public interface IInstallerResource
-    {
 
-    }
-    /// 인스톨러
-    /// 
-    public interface IChoMiniInstaller
+    public sealed class ChoMiniGameObjectInstaller
     {
-        void Bind(IInstallerResource resource);
-        List<Transform> InstallTargets();
-    };
-    public class ChoMiniGameObjectInstallerResource : IInstallerResource
-    {
-        public Transform Root
-        {
-            get
-            {
-                return _root;
-            }
-        }
-        public Transform _root;
-        public ChoMiniGameObjectInstallerResource(Transform root)
-        {
-            _root = root;
-        }
-    }
+        private GameObject _gameObject;
 
-    public sealed class ChoMiniGameObjectSourceInstaller
-    : IChoMiniInstaller
-    {
-        private ChoMiniGameObjectInstallerResource _resource;
-
-        public void Bind(IInstallerResource resource)
+        public void Bind(GameObject gameObject)
         {
-            _resource = resource as ChoMiniGameObjectInstallerResource
-                ?? throw new Exception(
-                    "Invalid resource for GameObjectInstaller");
+            _gameObject = gameObject;
         }
 
         public List<Transform> InstallTargets()
         {
-            if (_resource == null)
+            if (_gameObject == null)
                 throw new Exception("Installer not bound");
 
             var list = new List<Transform>();
 
             foreach (Transform child in
-                     _resource.Root.GetComponentsInChildren<Transform>(true))
+                     _gameObject.transform.GetComponentsInChildren<Transform>(true))
             {
-                if (child != _resource.Root)
+                if (child != _gameObject)
                     list.Add(child);
             }
 
             return list;
         }
+    }
+    public sealed class ChoMiniStringInstaller
+    {
+        private string _text;
+
+        public void Bind(string text)
+        {
+            _text = text;
+        }
+
+        
     }
 
 }
