@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Yoru.ChoMiniEngine.Utility;
 
 
 namespace Yoru.ChoMiniEngine
@@ -9,7 +10,7 @@ namespace Yoru.ChoMiniEngine
     /// - 🎮 ChoMiniCommand 연결
     /// - 🔒 중복 부팅 방지
     /// </summary>
-    public static class ChoMiniEngine
+    public static class Engine
     {
         private static bool _booted = false;
 

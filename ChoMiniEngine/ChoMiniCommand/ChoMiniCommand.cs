@@ -1,6 +1,6 @@
 using MessagePipe;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Utility
 {
     /// <summary>
     /// 초미니엔진 전역 입력(Command) 허브
