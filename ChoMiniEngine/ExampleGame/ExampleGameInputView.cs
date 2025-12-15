@@ -4,7 +4,7 @@ using Yoru.ChoMiniEngine.Utility;
 
 namespace Yoru.ExampleGame
 {
-    public class InputView : MonoBehaviour
+    public class ExampleGameInputView : MonoBehaviour
     {
         public Button _advanceButton;
 

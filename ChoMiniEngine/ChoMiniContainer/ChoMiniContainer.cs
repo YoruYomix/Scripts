@@ -9,7 +9,6 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly List<BootRule> _rules  = new();
 
-       
         internal void RegisterInstallerType(Type installerType)
         {
             _installerTypes.Add(installerType);
