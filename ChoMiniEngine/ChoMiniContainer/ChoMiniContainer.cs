@@ -7,7 +7,7 @@ namespace Yoru.ChoMiniEngine
 {
     public class ChoMiniContainer
     {
-        private readonly List<InstallerRule> _installerRules = new();
+        private readonly List<BootRule> _rules  = new();
 
         private readonly Dictionary<Type, object> _installerBaseOptions = new Dictionary<Type, object>();
 
@@ -19,9 +19,9 @@ namespace Yoru.ChoMiniEngine
             return new Builder();
         }
 
-        internal void AddRule(InstallerRule rule)
+        internal void AddRule(BootRule rule)
         {
-            _installerRules.Add(rule);
+            _rules .Add(rule);
         }
 
 
@@ -29,27 +29,19 @@ namespace Yoru.ChoMiniEngine
         // 디버그 출력용
         public void DebugPrint()
         {
-            Debug.Log("[ChoMiniContainer]");
+            Debug.Log("[ChoMiniContainer Rules]");
 
-            var grouped = _installerRules
-                .GroupBy(r => r.InstallerType);
-
-            foreach (var group in grouped)
+            foreach (var group in _rules.GroupBy(r => r.Category))
             {
-                Debug.Log($"Installer: {group.Key.Name}");
+                Debug.Log($"Category: {group.Key.Name}");
 
                 foreach (var rule in group)
                 {
-                    switch (rule.Kind)
-                    {
-                        case RuleKind.Base:
-                            Debug.Log("  Base()");
-                            break;
-
-                        case RuleKind.Override:
-                            Debug.Log($"  Override: {rule.Key}");
-                            break;
-                    }
+                    Debug.Log(
+                        rule.Kind == RuleKind.Base
+                        ? "  Base()"
+                        : $"  Override({rule.Key})"
+                    );
                 }
             }
         }
@@ -100,9 +92,9 @@ namespace Yoru.ChoMiniEngine
                     throw new InvalidOperationException("Base() already defined.");
                 }
 
-                _container.AddRule(new InstallerRule
+                _container.AddRule(new BootRule
                 {
-                    InstallerType = typeof(TInstaller),
+                    Category  = typeof(TInstaller),
                     Kind = RuleKind.Base,
                     Key = null
                 });
@@ -113,9 +105,9 @@ namespace Yoru.ChoMiniEngine
 
             public InstallerBuilder<TInstaller> Override(object key)
             {
-                _container.AddRule(new InstallerRule
+                _container.AddRule(new BootRule
                 {
-                    InstallerType = typeof(TInstaller),
+                    Category  = typeof(TInstaller),
                     Kind = RuleKind.Override,
                     Key = key
 
@@ -153,9 +145,9 @@ namespace Yoru.ChoMiniEngine
         Override
     }
 
-    public sealed class InstallerRule
+    public sealed class BootRule
     {
-        public Type InstallerType;   // ChoMiniStringSourceInstaller
+        public Type Category ;   // ChoMiniStringSourceInstaller
         public RuleKind Kind;        // Base / Override
         public object? Key;          // Override만 사용
     }
