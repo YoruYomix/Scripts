@@ -10,7 +10,16 @@ namespace Yoru.ChoMiniEngine
         private readonly List<BootRule> _rules  = new();
 
         private readonly Dictionary<Type, object> _installerBaseOptions = new Dictionary<Type, object>();
-
+        internal void RegisterInstallerType(Type installerType)
+        {
+            _installerTypes.Add(installerType);
+        }
+        // ChoMiniContainer 내부
+        private readonly List<Type> _installerTypes = new();
+        internal void RegisterBaseOption(Type installerType, object baseOption)
+        {
+            _installerBaseOptions[installerType] = baseOption;
+        }
         private ChoMiniContainer() {}
 
         // 빌더 시작
@@ -61,6 +70,12 @@ namespace Yoru.ChoMiniEngine
             {
                 _container.RegisterInstallerType(typeof(TInstaller));
                 return new InstallerBuilder<TInstaller>(_container,this);  // 체이닝
+            }
+
+            // 팩토리 등록
+            public FactoryBuilder<TFactory> RegisterFactory<TFactory>()
+            {
+                return new FactoryBuilder<TFactory>(_container,this);
             }
 
 
@@ -125,33 +140,80 @@ namespace Yoru.ChoMiniEngine
                 return _builder;
             }
         }
-        // ChoMiniContainer 내부
-        private readonly List<Type> _installerTypes = new();
-
-        internal void RegisterInstallerType(Type installerType)
+        // ======================================================
+        // Factory Builder
+        // ======================================================
+        public sealed class FactoryBuilder<TFactory>
         {
-            _installerTypes.Add(installerType);
+            private readonly ChoMiniContainer _container;
+            private readonly Builder _builder;
+            private bool _hasBase;
+
+            internal FactoryBuilder(ChoMiniContainer container, Builder builder)
+            {
+                _container = container;
+                _builder = builder;
+            }
+
+            public FactoryBuilder<TFactory> Base<TImpl>()
+                where TImpl : TFactory
+            {
+                if ( _hasBase)
+                    throw new InvalidOperationException("Base() already defined.");
+
+                _container.AddRule(new BootRule
+                {
+                    Category = typeof(TFactory),
+                    ImplType = typeof(TImpl),
+                    Kind = RuleKind.Base,
+                    Key = null
+                });
+
+                _hasBase = true;
+                return this;
+            }
+
+            public FactoryBuilder<TFactory> Override<TImpl>(object key)
+                where TImpl : TFactory
+            {
+                _container.AddRule(new BootRule
+                {
+                    Category = typeof(TFactory),
+                    ImplType = typeof(TImpl),
+                    Kind = RuleKind.Override,
+                    Key = key
+                });
+                return this;
+            }
+
+            public Builder End()
+            {
+                if (!_hasBase)
+                    throw new InvalidOperationException(
+                        $"{typeof(TFactory).Name} requires Base().");   
+                return _builder;
+            }
         }
 
-        internal void RegisterBaseOption(Type installerType, object baseOption)
-        {
-            _installerBaseOptions[installerType] = baseOption;
-        }
+
+
+
     }
-
+    // ======================================================
+    // BootRule
+    // ======================================================
+    public sealed class BootRule
+    {
+        public Type Category ;   // ChoMiniStringSourceInstaller
+        public Type ImplType; // ChoMiniSequenceFactory 등
+        public RuleKind Kind;        // Base / Override
+        public object? Key;          // Override만 사용
+    }
     public enum RuleKind
     {
         Base,
         Override
     }
-
-    public sealed class BootRule
-    {
-        public Type Category ;   // ChoMiniStringSourceInstaller
-        public RuleKind Kind;        // Base / Override
-        public object? Key;          // Override만 사용
-    }
-
 }
 
 

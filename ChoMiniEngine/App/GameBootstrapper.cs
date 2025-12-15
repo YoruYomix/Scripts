@@ -52,6 +52,11 @@ namespace Yoru.ExampleGame
                     .Override(Language.JP)
                     .End()
 
+                .RegisterFactory<IChoMiniFactory>()
+                    .Base<ChoMiniSequenceFactory>()
+                    .Override<ChoMiniRewindFactory>(PlayMode.Rewind)
+                    .Override<ChoMiniRandomFactory>(PlayMode.Random)
+                    .End()
 
                 .Build();
 
@@ -72,4 +77,10 @@ public enum Skin
 {
     Default,
     Xmas
+}
+
+public enum PlayMode
+{
+    Rewind,
+    Random
 }

@@ -5,8 +5,10 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
+
+    public interface IChoMiniFactory { }
     // 팩토리
-    public class ChoMiniSequenceFactory
+    public class ChoMiniSequenceFactory : IChoMiniFactory
     {
         List<Transform> _targets;
         private List<Func<IChoMiniActionProvider>> _providerFactories;
@@ -92,4 +94,180 @@ namespace Yoru.ChoMiniEngine
             return node;
         }
     }
+
+
+    public class ChoMiniRewindFactory : IChoMiniFactory
+    {
+        List<Transform> _targets;
+        private List<Func<IChoMiniActionProvider>> _providerFactories;
+
+        private List<IChoMiniActionProvider> _providers;  // Lazy-created, cached per scope
+
+        LoopProvider _mockLoopProvider;
+        int _index = 0;
+        public int Count
+        {
+            get
+            {
+                Debug.Log(_targets);
+                return _targets.Count;
+            }
+
+        }
+
+
+        ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
+
+        public ChoMiniRewindFactory()
+        {
+            _mockLoopProvider = new LoopProvider();  // 리팩토링중 임시
+        }
+
+        // ------------------------
+        // Lazy Provider 초기화
+        // ------------------------
+        private void EnsureProviders()
+        {
+            if (_providers != null)
+                return;
+
+            _providers = new List<IChoMiniActionProvider>();
+
+            if (_providerFactories == null)
+                return; // 빈 Provider 목록으로 동작 가능
+
+            foreach (var factory in _providerFactories)
+                _providers.Add(factory());
+        }
+
+
+        public void Initialize(
+            List<Transform> targets,
+            List<Func<IChoMiniActionProvider>> providerFactories,
+            ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
+        {
+            Debug.Log("팩토리 타겟:" + targets);
+            _targets = targets;
+            _providerFactories = providerFactories;
+            _skipSubscriber = skipSubscriber;
+
+            // 테스트/실사용 모두 안정적
+            EnsureProviders();
+        }
+
+        public ChoMiniNode Create()
+        {
+            var t = _targets[_index];
+            _index = (_index + 1) % _targets.Count;
+
+            GameObject go = t.gameObject;
+            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, go);
+            Debug.Log("팩토리 내부의 크리에이트: " + go.name);
+
+
+            // Provider가 Effects를 채운다
+            foreach (var provider in _providers)
+                provider.CollectEffects(go, node);
+
+            // LoopProvider도 Effects를 채운다
+            _mockLoopProvider.CollectEffects(go, node);
+
+            // Duration 계산: 이벤트 리스트의 모든 듀레이션중 가장 큰 값이 노드 자체의 듀레이션 됨
+            float maxDuration = 0f;
+            foreach (var effect in node.Actions)
+                maxDuration = Mathf.Max(maxDuration, effect.GetRequiredDuration());
+
+            node.Duration = maxDuration;
+
+            return node;
+        }
+    }
+
+    public class ChoMiniRandomFactory : IChoMiniFactory
+    {
+        List<Transform> _targets;
+        private List<Func<IChoMiniActionProvider>> _providerFactories;
+
+        private List<IChoMiniActionProvider> _providers;  // Lazy-created, cached per scope
+
+        LoopProvider _mockLoopProvider;
+        int _index = 0;
+        public int Count
+        {
+            get
+            {
+                Debug.Log(_targets);
+                return _targets.Count;
+            }
+
+        }
+
+
+        ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
+
+        public ChoMiniRandomFactory()
+        {
+            _mockLoopProvider = new LoopProvider();  // 리팩토링중 임시
+        }
+
+        // ------------------------
+        // Lazy Provider 초기화
+        // ------------------------
+        private void EnsureProviders()
+        {
+            if (_providers != null)
+                return;
+
+            _providers = new List<IChoMiniActionProvider>();
+
+            if (_providerFactories == null)
+                return; // 빈 Provider 목록으로 동작 가능
+
+            foreach (var factory in _providerFactories)
+                _providers.Add(factory());
+        }
+
+
+        public void Initialize(
+            List<Transform> targets,
+            List<Func<IChoMiniActionProvider>> providerFactories,
+            ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
+        {
+            Debug.Log("팩토리 타겟:" + targets);
+            _targets = targets;
+            _providerFactories = providerFactories;
+            _skipSubscriber = skipSubscriber;
+
+            // 테스트/실사용 모두 안정적
+            EnsureProviders();
+        }
+
+        public ChoMiniNode Create()
+        {
+            var t = _targets[_index];
+            _index = (_index + 1) % _targets.Count;
+
+            GameObject go = t.gameObject;
+            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, go);
+            Debug.Log("팩토리 내부의 크리에이트: " + go.name);
+
+
+            // Provider가 Effects를 채운다
+            foreach (var provider in _providers)
+                provider.CollectEffects(go, node);
+
+            // LoopProvider도 Effects를 채운다
+            _mockLoopProvider.CollectEffects(go, node);
+
+            // Duration 계산: 이벤트 리스트의 모든 듀레이션중 가장 큰 값이 노드 자체의 듀레이션 됨
+            float maxDuration = 0f;
+            foreach (var effect in node.Actions)
+                maxDuration = Mathf.Max(maxDuration, effect.GetRequiredDuration());
+
+            node.Duration = maxDuration;
+
+            return node;
+        }
+    }
+
 }
