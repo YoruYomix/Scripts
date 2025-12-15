@@ -9,17 +9,14 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly List<BootRule> _rules  = new();
 
-        private readonly Dictionary<Type, object> _installerBaseOptions = new Dictionary<Type, object>();
+       
         internal void RegisterInstallerType(Type installerType)
         {
             _installerTypes.Add(installerType);
         }
         // ChoMiniContainer 내부
         private readonly List<Type> _installerTypes = new();
-        internal void RegisterBaseOption(Type installerType, object baseOption)
-        {
-            _installerBaseOptions[installerType] = baseOption;
-        }
+
         private ChoMiniContainer() {}
 
         // 빌더 시작
