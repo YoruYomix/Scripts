@@ -72,11 +72,18 @@ namespace Yoru.ExampleGame
                 .Build();
 
             _container.DebugPrint();
+
+            ChoMiniOptions choMiniOptions = new ChoMiniOptions();
+            choMiniOptions.Set(Language.KR);
+            choMiniOptions.Set(PlaySpeed.Speed2x);
+
+
+            choMiniOptions.TryGet(out Language language);
         }
 
     }
 
-
+     
 }
 
 public enum Language
