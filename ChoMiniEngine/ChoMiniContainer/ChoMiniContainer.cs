@@ -46,11 +46,20 @@ namespace Yoru.ChoMiniEngine
 
                 foreach (var rule in group)
                 {
-                    Debug.Log(
-                        rule.Kind == RuleKind.Base
-                        ? "  Base()"
-                        : $"  Override({rule.Key})"
-                    );
+                    string kind = rule.Kind == RuleKind.Base
+                        ? "  Base"
+                        : $"  Override({rule.Key})";
+
+                    // ImplType이 있는 경우 (Factory / Provider)
+                    if (rule.ImplType != null)
+                    {
+                        Debug.Log($"{kind} -> {rule.ImplType.Name}");
+                    }
+                    // ImplType이 없는 경우 (Installer)
+                    else
+                    {
+                        Debug.Log(kind);
+                    }
                 }
             }
         }
@@ -73,14 +82,14 @@ namespace Yoru.ChoMiniEngine
             }
 
             // 팩토리 등록
-            public FactoryBuilder<TFactory> RegisterFactory<TFactory>()
+            public ImplementationBuilder<TCategory> RegisterFactory<TCategory>()
             {
-                return new FactoryBuilder<TFactory>(_container,this);
+                return new ImplementationBuilder<TCategory>(_container,this);
             }
 
-            public ProviderBuilder<TProvider> RegisterProvider<TProvider>()
+            public ImplementationBuilder<TCategory> RegisterProvider<TCategory>()
             {
-                return new ProviderBuilder<TProvider>(_container, this);
+                return new ImplementationBuilder<TCategory>(_container, this);
             }
 
 
@@ -145,42 +154,40 @@ namespace Yoru.ChoMiniEngine
             }
         }
         // ======================================================
-        // Factory Builder
+        // Implementation Builder
         // ======================================================
-        public sealed class FactoryBuilder<TFactory>
+        public sealed class ImplementationBuilder<TCategory>
         {
             private readonly ChoMiniContainer _container;
             private readonly Builder _builder;
             private bool _hasBase;
 
-            internal FactoryBuilder(ChoMiniContainer container, Builder builder)
+            internal ImplementationBuilder(ChoMiniContainer container, Builder builder)
             {
                 _container = container;
                 _builder = builder;
             }
 
-            public FactoryBuilder<TFactory> Base<TImpl>()
-                where TImpl : TFactory
+            public ImplementationBuilder<TCategory> Base<TImpl>()
+                where TImpl : TCategory
             {
                 EnsureBaseOnce();
                 _container.AddRule(new BootRule
                 {
-                    Category = typeof(TFactory),
+                    Category = typeof(TCategory),
                     ImplType = typeof(TImpl),
                     Kind = RuleKind.Base,
                     Key = null
                 });
-
-                _hasBase = true;
                 return this;
             }
 
-            public FactoryBuilder<TFactory> Override<TImpl>(object key)
-                where TImpl : TFactory
+            public ImplementationBuilder<TCategory> Override<TImpl>(object key)
+                where TImpl : TCategory
             {
                 _container.AddRule(new BootRule
                 {
-                    Category = typeof(TFactory),
+                    Category = typeof(TCategory),
                     ImplType = typeof(TImpl),
                     Kind = RuleKind.Override,
                     Key = key
@@ -192,7 +199,7 @@ namespace Yoru.ChoMiniEngine
             {
                 if (!_hasBase)
                     throw new InvalidOperationException(
-                        $"{typeof(TFactory).Name} requires Base().");   
+                        $"{typeof(TCategory).Name} requires Base().");   
                 return _builder;
             }
             private void EnsureBaseOnce()
@@ -201,63 +208,7 @@ namespace Yoru.ChoMiniEngine
                 _hasBase = true;
             }
         }
-        // ======================================================
-        // Factory Builder
-        // ======================================================
-        public sealed class ProviderBuilder<TProvider>
-        {
-            private readonly ChoMiniContainer _container;
-            private readonly Builder _builder;
-            private bool _hasBase;
 
-            internal ProviderBuilder(ChoMiniContainer container, Builder builder)
-            {
-                _container = container;
-                _builder = builder;
-            }
-
-            public ProviderBuilder<TProvider> Base<TImpl>()
-                where TImpl : TProvider
-            {
-                EnsureBaseOnce();
-                _container.AddRule(new BootRule
-                {
-                    Category = typeof(TProvider),
-                    ImplType = typeof(TImpl),
-                    Kind = RuleKind.Base,
-                    Key = null
-                });
-
-                _hasBase = true;
-                return this;
-            }
-
-            public ProviderBuilder<TProvider> Override<TImpl>(object key)
-                where TImpl : TProvider
-            {
-                _container.AddRule(new BootRule
-                {
-                    Category = typeof(TProvider),
-                    ImplType = typeof(TImpl),
-                    Kind = RuleKind.Override,
-                    Key = key
-                });
-                return this;
-            }
-
-            public Builder End()
-            {
-                if (!_hasBase)
-                    throw new InvalidOperationException(
-                        $"{typeof(TProvider).Name} requires Base().");
-                return _builder;
-            }
-            private void EnsureBaseOnce()
-            {
-                if (_hasBase) throw new InvalidOperationException("Base already set.");
-                _hasBase = true;
-            }
-        }
     }
 
     // ======================================================
