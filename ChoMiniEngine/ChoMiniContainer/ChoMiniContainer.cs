@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
@@ -28,12 +29,31 @@ namespace Yoru.ChoMiniEngine
         // 디버그 출력용
         public void DebugPrint()
         {
-            foreach (var type in _installerTypes)
+            Debug.Log("[ChoMiniContainer]");
+
+            var grouped = _installerRules
+                .GroupBy(r => r.InstallerType);
+
+            foreach (var group in grouped)
             {
-                _installerBaseOptions.TryGetValue(type, out var baseOpt);
-                Debug.Log($"Installer: {type.Name}, Base: {baseOpt}");
+                Debug.Log($"Installer: {group.Key.Name}");
+
+                foreach (var rule in group)
+                {
+                    switch (rule.Kind)
+                    {
+                        case RuleKind.Base:
+                            Debug.Log("  Base()");
+                            break;
+
+                        case RuleKind.Override:
+                            Debug.Log($"  Override: {rule.Key}");
+                            break;
+                    }
+                }
             }
         }
+
 
         //// 빌더
         /// 
@@ -93,12 +113,23 @@ namespace Yoru.ChoMiniEngine
 
             public InstallerBuilder<TInstaller> Override(object key)
             {
+                _container.AddRule(new InstallerRule
+                {
+                    InstallerType = typeof(TInstaller),
+                    Kind = RuleKind.Override,
+                    Key = key
 
+                });
+                return this;
             }
 
-            public Builder Base<TOption>(TOption option)
+            public Builder End()
             {
-                _container.RegisterBaseOption(typeof(TInstaller), option);
+                if (!_hasBase)
+                {
+                    throw new InvalidOperationException(
+                            $"Installer {typeof(TInstaller).Name} requires Base().");
+                }
                 return _builder;
             }
         }

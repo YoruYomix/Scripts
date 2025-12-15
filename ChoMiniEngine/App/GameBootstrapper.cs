@@ -42,9 +42,15 @@ namespace Yoru.ExampleGame
 
             _container = ChoMiniContainer.Create()
                 .RegisterInstaller<ChoMiniGameObjectInstaller>()
-                    .Base(Skin.Xmas)
+                    .Base()
+                    .Override(Skin.Xmas)
+                    .End()
+
                 .RegisterInstaller<ChoMiniStringInstaller>()
-                    .Base(Language.KR)
+                    .Base()
+                    .Override(Language.KR)
+                    .Override(Language.JP)
+                    .End()
 
 
                 .Build();
