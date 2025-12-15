@@ -6,9 +6,9 @@ namespace Yoru.ChoMiniEngine
 {
     public class ChoMiniContainer
     {
-        private readonly Dictionary<Type, object> _installerBaseOptions
-    = new Dictionary<Type, object>();
-        private List<Type> _installers = new List<Type>();
+        private readonly List<InstallerRule> _installerRules = new();
+
+        private readonly Dictionary<Type, object> _installerBaseOptions = new Dictionary<Type, object>();
 
         private ChoMiniContainer() {}
 
@@ -18,10 +18,11 @@ namespace Yoru.ChoMiniEngine
             return new Builder();
         }
 
-        internal void RegisterBaseOption(Type installerType, object baseOption)
+        internal void AddRule(InstallerRule rule)
         {
-            _installerBaseOptions[installerType] = baseOption;
+            _installerRules.Add(rule);
         }
+
 
 
         // 디버그 출력용
@@ -50,7 +51,7 @@ namespace Yoru.ChoMiniEngine
                 return new InstallerBuilder<TInstaller>(_container,this);  // 체이닝
             }
 
-            
+
 
             public ChoMiniContainer Build()
             {
@@ -62,6 +63,7 @@ namespace Yoru.ChoMiniEngine
         {
             private readonly ChoMiniContainer _container;
             private readonly Builder _builder;
+            private bool _hasBase;
 
             internal InstallerBuilder(
                 ChoMiniContainer container,
@@ -69,6 +71,29 @@ namespace Yoru.ChoMiniEngine
             {
                 _container = container;
                 _builder = builder;
+            }
+
+            public InstallerBuilder<TInstaller> Base()
+            {
+                if (_hasBase)
+                {
+                    throw new InvalidOperationException("Base() already defined.");
+                }
+
+                _container.AddRule(new InstallerRule
+                {
+                    InstallerType = typeof(TInstaller),
+                    Kind = RuleKind.Base,
+                    Key = null
+                });
+
+                _hasBase = true;
+                return this;
+            }
+
+            public InstallerBuilder<TInstaller> Override(object key)
+            {
+
             }
 
             public Builder Base<TOption>(TOption option)
@@ -84,7 +109,26 @@ namespace Yoru.ChoMiniEngine
         {
             _installerTypes.Add(installerType);
         }
+
+        internal void RegisterBaseOption(Type installerType, object baseOption)
+        {
+            _installerBaseOptions[installerType] = baseOption;
+        }
     }
+
+    public enum RuleKind
+    {
+        Base,
+        Override
+    }
+
+    public sealed class InstallerRule
+    {
+        public Type InstallerType;   // ChoMiniStringSourceInstaller
+        public RuleKind Kind;        // Base / Override
+        public object? Key;          // Override만 사용
+    }
+
 }
 
 
