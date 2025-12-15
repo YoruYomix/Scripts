@@ -4,12 +4,12 @@ using UnityEngine.UI;
 
 namespace Yoru.ChoMiniEngine
 {
-    public interface IChoMiniActionProvider
+    public interface IChoMiniActivationProvider
     {
         void CollectEffects(GameObject go, ChoMiniNode node);
     }
 
-    public class DefaultActivationProvider : IChoMiniActionProvider
+    public class DefaultActivationProvider : IChoMiniActivationProvider
     {
         public void CollectEffects(GameObject go, ChoMiniNode node)
         {
@@ -17,7 +17,13 @@ namespace Yoru.ChoMiniEngine
             node.Actions.Add(new ActivationAction(go));
         }
     }
-    public class ImageActionProvider : IChoMiniActionProvider
+
+    public interface IChoMiniImageProvider
+    {
+        void CollectEffects(GameObject go, ChoMiniNode node);
+    }
+
+    public class ChoMiniImageFadeProvider : IChoMiniImageProvider
     {
         public void CollectEffects(GameObject go, ChoMiniNode node)
         {
@@ -28,6 +34,48 @@ namespace Yoru.ChoMiniEngine
             node.Actions.Add(new FadeInAction(img));
         }
     }
+    public class ChoMiniImageFadeProviderSpeed2x : IChoMiniImageProvider
+    {
+        public void CollectEffects(GameObject go, ChoMiniNode node)
+        {
+            var img = go.GetComponent<Image>();
+            if (img == null) return;
+
+            node.Actions.Add(new ActivationAction(go));
+            node.Actions.Add(new FadeInAction(img));
+        }
+    }
+
+    public interface IChoMiniTextTypingProvider
+    {
+        void CollectEffects(GameObject go, ChoMiniNode node);
+    }
+
+    public class ChoMiniTextTypingProvider : IChoMiniTextTypingProvider
+    {
+        public void CollectEffects(GameObject go, ChoMiniNode node)
+        {
+            var img = go.GetComponent<Image>();
+            if (img == null) return;
+
+            node.Actions.Add(new ActivationAction(go));
+            node.Actions.Add(new FadeInAction(img));
+        }
+    }
+    public class ChoMiniTextTypingProviderSpeed2x : IChoMiniTextTypingProvider
+    {
+        public void CollectEffects(GameObject go, ChoMiniNode node)
+        {
+            var img = go.GetComponent<Image>();
+            if (img == null) return;
+
+            node.Actions.Add(new ActivationAction(go));
+            node.Actions.Add(new FadeInAction(img));
+        }
+    }
+
+
+
 
     public class LoopProvider
     {

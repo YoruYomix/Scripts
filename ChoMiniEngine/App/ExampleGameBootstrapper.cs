@@ -3,13 +3,13 @@ using Yoru.ChoMiniEngine;
 
 namespace Yoru.ExampleGame
 {
-    public class GameBootstrapper : MonoBehaviour
+    public class ExampleGameBootstrapper : MonoBehaviour
     {
         [SerializeField] Transform rootKR;
         [SerializeField] Transform rootJP;
         ChoMiniContainer _container;
 
-        public static GameBootstrapper instance { get; private set; }
+        public static ExampleGameBootstrapper instance { get; private set; }
         void Awake()
         {
             if (instance != null && instance != this)
@@ -58,6 +58,17 @@ namespace Yoru.ExampleGame
                     .Override<ChoMiniRandomFactory>(PlayMode.Random)
                     .End()
 
+                .RegisterProvider<IChoMiniImageProvider>()
+                    .Base<ChoMiniImageFadeProvider>()
+                    .Override<ChoMiniImageFadeProviderSpeed2x>(PlaySpeed.Speed2x)
+                    .End()
+                    
+                .RegisterProvider<IChoMiniTextTypingProvider>()
+                    .Base<ChoMiniTextTypingProvider>()
+                    .Override<ChoMiniTextTypingProviderSpeed2x>(PlaySpeed.Speed2x)
+                    .End()
+
+
                 .Build();
 
             _container.DebugPrint();
@@ -83,4 +94,9 @@ public enum PlayMode
 {
     Rewind,
     Random
+}
+
+public enum PlaySpeed
+{
+    Speed2x
 }

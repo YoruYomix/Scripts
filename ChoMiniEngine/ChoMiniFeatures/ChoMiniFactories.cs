@@ -11,9 +11,9 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniSequenceFactory : IChoMiniFactory
     {
         List<Transform> _targets;
-        private List<Func<IChoMiniActionProvider>> _providerFactories;
+        private List<Func<IChoMiniActivationProvider>> _providerFactories;
 
-        private List<IChoMiniActionProvider> _providers;  // Lazy-created, cached per scope
+        private List<IChoMiniActivationProvider> _providers;  // Lazy-created, cached per scope
 
         LoopProvider _mockLoopProvider;
         int _index = 0;
@@ -43,7 +43,7 @@ namespace Yoru.ChoMiniEngine
             if (_providers != null)
                 return;
 
-            _providers = new List<IChoMiniActionProvider>();
+            _providers = new List<IChoMiniActivationProvider>();
 
             if (_providerFactories == null)
                 return; // ∫Û Provider ∏Ò∑œ¿∏∑Œ µø¿€ ∞°¥…
@@ -55,7 +55,7 @@ namespace Yoru.ChoMiniEngine
 
         public void Initialize(
             List<Transform> targets,
-            List<Func<IChoMiniActionProvider>> providerFactories,
+            List<Func<IChoMiniActivationProvider>> providerFactories,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
             Debug.Log("∆—≈‰∏Æ ≈∏∞Ÿ:" + targets);
@@ -99,9 +99,9 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniRewindFactory : IChoMiniFactory
     {
         List<Transform> _targets;
-        private List<Func<IChoMiniActionProvider>> _providerFactories;
+        private List<Func<IChoMiniActivationProvider>> _providerFactories;
 
-        private List<IChoMiniActionProvider> _providers;  // Lazy-created, cached per scope
+        private List<IChoMiniActivationProvider> _providers;  // Lazy-created, cached per scope
 
         LoopProvider _mockLoopProvider;
         int _index = 0;
@@ -131,7 +131,7 @@ namespace Yoru.ChoMiniEngine
             if (_providers != null)
                 return;
 
-            _providers = new List<IChoMiniActionProvider>();
+            _providers = new List<IChoMiniActivationProvider>();
 
             if (_providerFactories == null)
                 return; // ∫Û Provider ∏Ò∑œ¿∏∑Œ µø¿€ ∞°¥…
@@ -143,7 +143,7 @@ namespace Yoru.ChoMiniEngine
 
         public void Initialize(
             List<Transform> targets,
-            List<Func<IChoMiniActionProvider>> providerFactories,
+            List<Func<IChoMiniActivationProvider>> providerFactories,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
             Debug.Log("∆—≈‰∏Æ ≈∏∞Ÿ:" + targets);
@@ -186,9 +186,9 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniRandomFactory : IChoMiniFactory
     {
         List<Transform> _targets;
-        private List<Func<IChoMiniActionProvider>> _providerFactories;
+        private List<Func<IChoMiniActivationProvider>> _providerFactories;
 
-        private List<IChoMiniActionProvider> _providers;  // Lazy-created, cached per scope
+        private List<IChoMiniActivationProvider> _providers;  // Lazy-created, cached per scope
 
         LoopProvider _mockLoopProvider;
         int _index = 0;
@@ -218,7 +218,7 @@ namespace Yoru.ChoMiniEngine
             if (_providers != null)
                 return;
 
-            _providers = new List<IChoMiniActionProvider>();
+            _providers = new List<IChoMiniActivationProvider>();
 
             if (_providerFactories == null)
                 return; // ∫Û Provider ∏Ò∑œ¿∏∑Œ µø¿€ ∞°¥…
@@ -230,7 +230,7 @@ namespace Yoru.ChoMiniEngine
 
         public void Initialize(
             List<Transform> targets,
-            List<Func<IChoMiniActionProvider>> providerFactories,
+            List<Func<IChoMiniActivationProvider>> providerFactories,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
             Debug.Log("∆—≈‰∏Æ ≈∏∞Ÿ:" + targets);

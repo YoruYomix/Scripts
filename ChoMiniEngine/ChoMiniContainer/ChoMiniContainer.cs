@@ -78,6 +78,10 @@ namespace Yoru.ChoMiniEngine
                 return new FactoryBuilder<TFactory>(_container,this);
             }
 
+            public ProviderBuilder<TProvider> RegisterProvider<TProvider>()
+            {
+                return new ProviderBuilder<TProvider>(_container, this);
+            }
 
 
             public ChoMiniContainer Build()
@@ -158,9 +162,7 @@ namespace Yoru.ChoMiniEngine
             public FactoryBuilder<TFactory> Base<TImpl>()
                 where TImpl : TFactory
             {
-                if ( _hasBase)
-                    throw new InvalidOperationException("Base() already defined.");
-
+                EnsureBaseOnce();
                 _container.AddRule(new BootRule
                 {
                     Category = typeof(TFactory),
@@ -193,18 +195,77 @@ namespace Yoru.ChoMiniEngine
                         $"{typeof(TFactory).Name} requires Base().");   
                 return _builder;
             }
+            private void EnsureBaseOnce()
+            {
+                if (_hasBase) throw new InvalidOperationException("Base already set.");
+                _hasBase = true;
+            }
         }
+        // ======================================================
+        // Factory Builder
+        // ======================================================
+        public sealed class ProviderBuilder<TProvider>
+        {
+            private readonly ChoMiniContainer _container;
+            private readonly Builder _builder;
+            private bool _hasBase;
 
+            internal ProviderBuilder(ChoMiniContainer container, Builder builder)
+            {
+                _container = container;
+                _builder = builder;
+            }
 
+            public ProviderBuilder<TProvider> Base<TImpl>()
+                where TImpl : TProvider
+            {
+                EnsureBaseOnce();
+                _container.AddRule(new BootRule
+                {
+                    Category = typeof(TProvider),
+                    ImplType = typeof(TImpl),
+                    Kind = RuleKind.Base,
+                    Key = null
+                });
 
+                _hasBase = true;
+                return this;
+            }
 
+            public ProviderBuilder<TProvider> Override<TImpl>(object key)
+                where TImpl : TProvider
+            {
+                _container.AddRule(new BootRule
+                {
+                    Category = typeof(TProvider),
+                    ImplType = typeof(TImpl),
+                    Kind = RuleKind.Override,
+                    Key = key
+                });
+                return this;
+            }
+
+            public Builder End()
+            {
+                if (!_hasBase)
+                    throw new InvalidOperationException(
+                        $"{typeof(TProvider).Name} requires Base().");
+                return _builder;
+            }
+            private void EnsureBaseOnce()
+            {
+                if (_hasBase) throw new InvalidOperationException("Base already set.");
+                _hasBase = true;
+            }
+        }
     }
+
     // ======================================================
     // BootRule
     // ======================================================
     public sealed class BootRule
     {
-        public Type Category ;   // ChoMiniStringSourceInstaller
+        public Type Category;   // ChoMiniStringSourceInstaller
         public Type ImplType; // ChoMiniSequenceFactory 등
         public RuleKind Kind;        // Base / Override
         public object? Key;          // Override만 사용
@@ -215,5 +276,7 @@ namespace Yoru.ChoMiniEngine
         Override
     }
 }
+
+
 
 
