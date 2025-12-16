@@ -1,27 +1,119 @@
 using Cysharp.Threading.Tasks;
+using System;
 using UnityEngine;
-
-
 
 namespace Yoru.ChoMiniEngine
 {
-    // 단일 노드를 받아서 엔진의 작동 트리거를 구독한다.
-    public class ChoMiniNodeRunner
+    /// <summary>
+    /// Executes a single node within a living Scope.
+    /// Disposing this runner means the execution is terminated permanently.
+    /// </summary>
+    public sealed class ChoMiniNodeRunner : IDisposable
     {
+        private ChoMiniNode _currentNode;
+        private bool _paused;
+        private bool _disposed;
+
+        public void Pause()
+        {
+            ThrowIfDisposed();
+
+            _paused = true;
+
+            if (_currentNode == null)
+                return;
+
+            foreach (var effect in _currentNode.Actions)
+            {
+                effect.Pause();
+            }
+        }
+
+        public void Resume()
+        {
+            ThrowIfDisposed();
+
+            _paused = false;
+
+            if (_currentNode == null)
+                return;
+
+            foreach (var effect in _currentNode.Actions)
+            {
+                effect.Resume();
+            }
+        }
+
         public async UniTask RunNode(ChoMiniNode node)
         {
-            foreach (var effect in node.Actions)
+            ThrowIfDisposed();
+
+            // Guard: already running
+            if (_currentNode != null)
+                throw new InvalidOperationException(
+                    "ChoMiniNodeRunner is already running a node.");
+
+            // Guard: paused state
+            if (_paused)
+                throw new InvalidOperationException(
+                    "Cannot start RunNode while runner is paused.");
+
+            _currentNode = node;
+
+            try
             {
-                effect.Play();  // 노드의 이펙트들이 재생을 시작
+                foreach (var effect in node.Actions)
+                {
+                    effect.Play();
+                }
+
+                float time = 0f;
+
+                while (time < node.Duration)
+                {
+                    if (_disposed)
+                        return; // Dispose = 즉시 종료
+
+                    if (!_paused)
+                        time += Time.deltaTime;
+
+                    await UniTask.Yield();
+                }
+
+                foreach (var effect in node.Actions)
+                {
+                    effect.Finish();
+                }
             }
-            float time = 0f;
-            while (time < node.Duration)
+            finally
             {
-                time += Time.deltaTime;
-                await UniTask.Yield();
+                _currentNode = null;
             }
-            foreach (var effect in node.Actions)  // 노드의 이펙트들이 재생을 종료
-                effect.Finish();
+        }
+
+        public void Dispose()
+        {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _paused = false;
+
+            if (_currentNode != null)
+            {
+                foreach (var effect in _currentNode.Actions)
+                {
+                    effect.Finish();
+                }
+
+                _currentNode = null;
+            }
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(ChoMiniNodeRunner));
         }
     }
 }

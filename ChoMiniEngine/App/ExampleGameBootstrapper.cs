@@ -118,7 +118,19 @@ namespace Yoru.App
 
             scope.DebugPrint();
 
+            var resolvedStrings = scope.Resolve<ChoMiniStringInstaller, string[]>(Language.CN);
 
+            Debug.Log("[Resolve] String:");
+            foreach (var line in resolvedStrings)
+            {
+                Debug.Log($"  {line}");
+            }
+
+            // GameObject (Skin)
+            var resolvedRoot =
+                scope.Resolve<ChoMiniGameObjectInstaller, Transform>(Skin.Xmas);
+
+            Debug.Log($"[Resolve] GameObject Root: {resolvedRoot.name}");
         }
     }
 }
