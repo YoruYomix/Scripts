@@ -106,9 +106,9 @@ namespace Yoru.ChoMiniEngine
                 return new FactoryBuilder<TCategory>(_container,this);
             }
 
-            public FactoryBuilder<TCategory> RegisterProvider<TCategory>()
+            public ProviderBuilder<TCategory> RegisterProvider<TCategory>()
             {
-                return new FactoryBuilder<TCategory>(_container, this);
+                return new ProviderBuilder<TCategory>(_container, this);
             }
 
 
