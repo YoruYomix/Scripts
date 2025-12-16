@@ -88,11 +88,154 @@ namespace Yoru.ChoMiniEngine
         {
             Debug.Log("[Scope] Play()");
             Composer.EnsureComposed();
+            List<List<object>> composed = DebugBuildComposedPayload();
+        }
+        public List<List<object>> DebugBuildComposedPayload()
+        {
+            Debug.Log("[Debug] Build Composed Payload By Options");
 
+            // -----------------------------------
+            // 1) 모든 인스톨러 payload 수집
+            // -----------------------------------
+            List<List<List<object>>> allPayloads =
+                new List<List<List<object>>>();
+
+            // Installer 타입들 순회
+            HashSet<Type> installerTypes = new HashSet<Type>();
+
+            foreach (var kv in _bindings)
+            {
+                installerTypes.Add(kv.Key.installerType);
+            }
+
+            foreach (Type installerType in installerTypes)
+            {
+                List<List<object>> payload =
+                    DebugBuildSingleInstallerPayload(installerType);
+
+                if (payload != null && payload.Count > 0)
+                    allPayloads.Add(payload);
+            }
+
+            // -----------------------------------
+            // 2) step 기준으로 함침
+            // -----------------------------------
+            List<List<object>> composed =
+                ComposePayloads(allPayloads);
+
+            // -----------------------------------
+            // 3) 결과 출력
+            // -----------------------------------
+            Debug.Log($"[Debug] Composed Steps = {composed.Count}");
+
+            for (int i = 0; i < composed.Count; i++)
+            {
+                Debug.Log($" Step {i}:");
+
+                foreach (object obj in composed[i])
+                {
+                    Debug.Log($"   - {obj} ({obj.GetType().Name})");
+                }
+            }
+
+            return composed;
+        }
+
+        private List<List<object>> DebugBuildSingleInstallerPayload(Type installerType)
+        {
+            // -----------------------------------
+            // 1) 옵션 + 바인딩으로 key 선택
+            // -----------------------------------
+            object key = null;
+
+            foreach (var pair in _options.DebugPairs())
+            {
+                object optionValue = pair.Value;
+
+                if (_bindings.ContainsKey((installerType, optionValue)))
+                {
+                    key = optionValue;
+                    break;
+                }
+            }
+
+            Debug.Log(
+                $"[Debug] Installer={installerType.Name}, key={key ?? "default"}"
+            );
+
+            // -----------------------------------
+            // 2) raw resource resolve
+            // -----------------------------------
+            object resource;
+
+            try
+            {
+                resource = ResolveByType(installerType, key);
+            }
+            catch
+            {
+                return null;
+            }
+
+            // -----------------------------------
+            // 3) Installer 인스턴스 생성
+            // -----------------------------------
+            IChoMiniInstaller installer =
+                (IChoMiniInstaller)Activator.CreateInstance(installerType);
+
+            // -----------------------------------
+            // 4) Bind 호출
+            // -----------------------------------
+            var bindMethod = installerType.GetMethod("Bind");
+            bindMethod.Invoke(installer, new[] { resource });
+
+            // -----------------------------------
+            // 5) Payload 생성
+            // -----------------------------------
+            return installer.BuildPayload(this, _options);
+        }
+
+        private object ResolveByType(Type installerType, object key)
+        {
+            if (_bindings.TryGetValue((installerType, key), out object obj))
+                return obj;
+
+            if (_bindings.TryGetValue((installerType, null), out obj))
+                return obj;
+
+            throw new KeyNotFoundException();
         }
 
 
+        private List<List<object>> ComposePayloads(
+            List<List<List<object>>> payloads)
+        {
+            List<List<object>> result = new List<List<object>>();
 
+            int maxSteps = 0;
+
+            foreach (var payload in payloads)
+            {
+                if (payload.Count > maxSteps)
+                    maxSteps = payload.Count;
+            }
+
+            for (int i = 0; i < maxSteps; i++)
+            {
+                List<object> step = new List<object>();
+
+                foreach (var payload in payloads)
+                {
+                    if (i < payload.Count)
+                        step.AddRange(payload[i]);
+                }
+
+                if (step.Count > 0)
+                    result.Add(step);
+            }
+
+            return result;
+        }
 
 
 

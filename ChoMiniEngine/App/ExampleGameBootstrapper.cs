@@ -121,27 +121,15 @@ namespace Yoru.App
                 .Bind<ChoMiniStringInstaller>(Language.CN, scriptCN);
 
 
-            scope.DebugPrint();
-            scope.DebugPrintInstallers();
+            //scope.DebugPrint();
+            //scope.DebugPrintInstallers();
 
-            var resolvedStrings = scope.Resolve<ChoMiniStringInstaller, string[]>(Language.CN);
-
-            Debug.Log("[Resolve] String:");
-            foreach (var line in resolvedStrings)
-            {
-                Debug.Log($"  {line}");
-            }
-
-            // GameObject (Skin)
-            var resolvedRoot =
-                scope.Resolve<ChoMiniGameObjectInstaller, Transform>(Skin.Xmas);
-
-            Debug.Log($"[Resolve] GameObject Root: {resolvedRoot.name}");
 
             scope.Play();
         }
     }
 }
+
 
 public enum Language
 {
