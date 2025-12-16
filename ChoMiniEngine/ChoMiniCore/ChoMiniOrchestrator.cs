@@ -77,11 +77,7 @@ namespace Yoru.ChoMiniEngine
 
                 ChoMiniNode node = _factory.Create();
 
-                Debug.Log(
-                    node == null
-                        ? $"❌ Create() returned NULL at index {i}"
-                        : $"✅ Create() OK at index {i} : {flowNode}"
-                );
+
 
                 nodes.Add(node);
             }

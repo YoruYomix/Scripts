@@ -135,6 +135,8 @@ namespace Yoru.App
                 scope.Resolve<ChoMiniGameObjectInstaller, Transform>(Skin.Xmas);
 
             Debug.Log($"[Resolve] GameObject Root: {resolvedRoot.name}");
+
+            scope.Play();
         }
     }
 }

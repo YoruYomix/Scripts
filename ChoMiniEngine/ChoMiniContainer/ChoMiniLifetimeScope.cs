@@ -10,7 +10,17 @@ namespace Yoru.ChoMiniEngine
         private readonly IReadOnlyList<BootRule> _rules;
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
+        private ChoMiniComposer _composer;
 
+        private ChoMiniComposer Composer
+        {
+            get
+            {
+                if (_composer == null)
+                    _composer = new ChoMiniComposer(this);
+                return _composer;
+            }
+        }
         public ChoMiniLifetimeScope(
             IReadOnlyList<BootRule> rules,
             ChoMiniOptions options)
@@ -62,6 +72,12 @@ namespace Yoru.ChoMiniEngine
 
             return cast;
         }
+        public void Play()
+        {
+            Debug.Log("[Scope] Play()");
+            Composer.EnsureComposed();
+        }
+
 
 
         public void Dispose()
