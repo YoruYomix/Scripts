@@ -8,62 +8,69 @@ namespace Yoru.ChoMiniEngine
 
     public interface IChoMiniFactory { }
     // 팩토리
+
+    // ======================================================
+    // Sequence Factory
+    // ======================================================
     public class ChoMiniSequenceFactory : IChoMiniFactory
     {
-        List<List<object>> _targetObjectGroups;
+        private List<NodeSource> _nodeSources;
 
-        private List<ChoMiniProvider> _providers;  // Lazy-created, cached per scope
+        private List<ChoMiniProvider> _providers;
+        private int _index = 0;
+        private ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
 
-        LoopProvider _mockLoopProvider;
-        int _index = 0;
-        ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
-        public int Count => _targetObjectGroups?.Count ?? 0;
+        public int Count => _nodeSources?.Count ?? 0;
 
-
-
+        // ------------------------------
+        // Initialize
+        // ------------------------------
         public void Initialize(
-            List<List<object>> targetObjectGroups,
+            List<NodeSource> nodeSources,
             List<ChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
-            if (targetObjectGroups == null)
-                throw new ArgumentNullException(nameof(targetObjectGroups));
+            if (nodeSources == null)
+                throw new ArgumentNullException(nameof(nodeSources));
 
-            _targetObjectGroups = targetObjectGroups;
+            _nodeSources = nodeSources;
             _providers = providers;
             _skipSubscriber = skipSubscriber;
 
-            Debug.Log($"팩토리 타겟 그룹 수: {_targetObjectGroups.Count}");
+            Debug.Log($"[Factory] NodeSource Steps = {_nodeSources.Count}");
         }
 
+        // ------------------------------
+        // Create Node
+        // ------------------------------
         public ChoMiniNode Create()
         {
-            if (_targetObjectGroups == null || _targetObjectGroups.Count == 0)
+            if (_nodeSources == null || _nodeSources.Count == 0)
                 throw new InvalidOperationException(
-                    "ChoMiniSequenceFactory is not initialized or has no target groups."
+                    "ChoMiniSequenceFactory is not initialized or has no NodeSources."
                 );
 
-            // 1) 현재 시퀀스 스텝(payload) 선택
-            var payload = _targetObjectGroups[_index];
-            _index = (_index + 1) % _targetObjectGroups.Count;
+            // 1) 현재 step 선택
+            NodeSource source = _nodeSources[_index];
+            _index = (_index + 1) % _nodeSources.Count;
 
-            // 2) Node 생성 (payload 그대로 보관)
-            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, payload);
+            // 2) Node 생성
+            ChoMiniNode node = new ChoMiniNode(_skipSubscriber);
 
-            // 3) Provider들에게 payload 그대로 전달
-            foreach (var item in payload)
+            // 3) Provider에게 source 전달
+            foreach (object item in source.Items)
             {
                 if (item == null) continue;
 
-                foreach (var provider in _providers)
+                foreach (ChoMiniProvider provider in _providers)
                 {
                     if (provider == null) continue;
-                        provider.CollectEffects(item, node);
+
+                    provider.CollectEffects(item, node);
                 }
             }
 
-
-            // 4) Node Duration 계산
+            // 4) Duration 계산
             float maxDuration = 0f;
             foreach (var effect in node.Actions)
             {
@@ -76,62 +83,66 @@ namespace Yoru.ChoMiniEngine
     }
 
 
+
     public class ChoMiniRewindFactory : IChoMiniFactory
     {
-        List<List<object>> _targetObjectGroups;
+        private List<NodeSource> _nodeSources;
 
-        private List<ChoMiniProvider> _providers;  // Lazy-created, cached per scope
+        private List<ChoMiniProvider> _providers;
+        private int _index = 0;
+        private ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
 
-        LoopProvider _mockLoopProvider;
-        int _index = 0;
-        ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
-        public int Count => _targetObjectGroups?.Count ?? 0;
+        public int Count => _nodeSources?.Count ?? 0;
 
-
-
+        // ------------------------------
+        // Initialize
+        // ------------------------------
         public void Initialize(
-            List<List<object>> targetObjectGroups,
+            List<NodeSource> nodeSources,
             List<ChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
-            if (targetObjectGroups == null)
-                throw new ArgumentNullException(nameof(targetObjectGroups));
+            if (nodeSources == null)
+                throw new ArgumentNullException(nameof(nodeSources));
 
-            _targetObjectGroups = targetObjectGroups;
+            _nodeSources = nodeSources;
             _providers = providers;
             _skipSubscriber = skipSubscriber;
 
-            Debug.Log($"팩토리 타겟 그룹 수: {_targetObjectGroups.Count}");
+            Debug.Log($"[Factory] NodeSource Steps = {_nodeSources.Count}");
         }
 
+        // ------------------------------
+        // Create Node
+        // ------------------------------
         public ChoMiniNode Create()
         {
-            if (_targetObjectGroups == null || _targetObjectGroups.Count == 0)
+            if (_nodeSources == null || _nodeSources.Count == 0)
                 throw new InvalidOperationException(
-                    "ChoMiniSequenceFactory is not initialized or has no target groups."
+                    "ChoMiniSequenceFactory is not initialized or has no NodeSources."
                 );
 
-            // 1) 현재 시퀀스 스텝(payload) 선택
-            var payload = _targetObjectGroups[_index];
-            _index = (_index + 1) % _targetObjectGroups.Count;
+            // 1) 현재 step 선택
+            NodeSource source = _nodeSources[_index];
+            _index = (_index + 1) % _nodeSources.Count;
 
-            // 2) Node 생성 (payload 그대로 보관)
-            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, payload);
+            // 2) Node 생성
+            ChoMiniNode node = new ChoMiniNode(_skipSubscriber);
 
-            // 3) Provider들에게 payload 그대로 전달
-            foreach (var item in payload)
+            // 3) Provider에게 source 전달
+            foreach (object item in source.Items)
             {
                 if (item == null) continue;
 
-                foreach (var provider in _providers)
+                foreach (ChoMiniProvider provider in _providers)
                 {
                     if (provider == null) continue;
+
                     provider.CollectEffects(item, node);
                 }
             }
 
-
-            // 4) Node Duration 계산
+            // 4) Duration 계산
             float maxDuration = 0f;
             foreach (var effect in node.Actions)
             {
@@ -145,60 +156,63 @@ namespace Yoru.ChoMiniEngine
 
     public class ChoMiniRandomFactory : IChoMiniFactory
     {
-        List<List<object>> _targetObjectGroups;
+        private List<NodeSource> _nodeSources;
 
-        private List<ChoMiniProvider> _providers;  // Lazy-created, cached per scope
+        private List<ChoMiniProvider> _providers;
+        private int _index = 0;
+        private ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
 
-        LoopProvider _mockLoopProvider;
-        int _index = 0;
-        ISubscriber<ChoMiniLocalSkipRequested> _skipSubscriber;
-        public int Count => _targetObjectGroups?.Count ?? 0;
+        public int Count => _nodeSources?.Count ?? 0;
 
-
-
+        // ------------------------------
+        // Initialize
+        // ------------------------------
         public void Initialize(
-            List<List<object>> targetObjectGroups,
+            List<NodeSource> nodeSources,
             List<ChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
-            if (targetObjectGroups == null)
-                throw new ArgumentNullException(nameof(targetObjectGroups));
+            if (nodeSources == null)
+                throw new ArgumentNullException(nameof(nodeSources));
 
-            _targetObjectGroups = targetObjectGroups;
+            _nodeSources = nodeSources;
             _providers = providers;
             _skipSubscriber = skipSubscriber;
 
-            Debug.Log($"팩토리 타겟 그룹 수: {_targetObjectGroups.Count}");
+            Debug.Log($"[Factory] NodeSource Steps = {_nodeSources.Count}");
         }
 
+        // ------------------------------
+        // Create Node
+        // ------------------------------
         public ChoMiniNode Create()
         {
-            if (_targetObjectGroups == null || _targetObjectGroups.Count == 0)
+            if (_nodeSources == null || _nodeSources.Count == 0)
                 throw new InvalidOperationException(
-                    "ChoMiniSequenceFactory is not initialized or has no target groups."
+                    "ChoMiniSequenceFactory is not initialized or has no NodeSources."
                 );
 
-            // 1) 현재 시퀀스 스텝(payload) 선택
-            var payload = _targetObjectGroups[_index];
-            _index = (_index + 1) % _targetObjectGroups.Count;
+            // 1) 현재 step 선택
+            NodeSource source = _nodeSources[_index];
+            _index = (_index + 1) % _nodeSources.Count;
 
-            // 2) Node 생성 (payload 그대로 보관)
-            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, payload);
+            // 2) Node 생성
+            ChoMiniNode node = new ChoMiniNode(_skipSubscriber);
 
-            // 3) Provider들에게 payload 그대로 전달
-            foreach (var item in payload)
+            // 3) Provider에게 source 전달
+            foreach (object item in source.Items)
             {
                 if (item == null) continue;
 
-                foreach (var provider in _providers)
+                foreach (ChoMiniProvider provider in _providers)
                 {
                     if (provider == null) continue;
+
                     provider.CollectEffects(item, node);
                 }
             }
 
-
-            // 4) Node Duration 계산
+            // 4) Duration 계산
             float maxDuration = 0f;
             foreach (var effect in node.Actions)
             {

@@ -9,17 +9,22 @@ namespace Yoru.ChoMiniEngine
     {
         public float Duration;
         public List<IChoMiniNodeAction> Actions = new List<IChoMiniNodeAction>();
-        public List<object> _objects;
+
 
         private IDisposable _skipSubscription;  ///< 구독 핸들 (나중에 필요하면 Dispose)
 
-        public ChoMiniNode(ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber, List<object> objects)
+        public ChoMiniNode(ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
-            _objects = objects;
             _skipSubscription = skipSubscriber.Subscribe(msg =>
             {
                 Complete();
             });
+        }
+
+
+        private void Complete()
+        {
+            Duration = 0;
         }
 
         public void Dispose()
@@ -28,11 +33,6 @@ namespace Yoru.ChoMiniEngine
             _skipSubscription = null;
         }
 
-        private void Complete()
-        {
-            Duration = 0;
-            UnityEngine.Debug.Log($"[FlowNode] Skip 호출됨, Duration=0 으로 변경");
-        }
     }
 
 
