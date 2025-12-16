@@ -10,7 +10,7 @@ namespace Yoru.ChoMiniEngine
     // ∆—≈‰∏Æ
     public class ChoMiniSequenceFactory : IChoMiniFactory
     {
-        List<Transform> _targets;
+        List<List<object>> _targetObjectGroups;
         private List<Func<IChoMiniGameObjectActivationProvider>> _providerFactories;
 
         private List<IChoMiniGameObjectActivationProvider> _providers;  // Lazy-created, cached per scope
@@ -21,8 +21,8 @@ namespace Yoru.ChoMiniEngine
         {
             get
             {
-                Debug.Log(_targets);
-                return _targets.Count;
+                Debug.Log(_targetObjectGroups);
+                return _targetObjectGroups.Count;
             }
         
         }
@@ -54,12 +54,12 @@ namespace Yoru.ChoMiniEngine
 
 
         public void Initialize(
-            List<Transform> targets,
+            List<List<object>> targetObjectGroups,
             List<Func<IChoMiniGameObjectActivationProvider>> providerFactories,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
-            Debug.Log("∆—≈‰∏Æ ≈∏∞Ÿ:" + targets);
-            _targets = targets;
+            Debug.Log("∆—≈‰∏Æ ≈∏∞Ÿ:" + targetObjectGroups);
+            _targetObjectGroups = targetObjectGroups;
             _providerFactories = providerFactories;
             _skipSubscriber = skipSubscriber;
 
@@ -69,12 +69,12 @@ namespace Yoru.ChoMiniEngine
 
         public ChoMiniNode Create()
         {
-            var t = _targets[_index];
-            _index = (_index + 1) % _targets.Count;
+            var objects = _targetObjectGroups[_index];
+            _index = (_index + 1) % _targetObjectGroups.Count;
 
-            GameObject go = t.gameObject;
-            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, go);
-            Debug.Log("∆—≈‰∏Æ ≥ª∫Œ¿« ≈©∏Æø°¿Ã∆Æ: " + go.name);
+
+            ChoMiniNode node = new ChoMiniNode(_skipSubscriber, objects);
+
 
 
             // Provider∞° Effects∏¶ √§øÓ¥Ÿ

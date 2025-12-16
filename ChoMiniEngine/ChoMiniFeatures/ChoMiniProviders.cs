@@ -1,76 +1,102 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 
 namespace Yoru.ChoMiniEngine
 {
-    public interface IChoMiniGameObjectActivationProvider
+    public abstract class ChoMiniProvider 
     {
-        void CollectEffects(GameObject go, ChoMiniNode node);
+        abstract public void CollectEffects(List<object> objects, ChoMiniNode node);
     }
+    public interface IChoMiniGameObjectActivationProvider{}
 
-    public class ChoMiniGameObjectActivationProvider : IChoMiniGameObjectActivationProvider
+    public class ChoMiniGameObjectActivationProvider : ChoMiniProvider, IChoMiniGameObjectActivationProvider
     {
-        public void CollectEffects(GameObject go, ChoMiniNode node)
+        public override void CollectEffects(List<object> objects, ChoMiniNode node)
         {
-            Debug.Log("콜렉트 이펙트" + go.name);
-            node.Actions.Add(new ActivationAction(go));
+            foreach (var obj in objects)
+            {
+                if (obj is not GameObject go)
+                    continue;
+
+                Debug.Log("콜렉트 이펙트: " + go.name);
+                node.Actions.Add(new ActivationAction(go));
+            }
         }
     }
 
-    public interface IChoMiniImageProvider
-    {
-        void CollectEffects(GameObject go, ChoMiniNode node);
-    }
+    public interface IChoMiniImageProvider{}
 
-    public class ChoMiniImageFadeProvider : IChoMiniImageProvider
+    public class ChoMiniImageFadeProvider : ChoMiniProvider, IChoMiniImageProvider
     {
-        public void CollectEffects(GameObject go, ChoMiniNode node)
+        public override void CollectEffects(List<object> objects, ChoMiniNode node)
         {
-            var img = go.GetComponent<Image>();
-            if (img == null) return;
+            foreach (var obj in objects)
+            {
+                if (obj is not GameObject go)
+                    continue;
 
-            node.Actions.Add(new ActivationAction(go));
-            node.Actions.Add(new FadeInAction(img));
+                var img = go.GetComponent<Image>();
+                if (img == null)
+                    continue;
+
+                node.Actions.Add(new FadeInAction(img));
+            }
         }
     }
-    public class ChoMiniImageFadeProviderSpeed2x : IChoMiniImageProvider
+    public class ChoMiniImageFadeProviderSpeed2x : ChoMiniProvider, IChoMiniImageProvider
     {
-        public void CollectEffects(GameObject go, ChoMiniNode node)
+        public override void CollectEffects(List<object> objects, ChoMiniNode node)
         {
-            var img = go.GetComponent<Image>();
-            if (img == null) return;
+            // TODO:
+            // - Speed2x 전용 Fade 연출 분리 (duration 축소 또는 전용 Action)
+            // - FadeInActionSpeed2x 또는 speedMultiplier 적용 방식 결정
+            // - 공통 Fade Provider 베이스로 중복 제거 가능
 
-            node.Actions.Add(new ActivationAction(go));
-            node.Actions.Add(new FadeInAction(img));
+            foreach (var obj in objects)
+            {
+                if (obj is not GameObject go)
+                    continue;
+
+                var img = go.GetComponent<Image>();
+                if (img == null)
+                    continue;
+
+                node.Actions.Add(new FadeInAction(img));
+            }
         }
     }
 
-    public interface IChoMiniTextTypingProvider
-    {
-        void CollectEffects(GameObject go, ChoMiniNode node);
-    }
+    public interface IChoMiniTextTypingProvider { }
 
-    public class ChoMiniTextTypingProvider : IChoMiniTextTypingProvider
+
+    public class ChoMiniTextTypingProvider : ChoMiniProvider, IChoMiniTextTypingProvider
     {
-        public void CollectEffects(GameObject go, ChoMiniNode node)
+        public override void CollectEffects(List<object> objects, ChoMiniNode node)
         {
-            var img = go.GetComponent<Image>();
-            if (img == null) return;
+            // TODO:
+            // - string[] 입력 구조 확정 필요
+            // - TMP_Text / Text 대상 결정 필요
+            // - TypingAction 설계 후 구현 예정
 
-            node.Actions.Add(new ActivationAction(go));
-            node.Actions.Add(new FadeInAction(img));
+            // 임시 구현:
+            // 텍스트 타이핑은 아직 Action을 생성하지 않음
+            // (Provider 파이프라인 테스트용 더미)
         }
     }
-    public class ChoMiniTextTypingProviderSpeed2x : IChoMiniTextTypingProvider
+    public class ChoMiniTextTypingProviderSpeed2x : ChoMiniProvider, IChoMiniTextTypingProvider
     {
-        public void CollectEffects(GameObject go, ChoMiniNode node)
+        public override void CollectEffects(List<object> objects, ChoMiniNode node)
         {
-            var img = go.GetComponent<Image>();
-            if (img == null) return;
+            // TODO:
+            // - string[] 입력 구조 확정 필요
+            // - TMP_Text / Text 대상 결정 필요
+            // - TypingAction 설계 후 구현 예정
 
-            node.Actions.Add(new ActivationAction(go));
-            node.Actions.Add(new FadeInAction(img));
+            // 임시 구현:
+            // 텍스트 타이핑은 아직 Action을 생성하지 않음
+            // (Provider 파이프라인 테스트용 더미)
         }
     }
 

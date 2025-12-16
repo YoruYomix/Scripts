@@ -75,15 +75,15 @@ namespace Yoru.ChoMiniEngine
             {
                 Debug.Log($"▶ before Create() index={i}");
 
-                ChoMiniNode flowNode = _factory.Create();
+                ChoMiniNode node = _factory.Create();
 
                 Debug.Log(
-                    flowNode == null
+                    node == null
                         ? $"❌ Create() returned NULL at index {i}"
                         : $"✅ Create() OK at index {i} : {flowNode}"
                 );
 
-                nodes.Add(flowNode);
+                nodes.Add(node);
             }
 
             Debug.Log($"▶ nodes created: {nodes.Count}");
