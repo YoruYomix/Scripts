@@ -109,6 +109,7 @@ namespace Yoru.App
             ChoMiniOptions options = new ChoMiniOptions();
             options.Set(Language.CN);
             options.Set(PlaySpeed.Speed2x);
+            options.Set(PlayMode.Rewind);
 
             ChoMiniLifetimeScope scope = _container.CreateScope(options);
 

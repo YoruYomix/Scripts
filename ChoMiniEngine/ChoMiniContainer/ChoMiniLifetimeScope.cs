@@ -12,6 +12,9 @@ namespace Yoru.ChoMiniEngine
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
 
+        public IReadOnlyList<BootRule> Rules => _rules;
+        public ChoMiniOptions Options => _options;
+
         private ChoMiniComposer Composer
         {
             get

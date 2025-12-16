@@ -30,5 +30,21 @@ namespace Yoru.ChoMiniEngine
             return _values;
         }
 
+        public bool Has(object key)
+        {
+            if (key == null)
+                return false;
+
+            var keyType = key.GetType();
+
+            if (_values.TryGetValue(keyType, out var value))
+            {
+                return Equals(value, key);
+            }
+
+            return false;
+        }
+
+
     }
 }
