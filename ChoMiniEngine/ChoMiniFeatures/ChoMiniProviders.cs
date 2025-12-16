@@ -11,81 +11,72 @@ namespace Yoru.ChoMiniEngine
     }
     public interface IChoMiniGameObjectActivationProvider{}
 
-    public class ChoMiniGameObjectActivationProvider : ChoMiniProvider, IChoMiniGameObjectActivationProvider
+    public class ChoMiniGameObjectActivationProvider
+        : ChoMiniProvider, IChoMiniGameObjectActivationProvider
     {
-        public override void CollectEffects(object _object, ChoMiniNode node)
+        public override void CollectEffects(object obj, ChoMiniNode node)
         {
-            // 여기서 obj는 "시퀀스 단계 하나"
-            if (_object is not List<GameObject> gameObjects)
+            if (obj is not GameObject go)
                 return;
 
-            foreach (var go in gameObjects)
-            {
-                if (go == null)
-                    continue;
+            if (go == null)
+                return;
 
-                Debug.Log("콜렉트 이펙트: " + go.name);
-                node.Actions.Add(new ActivationAction(go));
-            }
+            Debug.Log("콜렉트 이펙트: " + go.name);
+            node.Actions.Add(new ActivationAction(go));
         }
     }
 
     public interface IChoMiniImageProvider{}
 
-    public class ChoMiniImageFadeProvider : ChoMiniProvider, IChoMiniImageProvider
+    public class ChoMiniImageFadeProvider
+        : ChoMiniProvider, IChoMiniImageProvider
     {
-        public override void CollectEffects(object _object, ChoMiniNode node)
+        public override void CollectEffects(object obj, ChoMiniNode node)
         {
-            // obj == List<GameObject> (시퀀스의 한 스텝)
-            if (_object is not List<GameObject> gameObjects)
+            if (obj is not GameObject go)
                 return;
 
-            foreach (var go in gameObjects)
-            {
-                if (go == null)
-                    continue;
+            if (go == null)
+                return;
 
-                var img = go.GetComponent<Image>();
-                if (img == null)
-                    continue;
+            Image img = go.GetComponent<Image>();
+            if (img == null)
+                return;
 
-                node.Actions.Add(new FadeInAction(img));
-            }
+            node.Actions.Add(new FadeInAction(img));
         }
     }
+
     public class ChoMiniImageFadeProviderSpeed2x : ChoMiniProvider, IChoMiniImageProvider
     {
-        public override void CollectEffects(object _object, ChoMiniNode node)
+        public override void CollectEffects(object obj, ChoMiniNode node)
         {
             // TODO:
             // - Speed2x 전용 Fade 연출 분리 (duration 축소 또는 전용 Action)
             // - FadeInActionSpeed2x 또는 speedMultiplier 적용 방식 결정
             // - 공통 Fade Provider 베이스로 중복 제거 가능
 
- 
-            if (_object is not List<GameObject> gameObjects)
+
+            if (obj is not GameObject go)
                 return;
 
-            foreach (var go in gameObjects)
-            {
-                if (go == null)
-                    continue;
+            if (go == null)
+                return;
 
-                var img = go.GetComponent<Image>();
-                if (img == null)
-                    continue;
+            Image img = go.GetComponent<Image>();
+            if (img == null)
+                return;
 
-                node.Actions.Add(new FadeInAction(img));
-            }
+            node.Actions.Add(new FadeInAction(img));
         }
     }
-
     public interface IChoMiniTextTypingProvider { }
 
 
     public class ChoMiniTextTypingProvider : ChoMiniProvider, IChoMiniTextTypingProvider
     {
-        public override void CollectEffects(object _object, ChoMiniNode node)
+        public override void CollectEffects(object cbj, ChoMiniNode node)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요
@@ -99,7 +90,7 @@ namespace Yoru.ChoMiniEngine
     }
     public class ChoMiniTextTypingProviderSpeed2x : ChoMiniProvider, IChoMiniTextTypingProvider
     {
-        public override void CollectEffects(object _object, ChoMiniNode node)
+        public override void CollectEffects(object cbj, ChoMiniNode node)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요
@@ -114,7 +105,7 @@ namespace Yoru.ChoMiniEngine
 
 
 
-
+    // 임시용. 과거의 흔적. 리팩토링 예정
     public class LoopProvider
     {
         private LoopPlayer _loopPlayer;
@@ -139,3 +130,5 @@ namespace Yoru.ChoMiniEngine
 
     }
 }
+
+
