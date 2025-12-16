@@ -5,8 +5,8 @@ namespace Yoru.App
 {
     public class ExampleGameBootstrapper : MonoBehaviour
     {
-        [SerializeField] Transform rootDefaultSkin;
-        [SerializeField] Transform rootXmasSkin;
+        [SerializeField] GameObject rootDefaultSkin;
+        [SerializeField] GameObject rootXmasSkin;
         ChoMiniContainer _container;
 
         public static ExampleGameBootstrapper instance { get; private set; }
@@ -33,12 +33,12 @@ namespace Yoru.App
             // -------------------------
             // 0. 모든 이미지 비활성화
             // -------------------------
-            foreach (Transform child in rootDefaultSkin.GetComponentsInChildren<Transform>(true))
+            foreach (Transform child in rootDefaultSkin.transform.GetComponentsInChildren<Transform>(true))
             {
                 if (child != rootDefaultSkin)   // 루트 제외
                     child.gameObject.SetActive(false);
             }
-            foreach (Transform child in rootXmasSkin.GetComponentsInChildren<Transform>(true))
+            foreach (Transform child in rootXmasSkin.transform.GetComponentsInChildren<Transform>(true))
             {
                 if (child != rootXmasSkin)   // 루트 제외
                     child.gameObject.SetActive(false);
