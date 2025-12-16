@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using System.Linq;
 using UnityEngine;
 using Yoru.ChoMiniEngine;
@@ -21,6 +22,7 @@ public sealed class ChoMiniComposer
         Debug.Log("[Composer] Compose start");
 
         DebugResolveFactoryOnly();
+        DebugResolveProvidersOnly();
         _isComposed = true;
     }
     private void DebugResolveFactoryOnly()
@@ -76,4 +78,82 @@ public sealed class ChoMiniComposer
         Debug.Log($"[Composer] Selected Factory = {selectedFactoryRule?.ImplType?.Name}");
 
     }
+    private void DebugResolveProvidersOnly()
+    {
+        Debug.Log("[Composer] Resolve Providers Start");
+
+        // -------------------------------------------------
+        // 1) Provider Rule만 추출 (ImplType 기준)
+        // -------------------------------------------------
+        List<BootRule> providerRules = new();
+
+        foreach (var rule in _scope.Rules)
+        {
+            if (typeof(ChoMiniProvider).IsAssignableFrom(rule.ImplType))
+            {
+                providerRules.Add(rule);
+            }
+        }
+
+        // -------------------------------------------------
+        // 2) Category(= IChoMiniXXXProvider) 기준으로 그룹핑
+        // -------------------------------------------------
+        Dictionary<Type, List<BootRule>> grouped = new();
+
+        foreach (var rule in providerRules)
+        {
+            Type groupKey = rule.Category;
+
+            if (!grouped.TryGetValue(groupKey, out var list))
+            {
+                list = new List<BootRule>();
+                grouped[groupKey] = list;
+            }
+
+            list.Add(rule);
+        }
+
+        // -------------------------------------------------
+        // 3) 각 Provider 그룹에서 하나 선택
+        // -------------------------------------------------
+        foreach (var pair in grouped)
+        {
+            Type providerInterface = pair.Key;
+            List<BootRule> rules = pair.Value;
+
+            Debug.Log($"[Composer] Provider Group: {providerInterface.Name}");
+
+            foreach (var r in rules)
+            {
+                Debug.Log(
+                    $"  {r.Kind} / Key={r.Key ?? "default"} / Impl={r.ImplType.Name}"
+                );
+            }
+
+            BootRule selected = null;
+
+            // Override 우선
+            foreach (var r in rules)
+            {
+                if (r.Kind == RuleKind.Override && _scope.Options.Has(r.Key))
+                {
+                    selected = r;
+                    break;
+                }
+            }
+
+            // Base fallback
+            if (selected == null)
+                selected = rules.Find(r => r.Kind == RuleKind.Base);
+
+            Debug.Log(
+                selected != null
+                    ? $"[Composer] Selected Provider = {selected.ImplType.Name}"
+                    : $"[Composer] Selected Provider = <none>"
+            );
+        }
+
+        Debug.Log("[Composer] Resolve Providers End");
+    }
+
 }
