@@ -1,5 +1,3 @@
-
-
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,13 +12,33 @@ namespace Yoru.ChoMiniEngine
 
     }
 
-    public sealed class ChoMiniGameObjectInstaller
+    public interface IChoMiniInstaller
+    {
+        List<List<object>> BuildPayload(
+            ChoMiniLifetimeScope scope,
+            ChoMiniOptions options
+        );
+    }
+
+
+    // ======================================================
+    // GameObject Installer
+    // ======================================================
+    public sealed class ChoMiniGameObjectInstaller : IChoMiniInstaller
     {
         private List<GameObject> _gameObjects;
 
+        // ------------------------------
+        // Bind
+        // ------------------------------
         public void Bind(GameObject root)
         {
-            if (root.TryGetComponent<ChoMiniSequenceOrder>(out var order))
+            if (root == null)
+                throw new ArgumentNullException(nameof(root));
+
+            ChoMiniSequenceOrder order;
+
+            if (root.TryGetComponent<ChoMiniSequenceOrder>(out order))
             {
                 _gameObjects = order.sequenceRoots;
             }
@@ -28,81 +46,147 @@ namespace Yoru.ChoMiniEngine
             {
                 _gameObjects = TreeToList(root);
             }
- 
-        }
-        private List<GameObject> TreeToList(GameObject root)
-        {
-            var groups = new List<GameObject>();
-
-
-            if (root == null)
-                return groups;
-
-            // 1) 자기 자신 포함
-            groups.Add(root);
-
-            // 2) 1차 자식들만 추가
-            var transform = root.transform;
-            int childCount = transform.childCount;
-
-            for (int i = 0; i < childCount; i++)
-            {
-                groups.Add(transform.GetChild(i).gameObject);
-            }
-
-
-            return groups;
         }
 
-        public List<object> InstallObjectGroups()
+        // ------------------------------
+        // BuildPayload (엔진 경계)
+        // ------------------------------
+        public List<List<object>> BuildPayload(
+            ChoMiniLifetimeScope scope,
+            ChoMiniOptions options)
         {
+            Debug.Log("[Installer] BuildPayload: GameObject");
+
             if (_gameObjects == null)
                 throw new InvalidOperationException(
-                    "Bind() must be called before InstallObjectGroups()"
+                    "Bind() must be called before BuildPayload()"
                 );
 
-            var groups = new List<object>();
+            List<List<GameObject>> groups = BuildGameObjectGroups();
+            var payload = new List<List<object>>();
 
-            foreach (GameObject child in _gameObjects)
+            foreach (var group in groups)
             {
-                if (child.name == "Parallel")
+                var step = new List<object>();
+
+                foreach (var go in group)
+                {
+                    if (go != null)
+                        step.Add(go);
+                }
+
+                if (step.Count > 0)
+                    payload.Add(step);
+            }
+
+            Debug.Log("[Installer] Payload Steps = " + payload.Count);
+            return payload;
+        }
+
+        // ------------------------------
+        // 내부: GameObject → 그룹
+        // ------------------------------
+        private List<List<GameObject>> BuildGameObjectGroups()
+        {
+            var groups = new List<List<GameObject>>();
+
+            foreach (GameObject go in _gameObjects)
+            {
+                if (go == null)
+                    continue;
+
+                if (go.name == "Parallel")
                 {
                     var merged = new List<GameObject>();
 
-                    foreach (Transform t in child.GetComponentsInChildren<Transform>(true))
+                    foreach (Transform t in go.GetComponentsInChildren<Transform>(true))
                     {
-                        // Parallel 자신 포함 여부는 현재 설계 유지
                         merged.Add(t.gameObject);
                     }
 
-                    groups.Add(merged);
+                    if (merged.Count > 0)
+                        groups.Add(merged);
                 }
                 else
                 {
-                    // 단일도 List<GameObject>로 감싸서 형태 통일
-                    groups.Add(new List<GameObject>
-                {
-                    child
-                });
+                    var single = new List<GameObject>();
+                    single.Add(go);
+                    groups.Add(single);
                 }
             }
 
             return groups;
         }
 
+        // ------------------------------
+        // 내부: Tree → List
+        // ------------------------------
+        private List<GameObject> TreeToList(GameObject root)
+        {
+            var list = new List<GameObject>();
+
+            list.Add(root);
+
+            Transform t = root.transform;
+            int count = t.childCount;
+
+            for (int i = 0; i < count; i++)
+            {
+                list.Add(t.GetChild(i).gameObject);
+            }
+
+            return list;
+        }
     }
 
 
-    public sealed class ChoMiniStringInstaller
+    // ======================================================
+    // String Installer (예문용 단순형)
+    // ======================================================
+    public sealed class ChoMiniStringInstaller : IChoMiniInstaller
     {
-        private string _text;
+        private string[] _lines;
 
-        public void Bind(string text)
+        // ------------------------------
+        // Bind
+        // ------------------------------
+        public void Bind(string[] lines)
         {
-            _text = text;
+            if (lines == null)
+                throw new ArgumentNullException(nameof(lines));
+
+            _lines = lines;
         }
 
-        
+        // ------------------------------
+        // BuildPayload
+        // ------------------------------
+        public List<List<object>> BuildPayload(
+            ChoMiniLifetimeScope scope,
+            ChoMiniOptions options)
+        {
+            Debug.Log("[Installer] BuildPayload: String");
+
+            if (_lines == null)
+                throw new InvalidOperationException(
+                    "Bind() must be called before BuildPayload()"
+                );
+
+            var payload = new List<List<object>>();
+
+            foreach (string line in _lines)
+            {
+                if (string.IsNullOrEmpty(line))
+                    continue;
+
+                var step = new List<object>();
+                step.Add(line);
+                payload.Add(step);
+            }
+
+            Debug.Log("[Installer] Payload Steps = " + payload.Count);
+            return payload;
+        }
     }
 
 }

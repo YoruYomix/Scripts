@@ -229,7 +229,7 @@ namespace Yoru.ChoMiniEngine
         }
 
         // ======================================================
-        // Factory Builder
+        // Provider Builder
         // ======================================================
         public sealed class ProviderBuilder<TCategory>
         {

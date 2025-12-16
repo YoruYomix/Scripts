@@ -125,6 +125,22 @@ namespace Yoru.ChoMiniEngine
             }
         }
 
+        public void DebugPrintInstallers()
+        {
+            Debug.Log("[Scope] Installer Bindings:");
+
+            foreach (var kv in _bindings)
+            {
+                Type installerType = kv.Key.installerType;
+                object key = kv.Key.key ?? "default";
+                object resource = kv.Value;
+
+                Debug.Log(
+                    $"  {installerType.Name} / Key={key} -> {resource.GetType().Name}"
+                );
+            }
+        }
+
     }
 
 }

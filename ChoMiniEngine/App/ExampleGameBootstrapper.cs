@@ -122,6 +122,7 @@ namespace Yoru.App
 
 
             scope.DebugPrint();
+            scope.DebugPrintInstallers();
 
             var resolvedStrings = scope.Resolve<ChoMiniStringInstaller, string[]>(Language.CN);
 
