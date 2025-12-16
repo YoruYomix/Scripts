@@ -46,6 +46,8 @@ namespace Yoru.ChoMiniEngine
 
         public async UniTask RunNode(ChoMiniNode node)
         {
+            if (node == null) throw new ArgumentNullException(nameof(node));
+
             ThrowIfDisposed();
 
             // Guard: already running
@@ -79,6 +81,9 @@ namespace Yoru.ChoMiniEngine
 
                     await UniTask.Yield();
                 }
+
+                if (_disposed)
+                    return;
 
                 foreach (var effect in node.Actions)
                 {
