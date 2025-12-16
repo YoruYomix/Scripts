@@ -7,28 +7,25 @@ namespace Yoru.ChoMiniEngine
 {
     public abstract class ChoMiniProvider 
     {
-        abstract public void CollectEffects(List<object> objects, ChoMiniNode node);
+        abstract public void CollectEffects(object objects, ChoMiniNode node);
     }
     public interface IChoMiniGameObjectActivationProvider{}
 
     public class ChoMiniGameObjectActivationProvider : ChoMiniProvider, IChoMiniGameObjectActivationProvider
     {
-        public override void CollectEffects(List<object> objects, ChoMiniNode node)
+        public override void CollectEffects(object _object, ChoMiniNode node)
         {
-            foreach (var obj in objects)
+            // 여기서 obj는 "시퀀스 단계 하나"
+            if (_object is not List<GameObject> gameObjects)
+                return;
+
+            foreach (var go in gameObjects)
             {
-                // 여기서 obj는 "시퀀스 단계 하나"
-                if (obj is not List<GameObject> gameObjects)
+                if (go == null)
                     continue;
 
-                foreach (var go in gameObjects)
-                {
-                    if (go == null)
-                        continue;
-
-                    Debug.Log("콜렉트 이펙트: " + go.name);
-                    node.Actions.Add(new ActivationAction(go));
-                }
+                Debug.Log("콜렉트 이펙트: " + go.name);
+                node.Actions.Add(new ActivationAction(go));
             }
         }
     }
@@ -37,54 +34,48 @@ namespace Yoru.ChoMiniEngine
 
     public class ChoMiniImageFadeProvider : ChoMiniProvider, IChoMiniImageProvider
     {
-        public override void CollectEffects(List<object> objects, ChoMiniNode node)
+        public override void CollectEffects(object _object, ChoMiniNode node)
         {
-            foreach (var obj in objects)
+            // obj == List<GameObject> (시퀀스의 한 스텝)
+            if (_object is not List<GameObject> gameObjects)
+                return;
+
+            foreach (var go in gameObjects)
             {
-                // obj == List<GameObject> (시퀀스의 한 스텝)
-                if (obj is not List<GameObject> gameObjects)
+                if (go == null)
                     continue;
 
-                foreach (var go in gameObjects)
-                {
-                    if (go == null)
-                        continue;
+                var img = go.GetComponent<Image>();
+                if (img == null)
+                    continue;
 
-                    var img = go.GetComponent<Image>();
-                    if (img == null)
-                        continue;
-
-                    node.Actions.Add(new FadeInAction(img));
-                }
+                node.Actions.Add(new FadeInAction(img));
             }
         }
     }
     public class ChoMiniImageFadeProviderSpeed2x : ChoMiniProvider, IChoMiniImageProvider
     {
-        public override void CollectEffects(List<object> objects, ChoMiniNode node)
+        public override void CollectEffects(object _object, ChoMiniNode node)
         {
             // TODO:
             // - Speed2x 전용 Fade 연출 분리 (duration 축소 또는 전용 Action)
             // - FadeInActionSpeed2x 또는 speedMultiplier 적용 방식 결정
             // - 공통 Fade Provider 베이스로 중복 제거 가능
 
-            foreach (var obj in objects)
+ 
+            if (_object is not List<GameObject> gameObjects)
+                return;
+
+            foreach (var go in gameObjects)
             {
-                // obj == List<GameObject> (시퀀스의 한 스텝)
-                if (obj is not List<GameObject> gameObjects)
+                if (go == null)
                     continue;
 
-                foreach (var go in gameObjects)
-                {
-                    if (go == null)
-                        continue;
+                var img = go.GetComponent<Image>();
+                if (img == null)
+                    continue;
 
-                    var img = go.GetComponent<Image>();
-                    if (img == null)
-                        continue;
-
-                    node.Actions.Add(new FadeInAction(img));
-                }
+                node.Actions.Add(new FadeInAction(img));
             }
         }
     }
@@ -94,7 +85,7 @@ namespace Yoru.ChoMiniEngine
 
     public class ChoMiniTextTypingProvider : ChoMiniProvider, IChoMiniTextTypingProvider
     {
-        public override void CollectEffects(List<object> objects, ChoMiniNode node)
+        public override void CollectEffects(object _object, ChoMiniNode node)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요
@@ -108,7 +99,7 @@ namespace Yoru.ChoMiniEngine
     }
     public class ChoMiniTextTypingProviderSpeed2x : ChoMiniProvider, IChoMiniTextTypingProvider
     {
-        public override void CollectEffects(List<object> objects, ChoMiniNode node)
+        public override void CollectEffects(object _object, ChoMiniNode node)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요
