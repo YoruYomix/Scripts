@@ -62,6 +62,10 @@ namespace Yoru.App
                     .Override<ChoMiniRandomFactory>(PlayMode.Random)
                     .End()
 
+                .RegisterProvider<IChoMiniGameObjectActivationProvider>()
+                    .Base<ChoMiniGameObjectActivationProvider>()
+                    .End()
+
                 .RegisterProvider<IChoMiniImageProvider>()
                     .Base<ChoMiniImageFadeProvider>()
                     .Override<ChoMiniImageFadeProviderSpeed2x>(PlaySpeed.Speed2x)

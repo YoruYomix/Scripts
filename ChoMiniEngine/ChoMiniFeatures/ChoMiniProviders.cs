@@ -4,12 +4,12 @@ using UnityEngine.UI;
 
 namespace Yoru.ChoMiniEngine
 {
-    public interface IChoMiniActivationProvider
+    public interface IChoMiniGameObjectActivationProvider
     {
         void CollectEffects(GameObject go, ChoMiniNode node);
     }
 
-    public class DefaultActivationProvider : IChoMiniActivationProvider
+    public class ChoMiniGameObjectActivationProvider : IChoMiniGameObjectActivationProvider
     {
         public void CollectEffects(GameObject go, ChoMiniNode node)
         {
