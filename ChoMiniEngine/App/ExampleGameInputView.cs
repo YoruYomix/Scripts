@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using Yoru.ChoMiniEngine.Utility;
 
-namespace Yoru.ExampleGame
+namespace Yoru.App
 {
     public class ExampleGameInputView : MonoBehaviour
     {

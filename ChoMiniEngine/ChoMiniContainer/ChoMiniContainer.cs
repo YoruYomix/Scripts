@@ -29,6 +29,17 @@ namespace Yoru.ChoMiniEngine
             _rules .Add(rule);
         }
 
+        public ChoMiniLifetimeScope CreateScope(ChoMiniOptions options)
+        {
+            if (options == null)
+                throw new ArgumentNullException("options");
+
+            return new ChoMiniLifetimeScope(
+                    rules: _rules,
+                    options: options
+                );
+        }
+
 
 
         // 디버그 출력용
@@ -204,7 +215,6 @@ namespace Yoru.ChoMiniEngine
                 _hasBase = true;
             }
         }
-
     }
 
     // ======================================================

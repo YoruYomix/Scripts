@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using Yoru.ChoMiniEngine;
 
-namespace Yoru.ExampleGame
+namespace Yoru.App
 {
     public class ExampleGameBootstrapper : MonoBehaviour
     {
-        [SerializeField] Transform rootKR;
-        [SerializeField] Transform rootJP;
+        [SerializeField] Transform rootDefaultSkin;
+        [SerializeField] Transform rootXmasSkin;
         ChoMiniContainer _container;
 
         public static ExampleGameBootstrapper instance { get; private set; }
@@ -19,9 +19,13 @@ namespace Yoru.ExampleGame
             }
             instance = this;
             DontDestroyOnLoad(gameObject);
+        }
 
+        private void Start()
+        {
             ChoMiniBootstrapper.Boot();
             Configure();
+            PlayScope();
         }
 
         void Configure()
@@ -29,14 +33,14 @@ namespace Yoru.ExampleGame
             // -------------------------
             // 0. 모든 이미지 비활성화
             // -------------------------
-            foreach (Transform child in rootKR.GetComponentsInChildren<Transform>(true))
+            foreach (Transform child in rootDefaultSkin.GetComponentsInChildren<Transform>(true))
             {
-                if (child != rootKR)   // 루트 제외
+                if (child != rootDefaultSkin)   // 루트 제외
                     child.gameObject.SetActive(false);
             }
-            foreach (Transform child in rootJP.GetComponentsInChildren<Transform>(true))
+            foreach (Transform child in rootXmasSkin.GetComponentsInChildren<Transform>(true))
             {
-                if (child != rootJP)   // 루트 제외
+                if (child != rootXmasSkin)   // 루트 제외
                     child.gameObject.SetActive(false);
             }
 
@@ -48,7 +52,7 @@ namespace Yoru.ExampleGame
 
                 .RegisterInstaller<ChoMiniStringInstaller>()
                     .Base()
-                    .Override(Language.KR)
+                    .Override(Language.CN)
                     .Override(Language.JP)
                     .End()
 
@@ -68,27 +72,60 @@ namespace Yoru.ExampleGame
                     .Override<ChoMiniTextTypingProviderSpeed2x>(PlaySpeed.Speed2x)
                     .End()
 
-
                 .Build();
 
+
             _container.DebugPrint();
-
-            ChoMiniOptions choMiniOptions = new ChoMiniOptions();
-            choMiniOptions.Set(Language.KR);
-            choMiniOptions.Set(PlaySpeed.Speed2x);
-
-
-            choMiniOptions.TryGet(out Language language);
         }
 
-    }
+        void PlayScope()
+        {
+            string[] scriptKR =
+            {
+                "……",
+                "여긴 어디지?",
+                "아무도 없는 것 같다.",
+            };
 
-     
+            string[] scriptJP =
+            {
+                "……",
+                "ここはどこだ？",
+                "誰もいないようだ。",
+            };
+
+            string[] scriptCN =
+            {
+                "……",
+                "这里是哪里？",
+                "好像一个人也没有。",
+            };
+
+
+            ChoMiniOptions options = new ChoMiniOptions();
+            options.Set(Language.CN);
+            options.Set(PlaySpeed.Speed2x);
+
+            ChoMiniLifetimeScope scope = _container.CreateScope(options);
+
+            scope
+                .Bind<ChoMiniGameObjectInstaller>(rootDefaultSkin)
+                .Bind<ChoMiniGameObjectInstaller>(Skin.Xmas, rootXmasSkin)
+                .Bind<ChoMiniStringInstaller>(scriptKR)
+                .Bind<ChoMiniStringInstaller>(Language.JP, scriptJP)
+                .Bind<ChoMiniStringInstaller>(Language.CN, scriptCN);
+
+
+            scope.DebugPrint();
+
+
+        }
+    }
 }
 
 public enum Language
 {
-    KR,
+    CN,
     JP
 }
 public enum Skin

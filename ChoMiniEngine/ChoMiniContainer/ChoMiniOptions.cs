@@ -24,5 +24,11 @@ namespace Yoru.ChoMiniEngine
             value = default;
             return false;
         }
+
+        public IEnumerable<KeyValuePair<Type, object>> DebugPairs()
+        {
+            return _values;
+        }
+
     }
 }
