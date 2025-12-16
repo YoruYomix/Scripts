@@ -88,19 +88,19 @@ namespace Yoru.ChoMiniEngine
         {
             Debug.Log("[Scope] Play()");
             Composer.EnsureComposed();
-            List<List<object>> composed = DebugBuildComposedPayload();
+            List<NodeSource> composed = DebugBuildComposedNodeSources();
         }
-        public List<List<object>> DebugBuildComposedPayload()
+        public List<NodeSource> DebugBuildComposedNodeSources()
         {
-            Debug.Log("[Debug] Build Composed Payload By Options");
+            Debug.Log("[Debug] Build Composed NodeSources By Options");
 
             // -----------------------------------
-            // 1) 모든 인스톨러 payload 수집
+            // 1) 모든 Installer의 NodeSource 시퀀스 수집
             // -----------------------------------
-            List<List<List<object>>> allPayloads =
-                new List<List<List<object>>>();
+            List<List<NodeSource>> allSequences =
+                new List<List<NodeSource>>();
 
-            // Installer 타입들 순회
+            // Installer 타입 수집
             HashSet<Type> installerTypes = new HashSet<Type>();
 
             foreach (var kv in _bindings)
@@ -108,20 +108,21 @@ namespace Yoru.ChoMiniEngine
                 installerTypes.Add(kv.Key.installerType);
             }
 
+            // 각 Installer별 NodeSource 시퀀스 생성
             foreach (Type installerType in installerTypes)
             {
-                List<List<object>> payload =
-                    DebugBuildSingleInstallerPayload(installerType);
+                List<NodeSource> sequence =
+                    DebugBuildSingleInstallerNodeSources(installerType);
 
-                if (payload != null && payload.Count > 0)
-                    allPayloads.Add(payload);
+                if (sequence != null && sequence.Count > 0)
+                    allSequences.Add(sequence);
             }
 
             // -----------------------------------
-            // 2) step 기준으로 함침
+            // 2) step 기준으로 머징
             // -----------------------------------
-            List<List<object>> composed =
-                ComposePayloads(allPayloads);
+            List<NodeSource> composed =
+                ComposeNodeSources(allSequences);
 
             // -----------------------------------
             // 3) 결과 출력
@@ -130,9 +131,11 @@ namespace Yoru.ChoMiniEngine
 
             for (int i = 0; i < composed.Count; i++)
             {
+                NodeSource source = composed[i];
+
                 Debug.Log($" Step {i}:");
 
-                foreach (object obj in composed[i])
+                foreach (object obj in source.Items)
                 {
                     Debug.Log($"   - {obj} ({obj.GetType().Name})");
                 }
@@ -141,14 +144,16 @@ namespace Yoru.ChoMiniEngine
             return composed;
         }
 
-        private List<List<object>> DebugBuildSingleInstallerPayload(Type installerType)
+
+        private List<NodeSource> DebugBuildSingleInstallerNodeSources(
+            Type installerType)
         {
             // -----------------------------------
             // 1) 옵션 + 바인딩으로 key 선택
             // -----------------------------------
             object key = null;
 
-            foreach (var pair in _options.DebugPairs())
+            foreach (KeyValuePair<Type, object> pair in _options.DebugPairs())
             {
                 object optionValue = pair.Value;
 
@@ -186,14 +191,17 @@ namespace Yoru.ChoMiniEngine
             // -----------------------------------
             // 4) Bind 호출
             // -----------------------------------
-            var bindMethod = installerType.GetMethod("Bind");
+            System.Reflection.MethodInfo bindMethod =
+                installerType.GetMethod("Bind");
+
             bindMethod.Invoke(installer, new[] { resource });
 
             // -----------------------------------
-            // 5) Payload 생성
+            // 5) NodeSource 생성
             // -----------------------------------
-            return installer.BuildPayload(this, _options);
+            return installer.BuildNodeSources(this, _options);
         }
+
 
         private object ResolveByType(Type installerType, object key)
         {
@@ -207,35 +215,46 @@ namespace Yoru.ChoMiniEngine
         }
 
 
-        private List<List<object>> ComposePayloads(
-            List<List<List<object>>> payloads)
+        private List<NodeSource> ComposeNodeSources(
+           List<List<NodeSource>> sequences)
         {
-            List<List<object>> result = new List<List<object>>();
+            List<NodeSource> result = new List<NodeSource>();
 
             int maxSteps = 0;
 
-            foreach (var payload in payloads)
+            // ---------------------------------
+            // 1) 최대 step 수 계산
+            // ---------------------------------
+            foreach (List<NodeSource> seq in sequences)
             {
-                if (payload.Count > maxSteps)
-                    maxSteps = payload.Count;
+                if (seq.Count > maxSteps)
+                    maxSteps = seq.Count;
             }
 
-            for (int i = 0; i < maxSteps; i++)
+            // ---------------------------------
+            // 2) step 기준으로 머징
+            // ---------------------------------
+            for (int stepIndex = 0; stepIndex < maxSteps; stepIndex++)
             {
-                List<object> step = new List<object>();
+                List<object> mergedItems = new List<object>();
 
-                foreach (var payload in payloads)
+                foreach (List<NodeSource> seq in sequences)
                 {
-                    if (i < payload.Count)
-                        step.AddRange(payload[i]);
+                    if (stepIndex < seq.Count)
+                    {
+                        mergedItems.AddRange(seq[stepIndex].Items);
+                    }
                 }
 
-                if (step.Count > 0)
-                    result.Add(step);
+                if (mergedItems.Count > 0)
+                {
+                    result.Add(new NodeSource(mergedItems));
+                }
             }
 
             return result;
         }
+
 
 
 
@@ -289,5 +308,16 @@ namespace Yoru.ChoMiniEngine
         }
 
     }
+
+    public readonly struct NodeSource
+    {
+        public readonly IReadOnlyList<object> Items;
+
+        public NodeSource(IReadOnlyList<object> items)
+        {
+            Items = items;
+        }
+    }
+
 
 }

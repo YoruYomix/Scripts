@@ -14,16 +14,13 @@ namespace Yoru.ChoMiniEngine
 
     public interface IChoMiniInstaller
     {
-        List<List<object>> BuildPayload(
+        List<NodeSource> BuildNodeSources(
             ChoMiniLifetimeScope scope,
             ChoMiniOptions options
         );
     }
 
 
-    // ======================================================
-    // GameObject Installer
-    // ======================================================
     public sealed class ChoMiniGameObjectInstaller : IChoMiniInstaller
     {
         private List<GameObject> _gameObjects;
@@ -36,9 +33,7 @@ namespace Yoru.ChoMiniEngine
             if (root == null)
                 throw new ArgumentNullException(nameof(root));
 
-            ChoMiniSequenceOrder order;
-
-            if (root.TryGetComponent<ChoMiniSequenceOrder>(out order))
+            if (root.TryGetComponent(out ChoMiniSequenceOrder order))
             {
                 _gameObjects = order.sequenceRoots;
             }
@@ -49,38 +44,38 @@ namespace Yoru.ChoMiniEngine
         }
 
         // ------------------------------
-        // BuildPayload (엔진 경계)
+        // BuildNodeSources (정식)
         // ------------------------------
-        public List<List<object>> BuildPayload(
+        public List<NodeSource> BuildNodeSources(
             ChoMiniLifetimeScope scope,
             ChoMiniOptions options)
         {
-            Debug.Log("[Installer] BuildPayload: GameObject");
+            Debug.Log("[Installer] BuildNodeSources: GameObject");
 
             if (_gameObjects == null)
                 throw new InvalidOperationException(
-                    "Bind() must be called before BuildPayload()"
+                    "Bind() must be called before BuildNodeSources()"
                 );
 
             List<List<GameObject>> groups = BuildGameObjectGroups();
-            var payload = new List<List<object>>();
+            List<NodeSource> result = new();
 
-            foreach (var group in groups)
+            foreach (List<GameObject> group in groups)
             {
-                var step = new List<object>();
+                List<object> items = new();
 
-                foreach (var go in group)
+                foreach (GameObject go in group)
                 {
                     if (go != null)
-                        step.Add(go);
+                        items.Add(go);
                 }
 
-                if (step.Count > 0)
-                    payload.Add(step);
+                if (items.Count > 0)
+                    result.Add(new NodeSource(items));
             }
 
-            Debug.Log("[Installer] Payload Steps = " + payload.Count);
-            return payload;
+            Debug.Log("[Installer] NodeSource Steps = " + result.Count);
+            return result;
         }
 
         // ------------------------------
@@ -88,7 +83,7 @@ namespace Yoru.ChoMiniEngine
         // ------------------------------
         private List<List<GameObject>> BuildGameObjectGroups()
         {
-            var groups = new List<List<GameObject>>();
+            List<List<GameObject>> groups = new();
 
             foreach (GameObject go in _gameObjects)
             {
@@ -97,7 +92,7 @@ namespace Yoru.ChoMiniEngine
 
                 if (go.name == "Parallel")
                 {
-                    var merged = new List<GameObject>();
+                    List<GameObject> merged = new();
 
                     foreach (Transform t in go.GetComponentsInChildren<Transform>(true))
                     {
@@ -109,9 +104,7 @@ namespace Yoru.ChoMiniEngine
                 }
                 else
                 {
-                    var single = new List<GameObject>();
-                    single.Add(go);
-                    groups.Add(single);
+                    groups.Add(new List<GameObject> { go });
                 }
             }
 
@@ -123,9 +116,7 @@ namespace Yoru.ChoMiniEngine
         // ------------------------------
         private List<GameObject> TreeToList(GameObject root)
         {
-            var list = new List<GameObject>();
-
-            list.Add(root);
+            List<GameObject> list = new() { root };
 
             Transform t = root.transform;
             int count = t.childCount;
@@ -138,6 +129,7 @@ namespace Yoru.ChoMiniEngine
             return list;
         }
     }
+
 
 
     // ======================================================
@@ -159,34 +151,39 @@ namespace Yoru.ChoMiniEngine
         }
 
         // ------------------------------
-        // BuildPayload
+        // BuildNodeSources
         // ------------------------------
-        public List<List<object>> BuildPayload(
+        public List<NodeSource> BuildNodeSources(
             ChoMiniLifetimeScope scope,
             ChoMiniOptions options)
         {
-            Debug.Log("[Installer] BuildPayload: String");
+            Debug.Log("[Installer] BuildNodeSources: String");
 
             if (_lines == null)
                 throw new InvalidOperationException(
-                    "Bind() must be called before BuildPayload()"
+                    "Bind() must be called before BuildNodeSources()"
                 );
 
-            var payload = new List<List<object>>();
+            List<NodeSource> result = new List<NodeSource>();
 
             foreach (string line in _lines)
             {
                 if (string.IsNullOrEmpty(line))
                     continue;
 
-                var step = new List<object>();
-                step.Add(line);
-                payload.Add(step);
+                // 한 줄 = 한 step
+                List<object> items = new List<object>
+            {
+                line
+            };
+
+                result.Add(new NodeSource(items));
             }
 
-            Debug.Log("[Installer] Payload Steps = " + payload.Count);
-            return payload;
+            Debug.Log("[Installer] NodeSource Steps = " + result.Count);
+            return result;
         }
     }
+
 
 }
