@@ -1,18 +1,23 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
     public sealed class ChoMiniLifetimeScope : IDisposable
     {
-        private readonly IReadOnlyList<BootRule> _rules;
+        private readonly IReadOnlyList<BootRule> _installerRules;
+        private readonly IReadOnlyList<BootRule> _factoryRules;
+        private readonly IReadOnlyList<BootRule> _providerRules;
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
 
-        public IReadOnlyList<BootRule> Rules => _rules;
+        public IReadOnlyList<BootRule> InstallerRules => _installerRules;
+        public IReadOnlyList<BootRule> FactoryRules => _factoryRules;
+        public IReadOnlyList<BootRule> ProviderRules => _providerRules;
         public ChoMiniOptions Options => _options;
 
         private ChoMiniComposer Composer
@@ -25,10 +30,14 @@ namespace Yoru.ChoMiniEngine
             }
         }
         public ChoMiniLifetimeScope(
-            IReadOnlyList<BootRule> rules,
+            IReadOnlyList<BootRule> installerRules,
+            IReadOnlyList<BootRule> factoryRules,
+            IReadOnlyList<BootRule> providerRules,
             ChoMiniOptions options)
         {
-            _rules = rules;
+            _installerRules = installerRules;
+            _factoryRules = factoryRules;
+            _providerRules = providerRules;
             _options = options;
         }
         public ChoMiniLifetimeScope Bind<TInstaller>(object resource)

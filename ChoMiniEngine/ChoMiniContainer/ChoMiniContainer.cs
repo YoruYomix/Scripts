@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using UnityEngine;
 
@@ -7,7 +8,9 @@ namespace Yoru.ChoMiniEngine
 {
     public class ChoMiniContainer
     {
-        private readonly List<BootRule> _rules  = new();
+        private readonly List<BootRule> _installerRules = new();
+        private readonly List<BootRule> _factoryRules = new();
+        private readonly List<BootRule> _providerRules = new();
 
         internal void RegisterInstallerType(Type installerType)
         {
@@ -24,18 +27,27 @@ namespace Yoru.ChoMiniEngine
             return new Builder();
         }
 
-        internal void AddRule(BootRule rule)
+        internal void AddInstallerRulesRule(BootRule rule)
         {
-            _rules .Add(rule);
+            _installerRules.Add(rule);
         }
-
+        internal void AddFactoryRule(BootRule rule)
+        {
+            _factoryRules.Add(rule);
+        }
+        internal void AddProviderRules(BootRule rule)
+        {
+            _providerRules.Add(rule);
+        }
         public ChoMiniLifetimeScope CreateScope(ChoMiniOptions options)
         {
             if (options == null)
                 throw new ArgumentNullException("options");
 
             return new ChoMiniLifetimeScope(
-                    rules: _rules,
+                    installerRules: _installerRules,
+                    factoryRules: _factoryRules,
+                    providerRules: _providerRules,
                     options: options
                 );
         }
@@ -47,7 +59,7 @@ namespace Yoru.ChoMiniEngine
         {
             Debug.Log("[ChoMiniContainer Rules]");
 
-            foreach (var group in _rules.GroupBy(r => r.Category))
+            foreach (var group in _providerRules.GroupBy(r => r.Category))
             {
                 Debug.Log($"Category: {group.Key.Name}");
 
@@ -89,14 +101,14 @@ namespace Yoru.ChoMiniEngine
             }
 
             // 팩토리 등록
-            public ImplementationBuilder<TCategory> RegisterFactory<TCategory>()
+            public FactoryBuilder<TCategory> RegisterFactory<TCategory>()
             {
-                return new ImplementationBuilder<TCategory>(_container,this);
+                return new FactoryBuilder<TCategory>(_container,this);
             }
 
-            public ImplementationBuilder<TCategory> RegisterProvider<TCategory>()
+            public FactoryBuilder<TCategory> RegisterProvider<TCategory>()
             {
-                return new ImplementationBuilder<TCategory>(_container, this);
+                return new FactoryBuilder<TCategory>(_container, this);
             }
 
 
@@ -127,7 +139,7 @@ namespace Yoru.ChoMiniEngine
                     throw new InvalidOperationException("Base() already defined.");
                 }
 
-                _container.AddRule(new BootRule
+                _container.AddInstallerRulesRule(new BootRule
                 {
                     Category  = typeof(TInstaller),
                     Kind = RuleKind.Base,
@@ -140,7 +152,7 @@ namespace Yoru.ChoMiniEngine
 
             public InstallerBuilder<TInstaller> Override(object key)
             {
-                _container.AddRule(new BootRule
+                _container.AddInstallerRulesRule(new BootRule
                 {
                     Category  = typeof(TInstaller),
                     Kind = RuleKind.Override,
@@ -161,25 +173,25 @@ namespace Yoru.ChoMiniEngine
             }
         }
         // ======================================================
-        // Implementation Builder
+        // Factory Builder
         // ======================================================
-        public sealed class ImplementationBuilder<TCategory>
+        public sealed class FactoryBuilder<TCategory>
         {
             private readonly ChoMiniContainer _container;
             private readonly Builder _builder;
             private bool _hasBase;
 
-            internal ImplementationBuilder(ChoMiniContainer container, Builder builder)
+            internal FactoryBuilder(ChoMiniContainer container, Builder builder)
             {
                 _container = container;
                 _builder = builder;
             }
 
-            public ImplementationBuilder<TCategory> Base<TImpl>()
+            public FactoryBuilder<TCategory> Base<TImpl>()
                 where TImpl : TCategory
             {
                 EnsureBaseOnce();
-                _container.AddRule(new BootRule
+                _container.AddFactoryRule(new BootRule
                 {
                     Category = typeof(TCategory),
                     ImplType = typeof(TImpl),
@@ -189,10 +201,10 @@ namespace Yoru.ChoMiniEngine
                 return this;
             }
 
-            public ImplementationBuilder<TCategory> Override<TImpl>(object key)
+            public FactoryBuilder<TCategory> Override<TImpl>(object key)
                 where TImpl : TCategory
             {
-                _container.AddRule(new BootRule
+                _container.AddFactoryRule(new BootRule
                 {
                     Category = typeof(TCategory),
                     ImplType = typeof(TImpl),
@@ -207,6 +219,62 @@ namespace Yoru.ChoMiniEngine
                 if (!_hasBase)
                     throw new InvalidOperationException(
                         $"{typeof(TCategory).Name} requires Base().");   
+                return _builder;
+            }
+            private void EnsureBaseOnce()
+            {
+                if (_hasBase) throw new InvalidOperationException("Base already set.");
+                _hasBase = true;
+            }
+        }
+
+        // ======================================================
+        // Factory Builder
+        // ======================================================
+        public sealed class ProviderBuilder<TCategory>
+        {
+            private readonly ChoMiniContainer _container;
+            private readonly Builder _builder;
+            private bool _hasBase;
+
+            internal ProviderBuilder(ChoMiniContainer container, Builder builder)
+            {
+                _container = container;
+                _builder = builder;
+            }
+
+            public ProviderBuilder<TCategory> Base<TImpl>()
+                where TImpl : TCategory
+            {
+                EnsureBaseOnce();
+                _container.AddProviderRules(new BootRule
+                {
+                    Category = typeof(TCategory),
+                    ImplType = typeof(TImpl),
+                    Kind = RuleKind.Base,
+                    Key = null
+                });
+                return this;
+            }
+
+            public ProviderBuilder<TCategory> Override<TImpl>(object key)
+                where TImpl : TCategory
+            {
+                _container.AddProviderRules(new BootRule
+                {
+                    Category = typeof(TCategory),
+                    ImplType = typeof(TImpl),
+                    Kind = RuleKind.Override,
+                    Key = key
+                });
+                return this;
+            }
+
+            public Builder End()
+            {
+                if (!_hasBase)
+                    throw new InvalidOperationException(
+                        $"{typeof(TCategory).Name} requires Base().");
                 return _builder;
             }
             private void EnsureBaseOnce()

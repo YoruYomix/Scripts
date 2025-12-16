@@ -30,7 +30,7 @@ public sealed class ChoMiniComposer
         List<BootRule> factoryRules = new List<BootRule>();
 
         // 스코프의 BootRule(팩토리/프로바이더/인스톨러에 대한 선언 룰 목록)에서 팩토리만 받아온다
-        foreach (BootRule scopeRule in _scope.Rules)
+        foreach (BootRule scopeRule in _scope.FactoryRules)
         {
             if (scopeRule.Category == typeof(IChoMiniFactory))
             {
@@ -87,7 +87,7 @@ public sealed class ChoMiniComposer
         // -------------------------------------------------
         List<BootRule> providerRules = new();
 
-        foreach (var rule in _scope.Rules)
+        foreach (var rule in _scope.ProviderRules)
         {
             if (typeof(ChoMiniProvider).IsAssignableFrom(rule.ImplType))
             {
