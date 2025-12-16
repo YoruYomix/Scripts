@@ -88,120 +88,13 @@ namespace Yoru.ChoMiniEngine
         {
             Debug.Log("[Scope] Play()");
             Composer.EnsureComposed();
-            DebugBuildPayloadOnly();
-        }
-        public void DebugBuildPayloadOnly()
-        {
-            Debug.Log("[Scope] DebugBuildPayloadOnly");
 
-            var payload = BuildPayloadFromInstallers();
-
-            Debug.Log("[Scope] Payload Steps = " + payload.Count);
         }
 
-        public List<List<object>> BuildPayloadFromInstallers()
-        {
-            Debug.Log("[Scope] BuildPayloadFromInstallers Start");
 
-            var merged = new List<List<object>>();
 
-            foreach (var rule in InstallerRules)
-            {
-                // Installer 타입 (예: ChoMiniGameObjectInstaller)
-                Type installerType = rule.Category;
 
-                // 옵션 키로 resolve할지, default로 resolve할지 결정
-                object keyToUse = null;
 
-                if (rule.Kind == RuleKind.Override)
-                {
-                    if (Options.Has(rule.Key))
-                    {
-                        keyToUse = rule.Key;
-                    }
-                    else
-                    {
-                        continue; // 이 override는 이번 옵션에 해당 없음
-                    }
-                }
-
-                // 1) Installer가 사용할 리소스 resolve (이미 Bind되어 있어야 함)
-                object resource = Resolve(installerType, keyToUse);
-
-                Debug.Log($"[Scope] Installer Resource: {installerType.Name} / Key={(keyToUse ?? "default")} / {resource.GetType().Name}");
-
-                // 2) Installer 인스턴스 생성
-                IChoMiniInstaller installer = (IChoMiniInstaller)Activator.CreateInstance(installerType);
-
-                // 3) 리소스 바인딩 (여기서 Install 타입별로 처리)
-                BindResourceToInstaller(installer, resource);
-
-                // 4) payload 생성
-                List<List<object>> payload = installer.BuildPayload(this, Options);
-
-                Debug.Log($"[Scope] Installer Payload Steps = {payload.Count}");
-
-                // 5) merge
-                foreach (var step in payload)
-                {
-                    merged.Add(step);
-                }
-            }
-
-            Debug.Log("[Scope] BuildPayloadFromInstallers End");
-            Debug.Log("[Scope] Merged Steps = " + merged.Count);
-
-            return merged;
-        }
-
-        private object Resolve(Type installerType, object key)
-        {
-            object obj;
-
-            // override 먼저
-            if (key != null)
-            {
-                if (_bindings.TryGetValue((installerType, key), out obj))
-                    return obj;
-            }
-
-            // default fallback
-            if (_bindings.TryGetValue((installerType, null), out obj))
-                return obj;
-
-            throw new KeyNotFoundException(
-                "Binding not found: " + installerType.Name + " / " + (key ?? "default")
-            );
-        }
-
-        private void BindResourceToInstaller(IChoMiniInstaller installer, object resource)
-        {
-            // GameObjectInstaller
-            if (installer is ChoMiniGameObjectInstaller goInstaller)
-            {
-                GameObject root = resource as GameObject;
-                if (root == null)
-                    throw new InvalidOperationException("GameObjectInstaller requires GameObject");
-
-                goInstaller.Bind(root);
-                return;
-            }
-
-            // StringInstaller
-            if (installer is ChoMiniStringInstaller strInstaller)
-            {
-                string[] lines = resource as string[];
-                if (lines == null)
-                    throw new InvalidOperationException("StringInstaller requires string[]");
-
-                strInstaller.Bind(lines);
-                return;
-            }
-
-            throw new InvalidOperationException(
-                "Unknown installer type: " + installer.GetType().Name
-            );
-        }
 
         public void Dispose()
         {
