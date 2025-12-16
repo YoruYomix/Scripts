@@ -23,9 +23,9 @@ namespace Yoru.ChoMiniEngine
             if (_currentNode == null)
                 return;
 
-            foreach (var effect in _currentNode.Actions)
+            foreach (var action in _currentNode.Actions)
             {
-                effect.Pause();
+                action.Pause();
             }
         }
 
@@ -38,9 +38,9 @@ namespace Yoru.ChoMiniEngine
             if (_currentNode == null)
                 return;
 
-            foreach (var effect in _currentNode.Actions)
+            foreach (var action in _currentNode.Actions)
             {
-                effect.Resume();
+                action.Resume();
             }
         }
 
@@ -64,9 +64,9 @@ namespace Yoru.ChoMiniEngine
 
             try
             {
-                foreach (var effect in node.Actions)
+                foreach (var action in node.Actions)
                 {
-                    effect.Play();
+                    action.Play();
                 }
 
                 float time = 0f;
@@ -85,9 +85,9 @@ namespace Yoru.ChoMiniEngine
                 if (_disposed)
                     return;
 
-                foreach (var effect in node.Actions)
+                foreach (var action in node.Actions)
                 {
-                    effect.Finish();
+                    action.Complete();
                 }
             }
             finally
@@ -108,7 +108,7 @@ namespace Yoru.ChoMiniEngine
             {
                 foreach (var effect in _currentNode.Actions)
                 {
-                    effect.Finish();
+                    effect.Complete();
                 }
 
                 _currentNode = null;

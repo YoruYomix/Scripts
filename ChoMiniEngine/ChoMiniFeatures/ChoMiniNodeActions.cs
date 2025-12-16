@@ -21,7 +21,27 @@ namespace Yoru.ChoMiniEngine
             _target.SetActive(true);
         }
 
-        public void Finish() { }
+        public void Complete() 
+        { 
+        
+        }
+
+
+
+        public void Pause()
+        {
+
+        }
+
+        public void Resume()
+        {
+
+        }
+
+        public void Recovery(float time)
+        {
+
+        }
     }
 
 
@@ -57,12 +77,28 @@ namespace Yoru.ChoMiniEngine
             _tween = _image.DOFade(_originalColor.a, _fadeDuration);
         }
 
-        public void Finish()
+        public void Complete()
         {
             // 스킵 → Kill(true) 로 바로 최종 값으로 보정됨
             if (_tween != null && _tween.IsActive())
                 _tween.Kill(true);  // true = "완료 상태로 처리"
         }
 
+
+
+        public void Pause()
+        {
+
+        }
+
+        public void Resume()
+        {
+
+        }
+
+        public void Recovery(float time)
+        {
+
+        }
     }
 }
