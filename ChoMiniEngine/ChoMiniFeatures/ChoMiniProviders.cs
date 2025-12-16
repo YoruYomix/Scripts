@@ -17,11 +17,18 @@ namespace Yoru.ChoMiniEngine
         {
             foreach (var obj in objects)
             {
-                if (obj is not GameObject go)
+                // 여기서 obj는 "시퀀스 단계 하나"
+                if (obj is not List<GameObject> gameObjects)
                     continue;
 
-                Debug.Log("콜렉트 이펙트: " + go.name);
-                node.Actions.Add(new ActivationAction(go));
+                foreach (var go in gameObjects)
+                {
+                    if (go == null)
+                        continue;
+
+                    Debug.Log("콜렉트 이펙트: " + go.name);
+                    node.Actions.Add(new ActivationAction(go));
+                }
             }
         }
     }
@@ -34,14 +41,21 @@ namespace Yoru.ChoMiniEngine
         {
             foreach (var obj in objects)
             {
-                if (obj is not GameObject go)
+                // obj == List<GameObject> (시퀀스의 한 스텝)
+                if (obj is not List<GameObject> gameObjects)
                     continue;
 
-                var img = go.GetComponent<Image>();
-                if (img == null)
-                    continue;
+                foreach (var go in gameObjects)
+                {
+                    if (go == null)
+                        continue;
 
-                node.Actions.Add(new FadeInAction(img));
+                    var img = go.GetComponent<Image>();
+                    if (img == null)
+                        continue;
+
+                    node.Actions.Add(new FadeInAction(img));
+                }
             }
         }
     }
@@ -56,14 +70,21 @@ namespace Yoru.ChoMiniEngine
 
             foreach (var obj in objects)
             {
-                if (obj is not GameObject go)
+                // obj == List<GameObject> (시퀀스의 한 스텝)
+                if (obj is not List<GameObject> gameObjects)
                     continue;
 
-                var img = go.GetComponent<Image>();
-                if (img == null)
-                    continue;
+                foreach (var go in gameObjects)
+                {
+                    if (go == null)
+                        continue;
 
-                node.Actions.Add(new FadeInAction(img));
+                    var img = go.GetComponent<Image>();
+                    if (img == null)
+                        continue;
+
+                    node.Actions.Add(new FadeInAction(img));
+                }
             }
         }
     }

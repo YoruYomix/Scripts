@@ -11,9 +11,8 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniSequenceFactory : IChoMiniFactory
     {
         List<List<object>> _targetObjectGroups;
-        private List<Func<IChoMiniGameObjectActivationProvider>> _providerFactories;
 
-        private List<IChoMiniGameObjectActivationProvider> _providers;  // Lazy-created, cached per scope
+        private List<ChoMiniProvider> _providers;  // Lazy-created, cached per scope
 
         LoopProvider _mockLoopProvider;
         int _index = 0;
@@ -35,36 +34,17 @@ namespace Yoru.ChoMiniEngine
             _mockLoopProvider = new LoopProvider();  // 리팩토링중 임시
         }
 
-        // ------------------------
-        // Lazy Provider 초기화
-        // ------------------------
-        private void EnsureProviders()
-        {
-            if (_providers != null)
-                return;
-
-            _providers = new List<IChoMiniGameObjectActivationProvider>();
-
-            if (_providerFactories == null)
-                return; // 빈 Provider 목록으로 동작 가능
-
-            foreach (var factory in _providerFactories)
-                _providers.Add(factory());
-        }
 
 
         public void Initialize(
             List<List<object>> targetObjectGroups,
-            List<Func<IChoMiniGameObjectActivationProvider>> providerFactories,
+            List<ChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber)
         {
-            Debug.Log("팩토리 타겟:" + targetObjectGroups);
+            Debug.Log($"팩토리 타겟 그룹 수: {_targetObjectGroups.Count}");
             _targetObjectGroups = targetObjectGroups;
-            _providerFactories = providerFactories;
+            _providers = providers;
             _skipSubscriber = skipSubscriber;
-
-            // 테스트/실사용 모두 안정적
-            EnsureProviders();
         }
 
         public ChoMiniNode Create()
@@ -79,10 +59,10 @@ namespace Yoru.ChoMiniEngine
 
             // Provider가 Effects를 채운다
             foreach (var provider in _providers)
-                provider.CollectEffects(go, node);
+                provider.CollectEffects(objects, node);
 
-            // LoopProvider도 Effects를 채운다
-            _mockLoopProvider.CollectEffects(go, node);
+            //// 루프는 리액터로 대체, 삭제예정(임시)
+            //_mockLoopProvider.CollectEffects(go, node);
 
             // Duration 계산: 이벤트 리스트의 모든 듀레이션중 가장 큰 값이 노드 자체의 듀레이션 됨
             float maxDuration = 0f;
