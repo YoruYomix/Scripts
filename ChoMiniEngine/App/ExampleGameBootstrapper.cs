@@ -71,9 +71,9 @@ namespace Yoru.App
                     .Override<ChoMiniImageFadeProviderSpeed2x>(PlaySpeed.Speed2x)
                     .End()
                     
-                .RegisterProvider<IChoMiniTextTypingProvider>()
-                    .Base<ChoMiniTextTypingProvider>()
-                    .Override<ChoMiniTextTypingProviderSpeed2x>(PlaySpeed.Speed2x)
+                .RegisterProvider<IChoMiniStringTypingProvider>()
+                    .Base<ChoMiniStringTypingProvider>()
+                    .Override<ChoMiniStringTypingProviderSpeed2x>(PlaySpeed.Speed2x)
                     .End()
 
                 .Build();

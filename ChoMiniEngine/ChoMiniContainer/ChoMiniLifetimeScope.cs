@@ -109,6 +109,7 @@ namespace Yoru.ChoMiniEngine
 
             _orchestrator.CompleteSequence();
         }
+
         // ==========================================================
         // 외부 DSL UX 엔트리:
         // Installer 타입 + 옵션 키 → 리소스 매핑

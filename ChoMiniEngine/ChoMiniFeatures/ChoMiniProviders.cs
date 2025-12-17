@@ -71,10 +71,14 @@ namespace Yoru.ChoMiniEngine
             node.Actions.Add(new FadeInAction(img));
         }
     }
-    public interface IChoMiniTextTypingProvider { }
 
 
-    public class ChoMiniTextTypingProvider : ChoMiniProvider, IChoMiniTextTypingProvider
+
+
+
+    public interface IChoMiniStringTypingProvider { }
+
+    public class ChoMiniStringTypingProvider : ChoMiniProvider, IChoMiniStringTypingProvider
     {
         public override void CollectEffects(object cbj, ChoMiniNode node)
         {
@@ -88,7 +92,7 @@ namespace Yoru.ChoMiniEngine
             // (Provider 파이프라인 테스트용 더미)
         }
     }
-    public class ChoMiniTextTypingProviderSpeed2x : ChoMiniProvider, IChoMiniTextTypingProvider
+    public class ChoMiniStringTypingProviderSpeed2x : ChoMiniProvider, IChoMiniStringTypingProvider
     {
         public override void CollectEffects(object cbj, ChoMiniNode node)
         {
