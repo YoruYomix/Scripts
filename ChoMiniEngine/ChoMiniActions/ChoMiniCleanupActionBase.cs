@@ -1,5 +1,6 @@
 using System;
 using MessagePipe;
+using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
@@ -12,6 +13,7 @@ namespace Yoru.ChoMiniEngine
     {
         private IDisposable _cleanupSubscription;
         private bool _cleanedUp;
+        private bool _disposed;
 
         protected ChoMiniCleanupActionBase(ISubscriber<ChoMiniScopeCleanupRequested> cleanupSubscriber)
         {
@@ -42,6 +44,9 @@ namespace Yoru.ChoMiniEngine
         // =========================
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
+
             _cleanupSubscription?.Dispose();
             _cleanupSubscription = null;
         }

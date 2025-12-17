@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using MessagePipe;
 
 namespace Yoru.ChoMiniEngine
 {
@@ -44,7 +42,7 @@ namespace Yoru.ChoMiniEngine
             if (img == null)
                 return;
 
-            node.Actions.Add(new ChoMiniUIImageFadeInAction(img));
+            node.Actions.Add(new ChoMiniUIImageFadeInAction(img, scopeMsg));
         }
     }
 
@@ -68,7 +66,7 @@ namespace Yoru.ChoMiniEngine
             if (img == null)
                 return;
 
-            node.Actions.Add(new ChoMiniUIImageFadeInAction(img));
+            node.Actions.Add(new ChoMiniUIImageFadeInAction(img, scopeMsg));
         }
     }
 

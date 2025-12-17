@@ -4,60 +4,81 @@ using UnityEngine.UI;
 
 namespace Yoru.ChoMiniEngine
 {
-    public class ChoMiniUIImageFadeInAction : IChoMiniNodeAction
+    public sealed class ChoMiniUIImageFadeInAction : ChoMiniCleanupActionBase
     {
-        public float GetRequiredDuration() => _fadeDuration;
+        public override float GetRequiredDuration() => _fadeDuration;
+
         private readonly Image _image;
         private readonly Color _originalColor;
         private Tween _tween;
-        private float _fadeDuration = 2f;
-        public GameObject GameObject
-        {
-            get
-            {
-                return _image.gameObject;
-            }
-        }
+        private readonly float _fadeDuration = 2f;
 
-        public ChoMiniUIImageFadeInAction(Image image)
+        public ChoMiniUIImageFadeInAction(
+            Image image,
+            ChoMiniScopeMessageContext scopeMsg)
+            : base(scopeMsg.CleanupSubscriber)
         {
             _image = image;
             _originalColor = image.color;
         }
 
-        public void Play()
+        // ==============================
+        // Play Control
+        // ==============================
+        public override void Play()
         {
-            // 알파 0으로 초기화
+            // 기존 트윈 정리 (중복 방어)
+            _tween?.Kill(false);
+            _tween = null;
+
             Color c = _originalColor;
             c.a = 0f;
             _image.color = c;
 
-            // 완료 시 자동으로 원본 색상으로 도달함
-            _tween = _image.DOFade(_originalColor.a, _fadeDuration);
+            _tween = _image
+                .DOFade(_originalColor.a, _fadeDuration)
+                .SetAutoKill(false);
         }
 
-        public void Complete()
+        public override void Complete()
         {
-            // 스킵 → Kill(true) 로 바로 최종 값으로 보정됨
-            if (_tween != null && _tween.IsActive())
-                _tween.Kill(true);  // true = "완료 상태로 처리"
+            // 스킵 = 최종 상태 보장
+            _tween?.Kill(true);
+            _tween = null;
         }
 
-
-
-        public void Pause()
+        public override void Pause()
         {
+            if (_tween == null) return;
+            if (!_tween.IsActive()) return;
+            if (!_tween.IsPlaying()) return;
 
+            _tween.Pause();
         }
 
-        public void Resume()
+        public override void Resume()
         {
+            if (_tween == null) return;
+            if (!_tween.IsActive()) return;
+            if (_tween.IsPlaying()) return;
 
+            _tween.Play();
         }
 
-        public void Recovery(float time)
+        public override void Recovery(float time)
         {
+            // DOTween은 시간 기반 복구도 가능하지만
+            // 현재 엔진 단계에서는 의도적으로 비워둠
+        }
 
+        // ==============================
+        // Cleanup
+        // ==============================
+        protected override void OnCleanup()
+        {
+            // 수명 종료 = 중단만
+            _tween?.Kill(false);
+            _tween = null;
         }
     }
 }
