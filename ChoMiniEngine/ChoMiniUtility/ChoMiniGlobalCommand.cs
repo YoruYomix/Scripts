@@ -7,9 +7,9 @@ namespace Yoru.ChoMiniEngine.Utility
     /// 외부(UI/키보드/스크립트)는 이 클래스를 통해 Play/Skip/Pause 등을 호출한다.
     /// 내부 엔진은 MessagePipe Publisher를 받아서 처리한다.
     /// </summary>
-    public static class ChoMiniCommand
+    public static class ChoMiniGlobalCommand
     {
-        internal static IPublisher<ChoMiniCommandAdvanceRequested> SkipPub;
+        internal static IPublisher<ChoMiniCommandAdvanceRequested> AdvancePub;
 
 
         // -------------------------------------------------------
@@ -20,7 +20,7 @@ namespace Yoru.ChoMiniEngine.Utility
         /// <summary>스토리 진행(다음 노드 재생 요청)</summary>
         public static void Advance()
         {
-            SkipPub?.Publish(new ChoMiniCommandAdvanceRequested());
+            AdvancePub?.Publish(new ChoMiniCommandAdvanceRequested());
         }
 
         /// <summary>재생 일시정지</summary>
@@ -44,7 +44,7 @@ namespace Yoru.ChoMiniEngine.Utility
         IPublisher<ChoMiniCommandAdvanceRequested> skip
         )
         {
-            SkipPub = skip;
+            AdvancePub = skip;
         }
     }
 

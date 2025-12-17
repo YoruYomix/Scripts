@@ -16,7 +16,7 @@ namespace Yoru.App
 
         private void OnSkipClicked()
         {
-            ChoMiniCommand.Advance();
+            ChoMiniGlobalCommand.Advance();
             Debug.LogWarning("진행 버튼 클릭 됨");
         }
     }

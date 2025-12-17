@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using Yoru.ChoMiniEngine;
 using MessagePipe;
+using Yoru.ChoMiniEngine.Utility;
 
 namespace Yoru.App
 {
@@ -24,7 +25,7 @@ namespace Yoru.App
 
         private void Start()
         {
-            ChoMiniBootstrapper.Boot();
+            ChoMiniRoot.Boot();
             Configure();
             PlayScope();
         }
@@ -126,11 +127,13 @@ namespace Yoru.App
             //scope.DebugPrint();
             //scope.DebugPrintInstallers();
 
-            ChoMiniBootstrapper.CommandContext.AdvanceSubscriber
-                .Subscribe(_ => scope.Play());
+            ChoMiniRoot.CommandContext.AdvanceSubscriber
+                .Subscribe(_ => ChoMiniScopeCommand.Advance(scope));
 
-
+             
         }
+
+
     }
 }
 

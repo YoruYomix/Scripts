@@ -17,17 +17,22 @@ namespace Yoru.ChoMiniEngine
         private ChoMiniComposer _composer;
         readonly ChoMiniLocalMessageContext _localMsg;
         ChoMiniOrchestrator _orchestrator;
-        private bool _disposed;
+
+
+
 
         public IReadOnlyList<BootRule> InstallerRules => _installerRules;
         public IReadOnlyList<BootRule> FactoryRules => _factoryRules;
         public IReadOnlyList<BootRule> ProviderRules => _providerRules;
         public ChoMiniOptions Options => _options;
 
-        bool _isPlaying = false;
-        private bool _paused;
 
-        public bool IsPlaying => _isPlaying;
+ 
+
+        private ScopeState _state = ScopeState.Created;
+        private bool _paused;
+        public ScopeState State => _state;
+
 
         private ChoMiniComposer Composer
         {
@@ -60,13 +65,15 @@ namespace Yoru.ChoMiniEngine
         // ================================
         public async UniTask Play()
         {
-            if (_disposed)
+            if (_state == ScopeState.Disposed)
                 throw new ObjectDisposedException(nameof(ChoMiniLifetimeScope));
 
-            if (_isPlaying)
-                throw new InvalidOperationException("Scope is already playing.");
+            if (_state != ScopeState.Created)
+                throw new InvalidOperationException(
+                    $"Play() is not allowed in state {_state}");
 
-            _isPlaying = true;
+
+            _state = ScopeState.Playing;
             Debug.Log("[Scope] Play()");
 
             try
@@ -77,16 +84,18 @@ namespace Yoru.ChoMiniEngine
                     localMessageContext: _localMsg
                     );
                 await _orchestrator.PlaySequence();
+
+                _state = ScopeState.Completed;
             }
-            finally
+            catch
             {
-                _isPlaying = false;
+                _state = ScopeState.Completed;
+                throw;
             }
         }
         public void Pause()
         {
-            if (_disposed) return;
-            if (!_isPlaying) return;
+            if (_state != ScopeState.Playing) return;
             if (_paused) return;
 
             _paused = true;
@@ -95,8 +104,7 @@ namespace Yoru.ChoMiniEngine
 
         public void Resume()
         {
-            if (_disposed) return;
-            if (!_isPlaying) return;
+            if (_state != ScopeState.Playing) return;
             if (!_paused) return;
 
             _paused = false;
@@ -104,10 +112,10 @@ namespace Yoru.ChoMiniEngine
         }
         public void Complete()
         {
-            if (_disposed) return;
-            if (!_isPlaying) return;
+            if (_state != ScopeState.Playing) return;
 
             _orchestrator.CompleteSequence();
+            _state = ScopeState.Completed;
         }
 
         // ==========================================================
@@ -328,19 +336,19 @@ namespace Yoru.ChoMiniEngine
 
         public void Dispose()
         {
-            if (_disposed)
+            if (_state == ScopeState.Disposed)
                 return;
 
-            _disposed = true;
-            _isPlaying = false;
+            _state = ScopeState.Disposed;
+            _paused = false;
+
+
 
             // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
             _composer?.Dispose();
             _orchestrator?.Dispose();
             _localMsg?.Dispose();
         }
-
-
     }
 
     public readonly struct NodeSource
@@ -351,6 +359,14 @@ namespace Yoru.ChoMiniEngine
         {
             Items = items;
         }
+    }
+
+    public enum ScopeState
+    {
+        Created,
+        Playing,
+        Completed,
+        Disposed
     }
 
 

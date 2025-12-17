@@ -10,7 +10,7 @@ namespace Yoru.ChoMiniEngine
     /// - 🎮 ChoMiniCommand 연결
     /// - 🔒 중복 부팅 방지
     /// </summary>
-    public static class ChoMiniBootstrapper
+    public static class ChoMiniRoot
     {
         private static bool _booted = false;
 
@@ -51,7 +51,7 @@ namespace Yoru.ChoMiniEngine
                 // ---------------------------------------------------------
                 // 2) 🎮 ChoMiniCommand 내부 Publisher 연결
                 // ---------------------------------------------------------
-                ChoMiniCommand.Initialize(
+                ChoMiniGlobalCommand.Initialize(
                     _commandContext.SkipPublisher
                 );
 
