@@ -5,16 +5,16 @@ using UnityEngine.UI;
 
 namespace Yoru.ChoMiniEngine
 {
-    public abstract class ChoMiniProvider 
+    public interface IChoMiniProvider 
     {
-        abstract public void CollectEffects(object objects, ChoMiniNode node);
+        public void CollectEffects(object objects, ChoMiniNode node);
     }
     public interface IChoMiniGameObjectActivationProvider{}
 
     public class ChoMiniGameObjectActivationProvider
-        : ChoMiniProvider, IChoMiniGameObjectActivationProvider
+        : IChoMiniProvider, IChoMiniGameObjectActivationProvider
     {
-        public override void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node)
         {
             if (obj is not GameObject go)
                 return;
@@ -30,9 +30,9 @@ namespace Yoru.ChoMiniEngine
     public interface IChoMiniImageProvider{}
 
     public class ChoMiniImageFadeProvider
-        : ChoMiniProvider, IChoMiniImageProvider
+        : IChoMiniProvider, IChoMiniImageProvider
     {
-        public override void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node)
         {
             if (obj is not GameObject go)
                 return;
@@ -48,9 +48,9 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-    public class ChoMiniImageFadeProviderSpeed2x : ChoMiniProvider, IChoMiniImageProvider
+    public class ChoMiniImageFadeProviderSpeed2x : IChoMiniProvider, IChoMiniImageProvider
     {
-        public override void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node)
         {
             // TODO:
             // - Speed2x 전용 Fade 연출 분리 (duration 축소 또는 전용 Action)
@@ -77,9 +77,9 @@ namespace Yoru.ChoMiniEngine
 
     public interface IChoMiniStringTypingProvider { }
 
-    public class ChoMiniStringTypingProvider : ChoMiniProvider, IChoMiniStringTypingProvider
+    public class ChoMiniStringTypingProvider : IChoMiniProvider, IChoMiniStringTypingProvider
     {
-        public override void CollectEffects(object cbj, ChoMiniNode node)
+        public void CollectEffects(object cbj, ChoMiniNode node)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요
@@ -91,9 +91,9 @@ namespace Yoru.ChoMiniEngine
             // (Provider 파이프라인 테스트용 더미)
         }
     }
-    public class ChoMiniStringTypingProviderSpeed2x : ChoMiniProvider, IChoMiniStringTypingProvider
+    public class ChoMiniStringTypingProviderSpeed2x : IChoMiniProvider, IChoMiniStringTypingProvider
     {
-        public override void CollectEffects(object cbj, ChoMiniNode node)
+        public void CollectEffects(object cbj, ChoMiniNode node)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요

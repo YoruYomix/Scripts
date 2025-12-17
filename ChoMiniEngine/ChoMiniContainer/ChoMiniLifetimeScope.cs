@@ -159,12 +159,12 @@ namespace Yoru.ChoMiniEngine
                 (IChoMiniFactory)Activator.CreateInstance(Composer.SelectedFactoryType);
 
             // 3) Provider »ý¼º
-            List<ChoMiniProvider> providers = new();
+            List<IChoMiniProvider> providers = new();
 
             foreach (Type providerType in Composer.SelectedProviderTypes)
             {
-                ChoMiniProvider provider =
-                    (ChoMiniProvider)Activator.CreateInstance(providerType);
+                IChoMiniProvider provider =
+                    (IChoMiniProvider)Activator.CreateInstance(providerType);
                 providers.Add(provider);
             }
 

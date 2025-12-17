@@ -10,7 +10,7 @@ namespace Yoru.ChoMiniEngine
     {
         void Initialize(
     List<NodeSource> sources,
-    List<ChoMiniProvider> providers,
+    List<IChoMiniProvider> providers,
     ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber);
 
         int Count { get; }
@@ -28,7 +28,7 @@ namespace Yoru.ChoMiniEngine
     {
         private List<NodeSource> _nodeSources;
 
-        private List<ChoMiniProvider> _providers;
+        private List<IChoMiniProvider> _providers;
         private int _index = 0;
         private ISubscriber<ChoMiniLocalCompleteRequested> _skipSubscriber;
 
@@ -39,7 +39,7 @@ namespace Yoru.ChoMiniEngine
         // ------------------------------
         public void Initialize(
             List<NodeSource> nodeSources,
-            List<ChoMiniProvider> providers,
+            List<IChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber)
         {
             if (nodeSources == null)
@@ -74,7 +74,7 @@ namespace Yoru.ChoMiniEngine
             {
                 if (item == null) continue;
 
-                foreach (ChoMiniProvider provider in _providers)
+                foreach (IChoMiniProvider provider in _providers)
                 {
                     if (provider == null) continue;
 
@@ -100,7 +100,7 @@ namespace Yoru.ChoMiniEngine
     {
         private List<NodeSource> _nodeSources;
 
-        private List<ChoMiniProvider> _providers;
+        private List<IChoMiniProvider> _providers;
         private int _index = 0;
         private ISubscriber<ChoMiniLocalCompleteRequested> _skipSubscriber;
 
@@ -111,7 +111,7 @@ namespace Yoru.ChoMiniEngine
         // ------------------------------
         public void Initialize(
             List<NodeSource> nodeSources,
-            List<ChoMiniProvider> providers,
+            List<IChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber)
         {
             if (nodeSources == null)
@@ -146,7 +146,7 @@ namespace Yoru.ChoMiniEngine
             {
                 if (item == null) continue;
 
-                foreach (ChoMiniProvider provider in _providers)
+                foreach (IChoMiniProvider provider in _providers)
                 {
                     if (provider == null) continue;
 
@@ -170,7 +170,7 @@ namespace Yoru.ChoMiniEngine
     {
         private List<NodeSource> _nodeSources;
 
-        private List<ChoMiniProvider> _providers;
+        private List<IChoMiniProvider> _providers;
         private int _index = 0;
         private ISubscriber<ChoMiniLocalCompleteRequested> _skipSubscriber;
 
@@ -181,7 +181,7 @@ namespace Yoru.ChoMiniEngine
         // ------------------------------
         public void Initialize(
             List<NodeSource> nodeSources,
-            List<ChoMiniProvider> providers,
+            List<IChoMiniProvider> providers,
             ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber)
         {
             if (nodeSources == null)
@@ -216,7 +216,7 @@ namespace Yoru.ChoMiniEngine
             {
                 if (item == null) continue;
 
-                foreach (ChoMiniProvider provider in _providers)
+                foreach (IChoMiniProvider provider in _providers)
                 {
                     if (provider == null) continue;
 
