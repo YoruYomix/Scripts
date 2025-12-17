@@ -3,17 +3,17 @@ using System;
 
 
 public struct ChoMiniCommandAdvanceRequested { }
-public struct SequenceStartMessage { }
-public struct SequenceEndMessage { }
-public struct ChoMiniLocalCompleteRequested { }
 
-public class ChoMiniCommandContext
+
+public class ChoMiniCommandContext : IDisposable
 {
 
     public IPublisher<ChoMiniCommandAdvanceRequested> SkipPublisher { get; private set; }
     public ISubscriber<ChoMiniCommandAdvanceRequested> AdvanceSubscriber { get; private set; }
 
-
+    // Provider를 필드로 보관합니다.
+    private readonly IServiceProvider _provider;
+    private bool _disposed;
     public ChoMiniCommandContext()
     {
         var builder = new BuiltinContainerBuilder();
@@ -21,47 +21,27 @@ public class ChoMiniCommandContext
         builder.AddMessagePipe();
         builder.AddMessageBroker<ChoMiniCommandAdvanceRequested>();
 
-        var provider = builder.BuildServiceProvider();
+        _provider = builder.BuildServiceProvider();
 
         // 스킵 인풋에 연결됨. 노드들의 듀레이션을 0으로 만든다.
-        SkipPublisher = provider.GetRequiredService<IPublisher<ChoMiniCommandAdvanceRequested>>();
-        AdvanceSubscriber = provider.GetRequiredService<ISubscriber<ChoMiniCommandAdvanceRequested>>();
-    }
-}
-
-
-
-public sealed class ChoMiniLocalMessageContext : IDisposable
-{
-    public IPublisher<ChoMiniLocalCompleteRequested> CompletePublisher { get; }
-    public ISubscriber<ChoMiniLocalCompleteRequested> CompleteSubscriber { get; }
-
-
-    private bool _disposed;
-
-    public ChoMiniLocalMessageContext()
-    {
-        var builder = new BuiltinContainerBuilder();
-
-        builder.AddMessagePipe();
-        builder.AddMessageBroker<ChoMiniLocalCompleteRequested>();
-
-        var provider = builder.BuildServiceProvider();
-
-
-
-        CompletePublisher =
-            provider.GetRequiredService<IPublisher<ChoMiniLocalCompleteRequested>>();
-
-        CompleteSubscriber =
-            provider.GetRequiredService<ISubscriber<ChoMiniLocalCompleteRequested>>();
+        SkipPublisher = _provider.GetRequiredService<IPublisher<ChoMiniCommandAdvanceRequested>>();
+        AdvanceSubscriber = _provider.GetRequiredService<ISubscriber<ChoMiniCommandAdvanceRequested>>();
     }
 
     public void Dispose()
     {
         if (_disposed) return;
+
+        // IDisposable을 구현한 Provider라면 Dispose를 호출해줍니다.
+        if (_provider is IDisposable disposableProvider)
+        {
+            disposableProvider.Dispose();
+        }
+
         _disposed = true;
-
-
     }
 }
+
+
+
+

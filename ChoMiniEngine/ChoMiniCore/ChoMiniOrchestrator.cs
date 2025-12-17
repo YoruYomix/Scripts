@@ -12,7 +12,7 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly ChoMiniNodeRunner _runner;
         private IChoMiniFactory _factory;
-        ChoMiniLocalMessageContext _localMsg;
+        ChoMiniScopeMessageContext _localMsg;
 
         private bool _hasStarted = false;
         private bool _disposed = false;
@@ -23,7 +23,7 @@ namespace Yoru.ChoMiniEngine
         {
             _runner = runner;
         }
-        public void Initialize(IChoMiniFactory factory, ChoMiniLocalMessageContext localMessageContext)
+        public void Initialize(IChoMiniFactory factory, ChoMiniScopeMessageContext localMessageContext)
         {
             _factory = factory;
             _localMsg = localMessageContext;
@@ -54,7 +54,7 @@ namespace Yoru.ChoMiniEngine
             {
                 return;
             }
-            _localMsg.CompletePublisher.Publish(new ChoMiniLocalCompleteRequested());
+            _localMsg.CompletePublisher.Publish(new ChoMiniScopeCompleteRequested());
         }
 
         public async UniTask PlaySequence()

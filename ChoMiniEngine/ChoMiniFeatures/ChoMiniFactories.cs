@@ -11,7 +11,7 @@ namespace Yoru.ChoMiniEngine
         void Initialize(
     List<NodeSource> sources,
     List<IChoMiniProvider> providers,
-    ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber);
+    ISubscriber<ChoMiniScopeCompleteRequested> skipSubscriber);
 
         int Count { get; }
 
@@ -30,7 +30,7 @@ namespace Yoru.ChoMiniEngine
 
         private List<IChoMiniProvider> _providers;
         private int _index = 0;
-        private ISubscriber<ChoMiniLocalCompleteRequested> _skipSubscriber;
+        private ISubscriber<ChoMiniScopeCompleteRequested> _skipSubscriber;
 
         public int Count => _nodeSources?.Count ?? 0;
 
@@ -40,7 +40,7 @@ namespace Yoru.ChoMiniEngine
         public void Initialize(
             List<NodeSource> nodeSources,
             List<IChoMiniProvider> providers,
-            ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber)
+            ISubscriber<ChoMiniScopeCompleteRequested> skipSubscriber)
         {
             if (nodeSources == null)
                 throw new ArgumentNullException(nameof(nodeSources));
@@ -102,7 +102,7 @@ namespace Yoru.ChoMiniEngine
 
         private List<IChoMiniProvider> _providers;
         private int _index = 0;
-        private ISubscriber<ChoMiniLocalCompleteRequested> _skipSubscriber;
+        private ISubscriber<ChoMiniScopeCompleteRequested> _skipSubscriber;
 
         public int Count => _nodeSources?.Count ?? 0;
 
@@ -112,7 +112,7 @@ namespace Yoru.ChoMiniEngine
         public void Initialize(
             List<NodeSource> nodeSources,
             List<IChoMiniProvider> providers,
-            ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber)
+            ISubscriber<ChoMiniScopeCompleteRequested> skipSubscriber)
         {
             if (nodeSources == null)
                 throw new ArgumentNullException(nameof(nodeSources));
@@ -172,7 +172,7 @@ namespace Yoru.ChoMiniEngine
 
         private List<IChoMiniProvider> _providers;
         private int _index = 0;
-        private ISubscriber<ChoMiniLocalCompleteRequested> _skipSubscriber;
+        private ISubscriber<ChoMiniScopeCompleteRequested> _skipSubscriber;
 
         public int Count => _nodeSources?.Count ?? 0;
 
@@ -182,7 +182,7 @@ namespace Yoru.ChoMiniEngine
         public void Initialize(
             List<NodeSource> nodeSources,
             List<IChoMiniProvider> providers,
-            ISubscriber<ChoMiniLocalCompleteRequested> skipSubscriber)
+            ISubscriber<ChoMiniScopeCompleteRequested> skipSubscriber)
         {
             if (nodeSources == null)
                 throw new ArgumentNullException(nameof(nodeSources));

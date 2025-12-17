@@ -45,7 +45,7 @@ namespace Yoru.ChoMiniEngine
                 throw new ArgumentNullException("options");
 
 
-            ChoMiniLocalMessageContext localMsg = new ChoMiniLocalMessageContext();
+            ChoMiniScopeMessageContext localMsg = new ChoMiniScopeMessageContext();
             ChoMiniNodeRunner nodeRunner = new ChoMiniNodeRunner();
             ChoMiniOrchestrator orchestrator = new ChoMiniOrchestrator(nodeRunner);
 

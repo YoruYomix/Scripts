@@ -15,7 +15,7 @@ namespace Yoru.ChoMiniEngine
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
-        readonly ChoMiniLocalMessageContext _localMsg;
+        readonly ChoMiniScopeMessageContext _localMsg;
         ChoMiniOrchestrator _orchestrator;
 
 
@@ -48,7 +48,7 @@ namespace Yoru.ChoMiniEngine
             IReadOnlyList<BootRule> factoryRules,
             IReadOnlyList<BootRule> providerRules,
             ChoMiniOptions options,
-            ChoMiniLocalMessageContext localMsg,
+            ChoMiniScopeMessageContext localMsg,
             ChoMiniOrchestrator orchestrator)
         {
             _installerRules = installerRules;
@@ -145,7 +145,7 @@ namespace Yoru.ChoMiniEngine
         // ================================
 
         // 옵션에 맞는 프로바이더가 주입된 팩토리를 컴포저에게서 가져옴
-        public IChoMiniFactory BuildFactory(ChoMiniLocalMessageContext localMsg)
+        public IChoMiniFactory BuildFactory(ChoMiniScopeMessageContext localMsg)
         {
             // 1) Composer 보장
             Composer.EnsureComposed();
