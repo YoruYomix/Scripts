@@ -336,6 +336,7 @@ namespace Yoru.ChoMiniEngine
             // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
             _composer?.Dispose();
             _orchestrator?.Dispose();
+            _localMsg?.Dispose();
         }
 
 
