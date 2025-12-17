@@ -16,9 +16,6 @@ namespace Yoru.ChoMiniEngine
         readonly ChoMiniScopeMessageContext _localMsg;
         ChoMiniOrchestrator _orchestrator;
 
-
-
-
         public IReadOnlyList<BootRule> InstallerRules => _installerRules;
         public IReadOnlyList<BootRule> FactoryRules => _factoryRules;
         public IReadOnlyList<BootRule> ProviderRules => _providerRules;
@@ -145,7 +142,7 @@ namespace Yoru.ChoMiniEngine
         // 옵션에 맞는 프로바이더가 주입된 팩토리를 컴포저에게서 가져옴
         public IChoMiniFactory BuildFactory(ChoMiniScopeMessageContext localMsg)
         {
-            // 1) Composer 보장
+            // 1) Composer 에게 팩토리와 프로바이더의 타입 선택을 시킴
             Composer.EnsureComposed();
 
             if (Composer.SelectedFactoryType == null)
@@ -153,6 +150,8 @@ namespace Yoru.ChoMiniEngine
 
 
             // 2) Factory 생성
+            // Activator.CreateInstance(Type) : 런타임에 결정된 Type의 객체를 기본 생성자로 생성함
+            // (IChoMiniFactory)Activator.CreateInstance(type) : 런타임에 선택된 Type을 IChoMiniFactory 인스턴스로 생성
             IChoMiniFactory factory =
                 (IChoMiniFactory)Activator.CreateInstance(Composer.SelectedFactoryType);
 
@@ -192,6 +191,7 @@ namespace Yoru.ChoMiniEngine
                 new List<List<NodeSource>>();
 
             // Installer 타입 수집
+            // HashSet<T> : 중복을 허용하지 않는 집합 컬렉션 (같은 Type은 한 번만 저장됨)
             HashSet<Type> installerTypes = new HashSet<Type>();
 
             foreach (var kv in _bindings)
@@ -228,6 +228,7 @@ namespace Yoru.ChoMiniEngine
             // -----------------------------------
             object key = null;
 
+            // KeyValuePair<TKey, TValue> : Dictionary 순회 시 반환되는 Key와 Value 한 쌍
             foreach (KeyValuePair<Type, object> pair in _options.DebugPairs())
             {
                 object optionValue = pair.Value;

@@ -11,6 +11,9 @@ namespace Yoru.ChoMiniEngine
         private readonly List<BootRule> _installerRules = new();
         private readonly List<BootRule> _factoryRules = new();
         private readonly List<BootRule> _providerRules = new();
+        private readonly List<ReactorRule> _reactorRules = new();
+
+
 
         internal void RegisterInstallerType(Type installerType)
         {
@@ -38,6 +41,10 @@ namespace Yoru.ChoMiniEngine
         internal void AddProviderRules(BootRule rule)
         {
             _providerRules.Add(rule);
+        }
+        internal void AddReactorRule(ReactorRule rule)
+        {
+            _reactorRules.Add(rule);
         }
         public ChoMiniLifetimeScope CreateScope(ChoMiniOptions options)
         {
@@ -112,16 +119,91 @@ namespace Yoru.ChoMiniEngine
             {
                 return new FactoryBuilder<TCategory>(_container,this);
             }
-
+            // 프로바이더 등록
             public ProviderBuilder<TCategory> RegisterProvider<TCategory>()
             {
                 return new ProviderBuilder<TCategory>(_container, this);
             }
 
-
+            // 리액터 등록
+            public ReactorBuilder<TProvider> RegisterReactor<TProvider>()
+            {
+                return new ReactorBuilder<TProvider>(_container, this);
+            }
             public ChoMiniContainer Build()
             {
                 return _container;
+            }
+        }
+
+        public sealed class ReactorBuilder<TProvider>
+        {
+            private readonly ChoMiniContainer _container;
+            private readonly ChoMiniContainer.Builder _builder;
+
+            private readonly ReactorRule _rule;
+
+            internal ReactorBuilder(
+                ChoMiniContainer container,
+                ChoMiniContainer.Builder builder)
+            {
+                _container = container;
+                _builder = builder;
+
+                _rule = new ReactorRule
+                {
+                    ProviderType = typeof(TProvider)
+                };
+            }
+
+            // -------------------------
+            // When 계열
+            // -------------------------
+
+            public ReactorBuilder<TProvider> WhenLastNodeComplete
+            {
+                get
+                {
+                    _rule.AddCondition(new LastNodeCompleteCondition());
+                    return this;
+                }
+            }
+
+            public ReactorBuilder<TProvider> WhenNodeTag(string tag)
+            {
+                _rule.AddCondition(new NodeTagCondition(tag));
+                return this;
+            }
+
+            public ReactorBuilder<TProvider> When(Func<bool> predicate)
+            {
+                _rule.AddCondition(new ExternalPredicateCondition(predicate));
+                return this;
+            }
+
+            // -------------------------
+            // Lifetime
+            // -------------------------
+
+            public ReactorBuilder<TProvider> LifetimeLoop()
+            {
+                _rule.IsLifetimeLoop = true;
+                return this;
+            }
+
+            // -------------------------
+            // Do (외부 훅)
+            // -------------------------
+
+            public ChoMiniContainer.Builder Do(Action action)
+            {
+                _rule.DoHook = action;
+                _container.AddReactorRule(_rule);
+                return _builder;
+            }
+            public ChoMiniContainer.Builder Do()
+            {
+                return Do(() => { });
             }
         }
 
@@ -306,6 +388,22 @@ namespace Yoru.ChoMiniEngine
     {
         Base,
         Override
+    }
+
+    public sealed class ReactorRule
+    {
+        private readonly List<IReactorCondition> _conditions = new();
+
+        public IReadOnlyList<IReactorCondition> Conditions => _conditions;
+
+        public Type ProviderType;
+        public bool IsLifetimeLoop;
+        public Action DoHook;
+
+        internal void AddCondition(IReactorCondition condition)
+        {
+            _conditions.Add(condition);
+        }
     }
 }
 

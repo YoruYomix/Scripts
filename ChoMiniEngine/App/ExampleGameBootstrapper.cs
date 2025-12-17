@@ -80,6 +80,13 @@ namespace Yoru.App
                     .Base<ChoMiniUITextComponentTypingProvider>()
                     .End()
 
+                .RegisterReactor<IChoMiniStringTypingProvider>()
+                    .WhenLastNodeComplete
+                    .WhenNodeTag("last-textNode")
+                    .When(()=> MockGameState.State == GameState.Playing)
+                    .LifetimeLoop()
+                    .Do()
+
                 .Build();
 
 
@@ -160,4 +167,15 @@ public enum PlayMode
 public enum PlaySpeed
 {
     Speed2x
+}
+
+public enum GameState
+{
+    Playing,
+    MenuOpened
+}
+
+public static class MockGameState
+{
+   static  public GameState State = GameState.Playing;
 }

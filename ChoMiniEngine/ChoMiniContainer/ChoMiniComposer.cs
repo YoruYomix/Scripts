@@ -22,8 +22,6 @@ namespace Yoru.ChoMiniEngine
             if (_isComposed)
                 return;
 
-            Debug.Log("[Composer] Compose start");
-
             // ResolveInstallersOnly();
             ResolveFactory();
             ResolveProviders();
