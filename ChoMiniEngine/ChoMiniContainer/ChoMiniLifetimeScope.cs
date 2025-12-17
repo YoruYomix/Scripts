@@ -26,6 +26,7 @@ namespace Yoru.ChoMiniEngine
         public ChoMiniOptions Options => _options;
 
         bool _isPlaying = false;
+        private bool _paused;
 
         public bool IsPlaying => _isPlaying;
 
@@ -55,10 +56,7 @@ namespace Yoru.ChoMiniEngine
             _localMsg = localMsg;
             _orchestrator = orchestrator;
         }
-        void PlayComplate()
-        {
-            _isPlaying = false;
-        }
+
 
         // ================================
         // 재생 제어
@@ -73,15 +71,47 @@ namespace Yoru.ChoMiniEngine
 
             _isPlaying = true;
             Debug.Log("[Scope] Play()");
-            IChoMiniFactory factory = BuildFactory(_localMsg);
-            _orchestrator.Initialize(
-                factory: factory,
-                localMessageContext: _localMsg,
-                OnComplate: PlayComplate
-                );
-            await _orchestrator.PlaySequence();
+
+            try
+            {
+                IChoMiniFactory factory = BuildFactory(_localMsg);
+                _orchestrator.Initialize(
+                    factory: factory,
+                    localMessageContext: _localMsg
+                    );
+                await _orchestrator.PlaySequence();
+            }
+            finally
+            {
+                _isPlaying = false;
+            }
+        }
+        public void Pause()
+        {
+            if (_disposed) return;
+            if (!_isPlaying) return;
+            if (_paused) return;
+
+            _paused = true;
+            _orchestrator.Pause();
         }
 
+        public void Resume()
+        {
+            if (_disposed) return;
+            if (!_isPlaying) return;
+            if (!_paused) return;
+
+            _paused = false;
+            _orchestrator.Resume();
+        }
+        public void Complete()
+        {
+            if (_disposed) return;
+            if (!_isPlaying) return;
+
+            _orchestrator.CompleteSequence();
+        }
         // ==========================================================
         // 외부 DSL UX 엔트리:
         // Installer 타입 + 옵션 키 → 리소스 매핑

@@ -12,7 +12,6 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly ChoMiniNodeRunner _runner;
         private IChoMiniFactory _factory;
-        private Action _onComplete;
         ChoMiniLocalMessageContext _localMsg;
 
         private bool _hasStarted = false;
@@ -25,11 +24,10 @@ namespace Yoru.ChoMiniEngine
         {
             _runner = runner;
         }
-        public void Initialize(IChoMiniFactory factory, ChoMiniLocalMessageContext localMessageContext, Action OnComplate)
+        public void Initialize(IChoMiniFactory factory, ChoMiniLocalMessageContext localMessageContext)
         {
             _factory = factory;
             _localMsg = localMessageContext;
-            _onComplete = OnComplate;
         }
         public void Pause()
         {
