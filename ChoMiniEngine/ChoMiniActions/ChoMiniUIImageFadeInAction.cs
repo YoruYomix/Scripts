@@ -4,48 +4,7 @@ using UnityEngine.UI;
 
 namespace Yoru.ChoMiniEngine
 {
-    public class ActivationAction : IChoMiniNodeAction
-    {
-        public float GetRequiredDuration() => 0f;
-        public readonly GameObject _target;
-
-        public GameObject GameObject => _target;
-
-        public ActivationAction(GameObject target)
-        {
-            _target = target;
-        }
-
-        public void Play()
-        {
-            _target.SetActive(true);
-        }
-
-        public void Complete() 
-        { 
-        
-        }
-
-
-
-        public void Pause()
-        {
-
-        }
-
-        public void Resume()
-        {
-
-        }
-
-        public void Recovery(float time)
-        {
-
-        }
-    }
-
-
-    public class FadeInAction : IChoMiniNodeAction
+    public class ChoMiniUIImageFadeInAction : IChoMiniNodeAction
     {
         public float GetRequiredDuration() => _fadeDuration;
         private readonly Image _image;
@@ -60,7 +19,7 @@ namespace Yoru.ChoMiniEngine
             }
         }
 
-        public FadeInAction(Image image)
+        public ChoMiniUIImageFadeInAction(Image image)
         {
             _image = image;
             _originalColor = image.color;
@@ -101,5 +60,5 @@ namespace Yoru.ChoMiniEngine
 
         }
     }
-
 }
+

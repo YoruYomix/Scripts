@@ -23,7 +23,7 @@ namespace Yoru.ChoMiniEngine
                 return;
 
             Debug.Log("콜렉트 이펙트: " + go.name);
-            node.Actions.Add(new ActivationAction(go));
+            node.Actions.Add(new ChoMiniGameObjectActivationAction(go));
         }
     }
 
@@ -44,7 +44,7 @@ namespace Yoru.ChoMiniEngine
             if (img == null)
                 return;
 
-            node.Actions.Add(new FadeInAction(img));
+            node.Actions.Add(new ChoMiniUIImageFadeInAction(img));
         }
     }
 
@@ -68,7 +68,7 @@ namespace Yoru.ChoMiniEngine
             if (img == null)
                 return;
 
-            node.Actions.Add(new FadeInAction(img));
+            node.Actions.Add(new ChoMiniUIImageFadeInAction(img));
         }
     }
 
@@ -88,7 +88,7 @@ namespace Yoru.ChoMiniEngine
             if (text == null)
                 return;
 
-            node.Actions.Add(new TextComponentTypingAction(text));
+            node.Actions.Add(new ChoMiniTextComponentTypingAction(text));
         }
     }
 

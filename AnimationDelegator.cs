@@ -23,7 +23,7 @@ public class AnimancerDelegator : MonoBehaviour
 
     void Awake()
     {
-        // AnimancerComponent 가져오기
+        // AnimancerComponent 오기
         if (animancer == null)
         {
             animancer = GetComponent<AnimancerComponent>();

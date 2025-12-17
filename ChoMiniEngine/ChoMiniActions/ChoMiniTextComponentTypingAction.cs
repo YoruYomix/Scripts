@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Yoru.ChoMiniEngine
 {
-    public sealed class TextComponentTypingAction : IChoMiniNodeAction
+    public sealed class ChoMiniTextComponentTypingAction : IChoMiniNodeAction
     {
         // ==============================
         // IChoMiniNodeAction
@@ -31,7 +31,7 @@ namespace Yoru.ChoMiniEngine
         // ==============================
         // Constructor
         // ==============================
-        public TextComponentTypingAction(
+        public ChoMiniTextComponentTypingAction(
             Text text,
             float delayPerChar = 0.05f)
         {
