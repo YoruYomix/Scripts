@@ -74,6 +74,23 @@ namespace Yoru.ChoMiniEngine
 
     public interface IChoMiniUITextComponentProvider { }
 
+    public class ChoMiniUITextComponentTypingProvider : IChoMiniProvider, IChoMiniUITextComponentProvider
+    {
+        public void CollectEffects(object obj, ChoMiniNode node)
+        {
+            if (obj is not GameObject go)
+                return;
+
+            if (go == null)
+                return;
+
+            Text text = go.GetComponent<Text>();
+            if (text == null)
+                return;
+
+            node.Actions.Add(new TextComponentTypingAction(text));
+        }
+    }
 
     public interface IChoMiniStringTypingProvider { }
 

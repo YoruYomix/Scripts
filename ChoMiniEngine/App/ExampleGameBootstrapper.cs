@@ -78,6 +78,10 @@ namespace Yoru.App
                     .Override<ChoMiniStringTypingProviderSpeed2x>(PlaySpeed.Speed2x)
                     .End()
 
+                .RegisterProvider<IChoMiniUITextComponentProvider>()
+                    .Base<ChoMiniUITextComponentTypingProvider>()
+                    .End()
+
                 .Build();
 
 
