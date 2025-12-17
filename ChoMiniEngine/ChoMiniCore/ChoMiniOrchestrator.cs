@@ -31,11 +31,11 @@ namespace Yoru.ChoMiniEngine
                 OnAdvance();
             });
         }
-        public void Initialize(ChoMiniLocalMessageContext localMessageContext, Action OnComplate, IChoMiniFactory factory)
+        public void Initialize(IChoMiniFactory factory, ChoMiniLocalMessageContext localMessageContext, Action OnComplate)
         {
+            _factory = factory;
             _localMsg = localMessageContext;
             _onComplete = OnComplate;
-            _factory = factory;
         }
 
         private void OnAdvance()

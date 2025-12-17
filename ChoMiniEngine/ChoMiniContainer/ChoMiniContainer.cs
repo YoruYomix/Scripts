@@ -46,7 +46,10 @@ namespace Yoru.ChoMiniEngine
 
             ChoMiniCommandContext commandContext = ChoMiniBootstrapper.CommandContext;
 
-            ChoMiniLocalMessageContext _localMsg = new ChoMiniLocalMessageContext();
+            ChoMiniLocalMessageContext localMsg = new ChoMiniLocalMessageContext();
+
+            ChoMiniNodeRunner nodeRunner = new ChoMiniNodeRunner();
+            ChoMiniOrchestrator orchestrator = new ChoMiniOrchestrator(nodeRunner);
 
             return new ChoMiniLifetimeScope(
                     installerRules: _installerRules,
@@ -54,7 +57,8 @@ namespace Yoru.ChoMiniEngine
                     providerRules: _providerRules,
                     options: options,
                     commandContext,
-                    _localMsg
+                    localMsg,
+                    orchestrator
                 );
         }
 

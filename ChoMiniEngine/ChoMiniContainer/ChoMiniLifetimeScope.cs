@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
@@ -16,6 +17,7 @@ namespace Yoru.ChoMiniEngine
         private ChoMiniComposer _composer;
         private readonly ChoMiniCommandContext _glovalMsg;
         readonly ChoMiniLocalMessageContext _localMsg;
+        ChoMiniOrchestrator _orchestrator;
 
         public IReadOnlyList<BootRule> InstallerRules => _installerRules;
         public IReadOnlyList<BootRule> FactoryRules => _factoryRules;
@@ -37,7 +39,8 @@ namespace Yoru.ChoMiniEngine
             IReadOnlyList<BootRule> providerRules,
             ChoMiniOptions options,
             ChoMiniCommandContext choMiniCommand,
-            ChoMiniLocalMessageContext localMsg)
+            ChoMiniLocalMessageContext localMsg,
+            ChoMiniOrchestrator orchestrator)
         {
             _installerRules = installerRules;
             _factoryRules = factoryRules;
@@ -45,13 +48,15 @@ namespace Yoru.ChoMiniEngine
             _options = options;
             _glovalMsg = choMiniCommand;
             _localMsg = localMsg;
+            _orchestrator = orchestrator;
         }
 
-        public void Play()
+        public async Task Play()
         {
             Debug.Log("[Scope] Play()");
             IChoMiniFactory factory = BuildFactory(_localMsg);
-
+            _orchestrator.Initialize(factory ,_localMsg, null);
+            await _orchestrator.PlaySequence();
         }
 
         public ChoMiniLifetimeScope Bind<TInstaller>(object resource)
