@@ -14,6 +14,7 @@ namespace Yoru.ChoMiniEngine
         private bool _paused;
         private bool _disposed;
 
+
         public void Pause()
         {
             ThrowIfDisposed();
@@ -106,19 +107,21 @@ namespace Yoru.ChoMiniEngine
 
             if (_currentNode != null)
             {
-                foreach (var effect in _currentNode.Actions)
-                {
-                    effect.Complete();
-                }
-
+                CompleteCurrentNode();
                 _currentNode = null;
             }
         }
-
+        private void CompleteCurrentNode()
+        {
+            foreach (var action in _currentNode.Actions)
+            {
+                action.Complete();
+            }
+        }
         private void ThrowIfDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException(nameof(ChoMiniNodeRunner));
+                throw new InvalidOperationException("Runner already disposed.");
         }
     }
 }

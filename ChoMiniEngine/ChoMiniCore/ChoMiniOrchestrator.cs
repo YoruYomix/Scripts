@@ -14,22 +14,15 @@ namespace Yoru.ChoMiniEngine
         private IChoMiniFactory _factory;
         private Action _onComplete;
         ChoMiniLocalMessageContext _localMsg;
-        private readonly ISubscriber<ChoMiniCommandAdvanceRequested> _advanceSubscriber;
 
         private bool _hasStarted = false;
         private bool _disposed = false;
 
-        private IDisposable _advanceSubscription;
 
         public ChoMiniOrchestrator(
             ChoMiniNodeRunner runner)
         {
             _runner = runner;
-            _advanceSubscriber = ChoMiniBootstrapper.CommandContext.AdvanceSubscriber;
-            _advanceSubscription = _advanceSubscriber.Subscribe(_ =>
-            {
-                OnAdvance();
-            });
         }
         public void Initialize(IChoMiniFactory factory, ChoMiniLocalMessageContext localMessageContext, Action OnComplate)
         {
@@ -38,57 +31,37 @@ namespace Yoru.ChoMiniEngine
             _onComplete = OnComplate;
         }
 
-        private void OnAdvance()
+
+        public void CompleteSequence()
         {
             if (_disposed) return;
-
+            if (_localMsg == null) return;
             if (!_hasStarted)
             {
-                _hasStarted = true;
-                PlaySequence().Forget();
+                return;
             }
-            else
-            {
-                if (_localMsg == null) return;
-                _localMsg.SkipPublisher.Publish(new ChoMiniLocalSkipRequested());
-            }
+            _localMsg.SkipPublisher.Publish(new ChoMiniLocalSkipRequested());
         }
-
-
 
         public async UniTask PlaySequence()
         {
-            Debug.Log("▶ PlaySequence ENTER");
 
-            Debug.Log($"runner null? {_runner == null}");
-            Debug.Log($"factory null? {_factory == null}");
-
-            // ---- Count 체크 ----
-            Debug.Log("▶ before factory.Count");
-            Debug.Log(_factory);
-            Debug.Log(_factory.Count);
             int count = _factory.Count;
-            Debug.Log($"▶ factory.Count = {count}");
-
-            var nodes = new List<ChoMiniNode>();
+            List<ChoMiniNode> nodes = new List<ChoMiniNode>();
 
             for (int i = 0; i < count; i++)
             {
-                Debug.Log($"▶ before Create() index={i}");
-
                 ChoMiniNode node = _factory.Create();
-
-
-
                 nodes.Add(node);
             }
 
-            Debug.Log($"▶ nodes created: {nodes.Count}");
-
             // ---- RunNode 체크 ----
             int runIndex = 0;
+            _hasStarted = true;
             foreach (var node in nodes)
             {
+                if (_disposed)
+                    return;
                 Debug.Log($"▶ before RunNode index={runIndex}, node null? {node == null}");
 
                 await _runner.RunNode(node);
@@ -97,20 +70,18 @@ namespace Yoru.ChoMiniEngine
                 runIndex++;
             }
 
-            Debug.Log("▶ PlaySequence COMPLETE");
-            Debug.Log("▶ 리스트 전체 재생 완료");
-
-            _onComplete?.Invoke();
+            Debug.Log("[오케스트레이터] PlaySequence COMPLETE");
+            if (!_disposed)
+                _onComplete?.Invoke();
         }
 
 
         public void Dispose()
         {
+            if (_disposed) return;
             _disposed = true;
 
-            _advanceSubscription?.Dispose();
-            _advanceSubscription = null;
-
+            _runner.Dispose();
             _onComplete = null;
         }
     }
