@@ -72,8 +72,7 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-
-
+    public interface IChoMiniUITextComponentProvider { }
 
 
     public interface IChoMiniStringTypingProvider { }
