@@ -17,6 +17,7 @@ namespace Yoru.ChoMiniEngine
 
         private bool _hasStarted = false;
         private bool _disposed = false;
+        private bool _paused = false;
 
 
         public ChoMiniOrchestrator(
@@ -30,8 +31,24 @@ namespace Yoru.ChoMiniEngine
             _localMsg = localMessageContext;
             _onComplete = OnComplate;
         }
+        public void Pause()
+        {
+            if (_disposed) return;
+            if (!_hasStarted) return;
+            if (_paused) return;
 
+            _paused = true;
+            _runner.Pause();
+        }
+        public void Resume()
+        {
+            if (_disposed) return;
+            if (!_hasStarted) return;
+            if (!_paused) return;
 
+            _paused = false;
+            _runner.Resume();
+        }
         public void CompleteSequence()
         {
             if (_disposed) return;
@@ -80,7 +97,7 @@ namespace Yoru.ChoMiniEngine
         {
             if (_disposed) return;
             _disposed = true;
-
+            
             _runner.Dispose();
             _onComplete = null;
         }
