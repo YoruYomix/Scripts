@@ -9,10 +9,26 @@ namespace Yoru.ChoMiniEngine.Utility
     {
         public static void Advance(this ChoMiniLifetimeScope scope)
         {
-            if (!scope.IsPlaying)
-                scope.Play().Forget();
-            else
-                scope.Complete();
+            if (scope == null) return;
+
+            switch (scope.State)
+            {
+                case ScopeState.Created:
+                    scope.Play().Forget();
+                    break;
+
+                case ScopeState.Playing:
+                    scope.Complete();
+                    break;
+
+                case ScopeState.Completed:
+                    scope.Dispose();
+                    break;
+
+                case ScopeState.Disposed:
+                    // noop
+                    break;
+            }
         }
     }
 
