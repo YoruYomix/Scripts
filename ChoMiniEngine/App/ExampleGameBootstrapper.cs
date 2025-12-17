@@ -60,8 +60,6 @@ namespace Yoru.App
 
                 .RegisterFactory<IChoMiniFactory>()
                     .Base<ChoMiniSequenceFactory>()
-                    .Override<ChoMiniRewindFactory>(PlayMode.Rewind)
-                    .Override<ChoMiniRandomFactory>(PlayMode.Random)
                     .End()
 
                 .RegisterProvider<IChoMiniGameObjectActivationProvider>()

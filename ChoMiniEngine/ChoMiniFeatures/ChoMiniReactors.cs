@@ -55,7 +55,6 @@ namespace Yoru.ChoMiniEngine
             {
                 while (!token.IsCancellationRequested)
                 {
-                    Debug.Log($"루프 재생됨: {effect.GameObject.name}");
                     effect.Play();
 
                     // ★ duration 동안 대기하지만 Cancel 되면 즉시 깨어난다

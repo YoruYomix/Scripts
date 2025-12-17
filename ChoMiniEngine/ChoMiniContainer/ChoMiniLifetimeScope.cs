@@ -175,7 +175,8 @@ namespace Yoru.ChoMiniEngine
             factory.Initialize(
                 nodeSource,
                 providers,
-                localMsg.CompleteSubscriber
+                localMsg.CompleteSubscriber,
+                localMsg
             );
 
             return factory;
@@ -341,7 +342,7 @@ namespace Yoru.ChoMiniEngine
 
             _state = ScopeState.Disposed;
             _paused = false;
-
+            _localMsg.CleanupPublisher.Publish(new ChoMiniScopeCleanupRequested());
 
 
             // TODO: Provider / Factory / 컴포저 라이프사이클 클린업

@@ -1,20 +1,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-
+using MessagePipe;
 
 namespace Yoru.ChoMiniEngine
 {
     public interface IChoMiniProvider 
     {
-        public void CollectEffects(object objects, ChoMiniNode node);
+        public void CollectEffects(object objects, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg );
     }
     public interface IChoMiniGameObjectActivationProvider{}
 
     public class ChoMiniGameObjectActivationProvider
         : IChoMiniProvider, IChoMiniGameObjectActivationProvider
     {
-        public void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg)
         {
             if (obj is not GameObject go)
                 return;
@@ -32,7 +32,7 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniImageFadeProvider
         : IChoMiniProvider, IChoMiniImageProvider
     {
-        public void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg)
         {
             if (obj is not GameObject go)
                 return;
@@ -50,7 +50,7 @@ namespace Yoru.ChoMiniEngine
 
     public class ChoMiniImageFadeProviderSpeed2x : IChoMiniProvider, IChoMiniImageProvider
     {
-        public void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg)
         {
             // TODO:
             // - Speed2x 전용 Fade 연출 분리 (duration 축소 또는 전용 Action)
@@ -76,7 +76,7 @@ namespace Yoru.ChoMiniEngine
 
     public class ChoMiniUITextComponentTypingProvider : IChoMiniProvider, IChoMiniUITextComponentProvider
     {
-        public void CollectEffects(object obj, ChoMiniNode node)
+        public void CollectEffects(object obj, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg)
         {
             if (obj is not GameObject go)
                 return;
@@ -88,7 +88,7 @@ namespace Yoru.ChoMiniEngine
             if (text == null)
                 return;
 
-            node.Actions.Add(new ChoMiniTextComponentTypingAction(text));
+            node.Actions.Add(new ChoMiniTextComponentTypingAction(text, scopeMsg));
         }
     }
 
@@ -96,7 +96,7 @@ namespace Yoru.ChoMiniEngine
 
     public class ChoMiniStringTypingProvider : IChoMiniProvider, IChoMiniStringTypingProvider
     {
-        public void CollectEffects(object cbj, ChoMiniNode node)
+        public void CollectEffects(object cbj, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요
@@ -110,7 +110,7 @@ namespace Yoru.ChoMiniEngine
     }
     public class ChoMiniStringTypingProviderSpeed2x : IChoMiniProvider, IChoMiniStringTypingProvider
     {
-        public void CollectEffects(object cbj, ChoMiniNode node)
+        public void CollectEffects(object cbj, ChoMiniNode node, ChoMiniScopeMessageContext scopeMsg)
         {
             // TODO:
             // - string[] 입력 구조 확정 필요

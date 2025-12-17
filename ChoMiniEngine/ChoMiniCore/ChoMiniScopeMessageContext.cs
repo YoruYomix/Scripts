@@ -22,6 +22,7 @@ namespace Yoru.ChoMiniEngine
 
             builder.AddMessagePipe();
             builder.AddMessageBroker<ChoMiniScopeCompleteRequested>();
+            builder.AddMessageBroker<ChoMiniScopeCleanupRequested>();
 
             _provider = builder.BuildServiceProvider();
 
@@ -32,6 +33,12 @@ namespace Yoru.ChoMiniEngine
 
             CompleteSubscriber =
                 _provider.GetRequiredService<ISubscriber<ChoMiniScopeCompleteRequested>>();
+
+            CleanupPublisher =
+                _provider.GetRequiredService<IPublisher<ChoMiniScopeCleanupRequested>>();
+
+            CleanupSubscriber =
+                _provider.GetRequiredService<ISubscriber<ChoMiniScopeCleanupRequested>>();
         }
 
         public void Dispose()
