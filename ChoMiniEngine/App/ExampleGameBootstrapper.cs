@@ -66,9 +66,9 @@ namespace Yoru.App
                     .Base<ChoMiniGameObjectActivationProvider>()
                     .End()
 
-                .RegisterProvider<IChoMiniImageProvider>()
-                    .Base<ChoMiniImageFadeProvider>()
-                    .Override<ChoMiniImageFadeProviderSpeed2x>(PlaySpeed.Speed2x)
+                .RegisterProvider<IChoMiniUIImageProvider>()
+                    .Base<ChoMiniUIImageFadeProvider>()
+                    .Override<ChoMiniUIImageFadeProviderSpeed2x>(PlaySpeed.Speed2x)
                     .End()
                     
                 .RegisterProvider<IChoMiniStringTypingProvider>()
