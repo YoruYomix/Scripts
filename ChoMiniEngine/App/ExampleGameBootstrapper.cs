@@ -110,6 +110,7 @@ namespace Yoru.App
             options.Set(Language.CN);
             options.Set(PlaySpeed.Speed2x);
             options.Set(PlayMode.Rewind);
+            options.Set(Skin.Xmas);
 
             ChoMiniLifetimeScope scope = _container.CreateScope(options);
 

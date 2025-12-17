@@ -19,8 +19,7 @@ namespace Yoru.ChoMiniEngine
         private bool _paused = false;
 
 
-        public ChoMiniOrchestrator(
-            ChoMiniNodeRunner runner)
+        public ChoMiniOrchestrator(ChoMiniNodeRunner runner)
         {
             _runner = runner;
         }

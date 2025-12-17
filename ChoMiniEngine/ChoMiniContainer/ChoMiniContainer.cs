@@ -44,10 +44,8 @@ namespace Yoru.ChoMiniEngine
             if (options == null)
                 throw new ArgumentNullException("options");
 
-            ChoMiniCommandContext commandContext = ChoMiniBootstrapper.CommandContext;
 
             ChoMiniLocalMessageContext localMsg = new ChoMiniLocalMessageContext();
-
             ChoMiniNodeRunner nodeRunner = new ChoMiniNodeRunner();
             ChoMiniOrchestrator orchestrator = new ChoMiniOrchestrator(nodeRunner);
 
@@ -56,9 +54,8 @@ namespace Yoru.ChoMiniEngine
                     factoryRules: _factoryRules,
                     providerRules: _providerRules,
                     options: options,
-                    commandContext,
-                    localMsg,
-                    orchestrator
+                    localMsg: localMsg,
+                    orchestrator: orchestrator
                 );
         }
 

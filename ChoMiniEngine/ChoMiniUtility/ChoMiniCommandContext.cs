@@ -36,7 +36,7 @@ public sealed class ChoMiniLocalMessageContext : IDisposable
     public IPublisher<ChoMiniLocalCompleteRequested> CompletePublisher { get; }
     public ISubscriber<ChoMiniLocalCompleteRequested> CompleteSubscriber { get; }
 
-    private readonly IDisposable _provider; // 생명주기만 관리
+
     private bool _disposed;
 
     public ChoMiniLocalMessageContext()
@@ -48,7 +48,7 @@ public sealed class ChoMiniLocalMessageContext : IDisposable
 
         var provider = builder.BuildServiceProvider();
 
-        _provider = (IDisposable)provider; //  명시적 캐스트
+
 
         CompletePublisher =
             provider.GetRequiredService<IPublisher<ChoMiniLocalCompleteRequested>>();
@@ -62,6 +62,6 @@ public sealed class ChoMiniLocalMessageContext : IDisposable
         if (_disposed) return;
         _disposed = true;
 
-        _provider.Dispose();
+
     }
 }
