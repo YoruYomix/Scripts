@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    public sealed class ChoMiniComposer
+    public sealed class ChoMiniComposer : IDisposable
     {
         private readonly ChoMiniLifetimeScope _scope;
         private bool _isComposed;
@@ -24,13 +24,13 @@ namespace Yoru.ChoMiniEngine
 
             Debug.Log("[Composer] Compose start");
 
-            DebugResolveInstallersOnly();
-            DebugResolveFactoryOnly();
-            DebugResolveProvidersOnly();
+            // ResolveInstallersOnly();
+            ResolveFactory();
+            ResolveProviders();
             _isComposed = true;
         }
 
-        private void DebugResolveFactoryOnly()
+        private void ResolveFactory()
         {
             Debug.Log("[Composer] Factory Rules:");
 
@@ -46,7 +46,7 @@ namespace Yoru.ChoMiniEngine
             Debug.Log($"[Composer] Selected Factory = {selected?.ImplType.Name}");
         }
 
-        private void DebugResolveProvidersOnly()
+        private void ResolveProviders()
         {
             Debug.Log("[Composer] Resolve Providers Start");
 
@@ -114,32 +114,6 @@ namespace Yoru.ChoMiniEngine
             Debug.Log("[Composer] Resolve Providers End");
         }
 
-        private void DebugResolveInstallersOnly()
-        {
-            Debug.Log("[Composer] Resolve Installers Start");
-
-            foreach (var rule in _scope.InstallerRules)
-            {
-                string key;
-
-                if (rule.Key == null)
-                {
-                    key = "default";
-                }
-                else
-                {
-                    key = rule.Key.ToString();
-                }
-
-                Debug.Log(
-                    $"[Composer] Installer Rule: {rule.Category.Name} / {rule.Kind} / Key={key}"
-                );
-            }
-
-            Debug.Log("[Composer] Resolve Installers End");
-        }
-
-
 
         internal static class RuleSelect
         {
@@ -166,7 +140,17 @@ namespace Yoru.ChoMiniEngine
             }
         }
 
+        public void Reset()
+        {
+            _isComposed = false;
+            SelectedFactoryType = null;
+            SelectedProviderTypes.Clear();
+        }
 
+        public void Dispose()
+        {
+            Reset();
+        }
     }
 
 }

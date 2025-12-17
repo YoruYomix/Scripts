@@ -50,15 +50,20 @@ namespace Yoru.ChoMiniEngine
             _localMsg = localMsg;
             _orchestrator = orchestrator;
         }
-
+        // 재생제어 블록
         public async Task Play()
         {
             Debug.Log("[Scope] Play()");
             IChoMiniFactory factory = BuildFactory(_localMsg);
-            _orchestrator.Initialize(factory ,_localMsg, null);
+            _orchestrator.Initialize(
+                factory: factory,
+                localMessageContext: _localMsg,
+                OnComplate: null
+                );
             await _orchestrator.PlaySequence();
         }
 
+        // Installer 타입 + 옵션 키에 대한 리소스 바인딩
         public ChoMiniLifetimeScope Bind<TInstaller>(object resource)
             => Bind<TInstaller>(null, resource);
 
@@ -75,6 +80,12 @@ namespace Yoru.ChoMiniEngine
             return this;
         }
 
+
+        // ================================
+        // Factory Composition
+        // ================================
+
+        // 옵션에 맞는 프로바이더가 주입된 팩토리를 컴포저에게서 가져옴
         public IChoMiniFactory BuildFactory(ChoMiniLocalMessageContext localMsg)
         {
             // 1) Composer 보장
@@ -98,9 +109,8 @@ namespace Yoru.ChoMiniEngine
                 providers.Add(provider);
             }
 
-            // 4) Payload 조립 (정식 메서드!)
-            List<NodeSource> nodeSource =
-                BuildComposedNodeSources();
+            // 4) Installer 결과를 병합한 NodeSource 생성
+            List<NodeSource> nodeSource = BuildComposedNodeSources();
 
             // 5) Factory Initialize
             factory.Initialize(
@@ -112,37 +122,7 @@ namespace Yoru.ChoMiniEngine
             return factory;
         }
 
-
-        public TResource Resolve<TInstaller, TResource>(object? key)
-        {
-            // 1) override 먼저 시도
-            if (key != null &&
-                _bindings.TryGetValue((typeof(TInstaller), key), out var obj))
-            {
-                return Cast<TInstaller, TResource>(obj, key);
-            }
-
-            // 2) default(null) fallback
-            if (_bindings.TryGetValue((typeof(TInstaller), null), out obj))
-            {
-                return Cast<TInstaller, TResource>(obj, null);
-            }
-
-            // 3) 아무 것도 없으면 실패
-            throw new KeyNotFoundException(
-                $"Binding not found: {typeof(TInstaller).Name} / {key ?? "default"}");
-        }
-
-        private static TResource Cast<TInstaller, TResource>(object obj, object key)
-        {
-            if (obj is not TResource cast)
-                throw new InvalidCastException(
-                    $"Binding type mismatch: {typeof(TInstaller).Name} / {key ?? "default"} " +
-                    $"expected {typeof(TResource).Name}, got {obj.GetType().Name}");
-
-            return cast;
-        }
-
+        // 옵션에 맞게 선별된 인스톨러들의 NodeSource를 수집하고 step 기준으로 병합
         public List<NodeSource> BuildComposedNodeSources()
         {
             Debug.Log("[Debug] Build Composed NodeSources By Options");
@@ -177,26 +157,10 @@ namespace Yoru.ChoMiniEngine
             List<NodeSource> composed =
                 ComposeNodeSources(allSequences);
 
-            // -----------------------------------
-            // 3) 결과 출력
-            // -----------------------------------
-            Debug.Log($"[Debug] Composed Steps = {composed.Count}");
-
-            for (int i = 0; i < composed.Count; i++)
-            {
-                NodeSource source = composed[i];
-
-                Debug.Log($" Step {i}:");
-
-                foreach (object obj in source.Items)
-                {
-                    Debug.Log($"   - {obj} ({obj.GetType().Name})");
-                }
-            }
-
             return composed;
         }
 
+        // 옵션에 맞는 리소스를 사용해 단일 Installer의 NodeSource를 생성
 
         private List<NodeSource> BuildSingleInstallerNodeSources(
             Type installerType)
@@ -242,7 +206,7 @@ namespace Yoru.ChoMiniEngine
                 (IChoMiniInstaller)Activator.CreateInstance(installerType);
 
             // -----------------------------------
-            // 4) Bind 호출
+            // 4) Installer에 resource 주입
             // -----------------------------------
             System.Reflection.MethodInfo bindMethod =
                 installerType.GetMethod("Bind");
@@ -255,7 +219,7 @@ namespace Yoru.ChoMiniEngine
             return installer.BuildNodeSources(this, _options);
         }
 
-
+        // key 우선 → default fallback 규칙으로 바인딩 리소스 선택
         private object ResolveByType(Type installerType, object key)
         {
             if (_bindings.TryGetValue((installerType, key), out object obj))
@@ -267,7 +231,7 @@ namespace Yoru.ChoMiniEngine
             throw new KeyNotFoundException();
         }
 
-        // 인스톨러들이 들고온 노드소스를 머징
+        // 복수의 선별된 인스톨러들이 들고온 노드소스를 하나로 머징
         private List<NodeSource> ComposeNodeSources(
            List<List<NodeSource>> sequences)
         {
@@ -313,52 +277,10 @@ namespace Yoru.ChoMiniEngine
 
         public void Dispose()
         {
-            // 나중에 Provider / Factory 정리
+            // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
+            _composer?.Dispose();
         }
 
-        public void DebugPrint()
-        {
-            Debug.Log("[ChoMiniLifetimeScope]");
-
-            // -------------------------
-            // Options
-            // -------------------------
-            Debug.Log("Options:");
-            foreach (var pair in _options.DebugPairs())
-            {
-                Debug.Log($"  {pair.Key} = {pair.Value}");
-            }
-
-            // -------------------------
-            // Bindings
-            // -------------------------
-            Debug.Log("Bindings:");
-
-            foreach (var kv in _bindings)
-            {
-                var installerType = kv.Key.installerType.Name;
-                var key = kv.Key.key ?? "default";
-                var resourceType = kv.Value.GetType().Name;
-
-                Debug.Log($"  {installerType} / {key} -> {resourceType}");
-            }
-        }
-
-        public void DebugPrintInstallers()
-        {
-            Debug.Log("[Scope] Installer Bindings:");
-
-            foreach (var kv in _bindings)
-            {
-                Type installerType = kv.Key.installerType;
-                object key = kv.Key.key ?? "default";
-                object resource = kv.Value;
-
-                Debug.Log(
-                    $"  {installerType.Name} / Key={key} -> {resource.GetType().Name}"
-                );
-            }
-        }
 
     }
 
