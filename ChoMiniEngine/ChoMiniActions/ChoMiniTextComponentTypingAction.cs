@@ -5,16 +5,18 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
+using MessagePipe;
 
 namespace Yoru.ChoMiniEngine
 {
-    public sealed class ChoMiniTextComponentTypingAction : IChoMiniNodeAction
+    public sealed class ChoMiniTextComponentTypingAction : ChoMiniCleanupActionBase
     {
         // ==============================
         // IChoMiniNodeAction
         // ==============================
-        public float GetRequiredDuration() => _duration;
-        public GameObject GameObject => _text.gameObject;
+        public override float GetRequiredDuration() => _duration;
+
+
 
         // ==============================
         // Fields
@@ -32,8 +34,8 @@ namespace Yoru.ChoMiniEngine
         // Constructor
         // ==============================
         public ChoMiniTextComponentTypingAction(
-            Text text,
-            float delayPerChar = 0.05f)
+            Text text, ChoMiniScopeMessageContext scopeMsg ,
+            float delayPerChar = 0.05f) : base(scopeMsg.CleanupSubscriber)
         {
             _text = text;
             _delayPerChar = delayPerChar;
@@ -42,36 +44,37 @@ namespace Yoru.ChoMiniEngine
 
             BuildTypingSteps(_fullText, _steps);
 
-            // ★ 핵심: 듀레이션 역산
+            // 각 step은 delayPerChar 만큼의 시간 계약을 가짐
             _duration = _steps.Count * _delayPerChar;
         }
 
         // ==============================
         // Play Control
         // ==============================
-        public void Play()
+        public override void Play()
         {
+            Cancel(); // ← 추가 (기존 실행 중단)
             _cts = new CancellationTokenSource();
             PlayAsync(_cts.Token).Forget();
         }
 
-        public void Complete()
+        public override void Complete()
         {
             Cancel();
             _text.text = _fullText;
         }
 
-        public void Pause()
+        public override void Pause()
         {
             Cancel();
         }
 
-        public void Resume()
+        public override void Resume()
         {
             Play();
         }
 
-        public void Recovery(float time)
+        public override void Recovery(float time)
         {
             // 필요 시 구현
             // (예: time 기준으로 몇 글자까지 출력할지 계산)
@@ -116,9 +119,7 @@ namespace Yoru.ChoMiniEngine
         // ==============================
         // Typing Logic (Service에서 이식)
         // ==============================
-        private static void BuildTypingSteps(
-            string input,
-            List<string> result)
+        private static void BuildTypingSteps(string input,List<string> result)
         {
             result.Clear();
 
@@ -167,6 +168,11 @@ namespace Yoru.ChoMiniEngine
 
             if (result.Count == 0 || result[^1] != temp)
                 result.Add(temp);
+        }
+
+        protected override void OnCleanup()
+        {
+            Cancel();
         }
     }
 }

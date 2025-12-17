@@ -31,6 +31,7 @@ public class ChoMiniCommandContext : IDisposable
     public void Dispose()
     {
         if (_disposed) return;
+        _disposed = true;
 
         // IDisposable을 구현한 Provider라면 Dispose를 호출해줍니다.
         if (_provider is IDisposable disposableProvider)
@@ -38,7 +39,6 @@ public class ChoMiniCommandContext : IDisposable
             disposableProvider.Dispose();
         }
 
-        _disposed = true;
     }
 }
 

@@ -19,7 +19,6 @@ namespace Yoru.ChoMiniEngine
         // 액션들에게 리커버리(time)
         void Recovery(float time);
 
-        GameObject GameObject { get; }
     }
 
 

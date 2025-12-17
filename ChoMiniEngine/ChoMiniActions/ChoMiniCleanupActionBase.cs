@@ -8,14 +8,12 @@ namespace Yoru.ChoMiniEngine
     /// - Cleanup은 메시지 기반
     /// - Node / Orchestrator는 이 클래스를 모름
     /// </summary>
-    public abstract class ChoMiniCleanupActionBase
-        : IChoMiniNodeAction, IDisposable
+    public abstract class ChoMiniCleanupActionBase : IChoMiniNodeAction, IDisposable
     {
         private IDisposable _cleanupSubscription;
         private bool _cleanedUp;
 
-        protected ChoMiniCleanupActionBase(
-            ISubscriber<ChoMiniScopeCleanupRequested> cleanupSubscriber)
+        protected ChoMiniCleanupActionBase(ISubscriber<ChoMiniScopeCleanupRequested> cleanupSubscriber)
         {
             _cleanupSubscription =
                 cleanupSubscriber.Subscribe(_ => CleanupInternal());
@@ -59,6 +57,5 @@ namespace Yoru.ChoMiniEngine
         public virtual void Resume() { }
         public virtual void Recovery(float time) { }
 
-        public abstract UnityEngine.GameObject GameObject { get; }
     }
 }
