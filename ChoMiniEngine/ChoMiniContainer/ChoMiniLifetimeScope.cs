@@ -18,11 +18,16 @@ namespace Yoru.ChoMiniEngine
         private readonly ChoMiniCommandContext _glovalMsg;
         readonly ChoMiniLocalMessageContext _localMsg;
         ChoMiniOrchestrator _orchestrator;
+        private bool _disposed;
 
         public IReadOnlyList<BootRule> InstallerRules => _installerRules;
         public IReadOnlyList<BootRule> FactoryRules => _factoryRules;
         public IReadOnlyList<BootRule> ProviderRules => _providerRules;
         public ChoMiniOptions Options => _options;
+
+        bool _isPlaying = false;
+
+        public bool IsPlaying => _isPlaying;
 
         private ChoMiniComposer Composer
         {
@@ -50,18 +55,29 @@ namespace Yoru.ChoMiniEngine
             _localMsg = localMsg;
             _orchestrator = orchestrator;
         }
+        void PlayComplate()
+        {
+            _isPlaying = false;
+        }
 
         // ================================
         // 재생 제어
         // ================================
-        public async Task Play()
+        public async UniTask Play()
         {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(ChoMiniLifetimeScope));
+
+            if (_isPlaying)
+                throw new InvalidOperationException("Scope is already playing.");
+
+            _isPlaying = true;
             Debug.Log("[Scope] Play()");
             IChoMiniFactory factory = BuildFactory(_localMsg);
             _orchestrator.Initialize(
                 factory: factory,
                 localMessageContext: _localMsg,
-                OnComplate: null
+                OnComplate: PlayComplate
                 );
             await _orchestrator.PlaySequence();
         }
@@ -284,8 +300,15 @@ namespace Yoru.ChoMiniEngine
 
         public void Dispose()
         {
+            if (_disposed)
+                return;
+
+            _disposed = true;
+            _isPlaying = false;
+
             // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
             _composer?.Dispose();
+            _orchestrator?.Dispose();
         }
 
 
