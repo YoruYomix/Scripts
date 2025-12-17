@@ -31,28 +31,30 @@ public class ChoMiniCommandContext
 
 
 
-
-
-public class ChoMiniLocalMessageContext : IDisposable
+public sealed class ChoMiniLocalMessageContext : IDisposable
 {
     public IPublisher<ChoMiniLocalCompleteRequested> CompletePublisher { get; }
     public ISubscriber<ChoMiniLocalCompleteRequested> CompleteSubscriber { get; }
 
+    private readonly IDisposable _provider; // 생명주기만 관리
     private bool _disposed;
 
     public ChoMiniLocalMessageContext()
     {
         var builder = new BuiltinContainerBuilder();
+
         builder.AddMessagePipe();
         builder.AddMessageBroker<ChoMiniLocalCompleteRequested>();
 
-
         var provider = builder.BuildServiceProvider();
 
-        CompletePublisher = provider.GetRequiredService<IPublisher<ChoMiniLocalCompleteRequested>>();
-        CompleteSubscriber = provider.GetRequiredService<ISubscriber<ChoMiniLocalCompleteRequested>>();
+        _provider = (IDisposable)provider; //  명시적 캐스트
 
+        CompletePublisher =
+            provider.GetRequiredService<IPublisher<ChoMiniLocalCompleteRequested>>();
 
+        CompleteSubscriber =
+            provider.GetRequiredService<ISubscriber<ChoMiniLocalCompleteRequested>>();
     }
 
     public void Dispose()
@@ -60,5 +62,6 @@ public class ChoMiniLocalMessageContext : IDisposable
         if (_disposed) return;
         _disposed = true;
 
+        _provider.Dispose();
     }
 }
