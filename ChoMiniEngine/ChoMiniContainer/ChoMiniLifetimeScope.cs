@@ -50,7 +50,10 @@ namespace Yoru.ChoMiniEngine
             _localMsg = localMsg;
             _orchestrator = orchestrator;
         }
-        // 재생제어 블록
+
+        // ================================
+        // 재생 제어
+        // ================================
         public async Task Play()
         {
             Debug.Log("[Scope] Play()");
@@ -63,7 +66,11 @@ namespace Yoru.ChoMiniEngine
             await _orchestrator.PlaySequence();
         }
 
-        // Installer 타입 + 옵션 키에 대한 리소스 바인딩
+        // ==========================================================
+        // 외부 DSL UX 엔트리:
+        // Installer 타입 + 옵션 키 → 리소스 매핑
+        // (인스턴스 생성이나 실행은 여기서 하지 않음)
+        // ==========================================================
         public ChoMiniLifetimeScope Bind<TInstaller>(object resource)
             => Bind<TInstaller>(null, resource);
 
@@ -82,7 +89,7 @@ namespace Yoru.ChoMiniEngine
 
 
         // ================================
-        // Factory Composition
+        // Factory 합성
         // ================================
 
         // 옵션에 맞는 프로바이더가 주입된 팩토리를 컴포저에게서 가져옴
