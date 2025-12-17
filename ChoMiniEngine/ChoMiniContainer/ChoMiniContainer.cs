@@ -44,11 +44,17 @@ namespace Yoru.ChoMiniEngine
             if (options == null)
                 throw new ArgumentNullException("options");
 
+            ChoMiniCommandContext commandContext = ChoMiniBootstrapper.CommandContext;
+
+            ChoMiniLocalMessageContext _localMsg = new ChoMiniLocalMessageContext();
+
             return new ChoMiniLifetimeScope(
                     installerRules: _installerRules,
                     factoryRules: _factoryRules,
                     providerRules: _providerRules,
-                    options: options
+                    options: options,
+                    commandContext,
+                    _localMsg
                 );
         }
 

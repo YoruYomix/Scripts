@@ -14,6 +14,8 @@ namespace Yoru.ChoMiniEngine
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
+        private readonly ChoMiniCommandContext _glovalMsg;
+        readonly ChoMiniLocalMessageContext _localMsg;
 
         public IReadOnlyList<BootRule> InstallerRules => _installerRules;
         public IReadOnlyList<BootRule> FactoryRules => _factoryRules;
@@ -33,13 +35,25 @@ namespace Yoru.ChoMiniEngine
             IReadOnlyList<BootRule> installerRules,
             IReadOnlyList<BootRule> factoryRules,
             IReadOnlyList<BootRule> providerRules,
-            ChoMiniOptions options)
+            ChoMiniOptions options,
+            ChoMiniCommandContext choMiniCommand,
+            ChoMiniLocalMessageContext localMsg)
         {
             _installerRules = installerRules;
             _factoryRules = factoryRules;
             _providerRules = providerRules;
             _options = options;
+            _glovalMsg = choMiniCommand;
+            _localMsg = localMsg;
         }
+
+        public void Play()
+        {
+            Debug.Log("[Scope] Play()");
+            IChoMiniFactory factory = BuildFactory(_localMsg);
+
+        }
+
         public ChoMiniLifetimeScope Bind<TInstaller>(object resource)
             => Bind<TInstaller>(null, resource);
 
@@ -55,6 +69,44 @@ namespace Yoru.ChoMiniEngine
             _bindings.Add(k, resource);
             return this;
         }
+
+        public IChoMiniFactory BuildFactory(ChoMiniLocalMessageContext localMsg)
+        {
+            // 1) Composer 보장
+            Composer.EnsureComposed();
+
+            if (Composer.SelectedFactoryType == null)
+                throw new InvalidOperationException("Factory not selected");
+
+
+            // 2) Factory 생성
+            IChoMiniFactory factory =
+                (IChoMiniFactory)Activator.CreateInstance(Composer.SelectedFactoryType);
+
+            // 3) Provider 생성
+            List<ChoMiniProvider> providers = new();
+
+            foreach (Type providerType in Composer.SelectedProviderTypes)
+            {
+                ChoMiniProvider provider =
+                    (ChoMiniProvider)Activator.CreateInstance(providerType);
+                providers.Add(provider);
+            }
+
+            // 4) Payload 조립 (정식 메서드!)
+            List<NodeSource> nodeSource =
+                BuildComposedNodeSources();
+
+            // 5) Factory Initialize
+            factory.Initialize(
+                nodeSource,
+                providers,
+                localMsg.SkipSubscriber
+            );
+
+            return factory;
+        }
+
 
         public TResource Resolve<TInstaller, TResource>(object? key)
         {
@@ -75,6 +127,7 @@ namespace Yoru.ChoMiniEngine
             throw new KeyNotFoundException(
                 $"Binding not found: {typeof(TInstaller).Name} / {key ?? "default"}");
         }
+
         private static TResource Cast<TInstaller, TResource>(object obj, object key)
         {
             if (obj is not TResource cast)
@@ -84,13 +137,8 @@ namespace Yoru.ChoMiniEngine
 
             return cast;
         }
-        public void Play()
-        {
-            Debug.Log("[Scope] Play()");
-            Composer.EnsureComposed();
-            List<NodeSource> composed = DebugBuildComposedNodeSources();
-        }
-        public List<NodeSource> DebugBuildComposedNodeSources()
+
+        public List<NodeSource> BuildComposedNodeSources()
         {
             Debug.Log("[Debug] Build Composed NodeSources By Options");
 
@@ -112,7 +160,7 @@ namespace Yoru.ChoMiniEngine
             foreach (Type installerType in installerTypes)
             {
                 List<NodeSource> sequence =
-                    DebugBuildSingleInstallerNodeSources(installerType);
+                    BuildSingleInstallerNodeSources(installerType);
 
                 if (sequence != null && sequence.Count > 0)
                     allSequences.Add(sequence);
@@ -145,7 +193,7 @@ namespace Yoru.ChoMiniEngine
         }
 
 
-        private List<NodeSource> DebugBuildSingleInstallerNodeSources(
+        private List<NodeSource> BuildSingleInstallerNodeSources(
             Type installerType)
         {
             // -----------------------------------
@@ -214,7 +262,7 @@ namespace Yoru.ChoMiniEngine
             throw new KeyNotFoundException();
         }
 
-
+        // 인스톨러들이 들고온 노드소스를 머징
         private List<NodeSource> ComposeNodeSources(
            List<List<NodeSource>> sequences)
         {

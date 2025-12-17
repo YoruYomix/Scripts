@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+Ôªøusing System.Collections.Generic;
 using System;
 using UnityEngine;
 
@@ -9,6 +9,8 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly ChoMiniLifetimeScope _scope;
         private bool _isComposed;
+        public Type SelectedFactoryType { get; private set; }
+        public List<Type> SelectedProviderTypes { get; } = new();
 
         public ChoMiniComposer(ChoMiniLifetimeScope scope)
         {
@@ -39,6 +41,8 @@ namespace Yoru.ChoMiniEngine
                 _scope.FactoryRules,
                 _scope.Options);
 
+            SelectedFactoryType = selected?.ImplType;
+
             Debug.Log($"[Composer] Selected Factory = {selected?.ImplType.Name}");
         }
 
@@ -47,15 +51,21 @@ namespace Yoru.ChoMiniEngine
             Debug.Log("[Composer] Resolve Providers Start");
 
             // -------------------------------------------------
-            // 1) Category (= IChoMiniXXXProvider) ±‚¡ÿ¿∏∑Œ ±◊∑Ï«Œ
+            // 0) Ïù¥Ï†Ñ Í≤∞Í≥º Ï¥àÍ∏∞Ìôî
             // -------------------------------------------------
-            Dictionary<Type, List<BootRule>> grouped = new();
+            SelectedProviderTypes.Clear();
 
-            foreach (var rule in _scope.ProviderRules)
+            // -------------------------------------------------
+            // 1) Category (= IChoMiniXXXProvider) Í∏∞Ï§ÄÏúºÎ°ú Í∑∏Î£πÌïë
+            // -------------------------------------------------
+            Dictionary<Type, List<BootRule>> grouped =
+                new Dictionary<Type, List<BootRule>>();
+
+            foreach (BootRule rule in _scope.ProviderRules)
             {
                 Type groupKey = rule.Category;
 
-                if (!grouped.TryGetValue(groupKey, out var list))
+                if (!grouped.TryGetValue(groupKey, out List<BootRule> list))
                 {
                     list = new List<BootRule>();
                     grouped[groupKey] = list;
@@ -65,33 +75,40 @@ namespace Yoru.ChoMiniEngine
             }
 
             // -------------------------------------------------
-            // 2) ∞¢ Provider ±◊∑Ïø°º≠ «œ≥™ º±≈√
+            // 2) Í∞Å Provider Í∑∏Î£πÏóêÏÑú ÌïòÎÇò ÏÑ†ÌÉù
             // -------------------------------------------------
-            foreach (var pair in grouped)
+            foreach (KeyValuePair<Type, List<BootRule>> pair in grouped)
             {
                 Type providerInterface = pair.Key;
                 List<BootRule> rules = pair.Value;
 
                 Debug.Log($"[Composer] Provider Group: {providerInterface.Name}");
 
-                foreach (var r in rules)
+                foreach (BootRule r in rules)
                 {
                     Debug.Log(
                         $"  {r.Kind} / Key={r.Key ?? "default"} / Impl={r.ImplType.Name}"
                     );
                 }
 
-                // ∞¯≈Î ºø∑∫∆Æ ∑Œ¡˜ ªÁøÎ
                 BootRule selected = RuleSelect.SelectOne(
                     rules,
                     _scope.Options
                 );
 
-                Debug.Log(
-                    selected != null
-                        ? $"[Composer] Selected Provider = {selected.ImplType.Name}"
-                        : $"[Composer] Selected Provider = <none>"
-                );
+                if (selected != null)
+                {
+                    // üî• Ïó¨Í∏∞ÏÑú ‚ÄúÍ≤∞Ï†ï Í≤∞Í≥º‚ÄùÎ•º Ï†ÄÏû•
+                    SelectedProviderTypes.Add(selected.ImplType);
+
+                    Debug.Log(
+                        $"[Composer] Selected Provider = {selected.ImplType.Name}"
+                    );
+                }
+                else
+                {
+                    Debug.Log("[Composer] Selected Provider = <none>");
+                }
             }
 
             Debug.Log("[Composer] Resolve Providers End");
@@ -130,7 +147,7 @@ namespace Yoru.ChoMiniEngine
                 IEnumerable<BootRule> rules,
                 ChoMiniOptions options)
             {
-                // Override øÏº±
+                // Override Ïö∞ÏÑ†
                 foreach (var r in rules)
                 {
                     if (r.Kind == RuleKind.Override &&

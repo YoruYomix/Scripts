@@ -11,7 +11,7 @@ namespace Yoru.ChoMiniEngine
     public class ChoMiniOrchestrator : IDisposable
     {
         private readonly ChoMiniNodeRunner _runner;
-        private ChoMiniSequenceFactory _factory;
+        private IChoMiniFactory _factory;
         private Action _onComplete;
         ChoMiniLocalMessageContext _localMsg;
         private readonly ISubscriber<ChoMiniCommandAdvanceRequested> _advanceSubscriber;
@@ -31,10 +31,11 @@ namespace Yoru.ChoMiniEngine
                 OnAdvance();
             });
         }
-        public void Initialize(ChoMiniLocalMessageContext localMessageContext, Action OnComplate)
+        public void Initialize(ChoMiniLocalMessageContext localMessageContext, Action OnComplate, IChoMiniFactory factory)
         {
             _localMsg = localMessageContext;
             _onComplete = OnComplate;
+            _factory = factory;
         }
 
         private void OnAdvance()
@@ -53,7 +54,7 @@ namespace Yoru.ChoMiniEngine
             }
         }
 
-        public void SetFactory(ChoMiniSequenceFactory factory) { _factory = factory; }
+
 
         public async UniTask PlaySequence()
         {

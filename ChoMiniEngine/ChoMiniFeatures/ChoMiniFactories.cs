@@ -6,7 +6,19 @@ using UnityEngine;
 namespace Yoru.ChoMiniEngine
 {
 
-    public interface IChoMiniFactory { }
+    public interface IChoMiniFactory 
+    {
+        void Initialize(
+    List<NodeSource> sources,
+    List<ChoMiniProvider> providers,
+    ISubscriber<ChoMiniLocalSkipRequested> skipSubscriber);
+
+        int Count { get; }
+
+
+        ChoMiniNode Create();
+
+    }
     // ∆—≈‰∏Æ
 
     // ======================================================
