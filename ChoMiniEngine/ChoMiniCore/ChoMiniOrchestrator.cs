@@ -55,7 +55,7 @@ namespace Yoru.ChoMiniEngine
             {
                 return;
             }
-            _localMsg.SkipPublisher.Publish(new ChoMiniLocalSkipRequested());
+            _localMsg.CompletePublisher.Publish(new ChoMiniLocalCompleteRequested());
         }
 
         public async UniTask PlaySequence()
@@ -86,8 +86,7 @@ namespace Yoru.ChoMiniEngine
             }
 
             Debug.Log("[오케스트레이터] PlaySequence COMPLETE");
-            if (!_disposed)
-                _onComplete?.Invoke();
+
         }
 
 
@@ -97,7 +96,7 @@ namespace Yoru.ChoMiniEngine
             _disposed = true;
             
             _runner.Dispose();
-            _onComplete = null;
+
         }
     }
 }

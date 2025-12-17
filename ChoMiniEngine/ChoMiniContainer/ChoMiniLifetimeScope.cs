@@ -15,7 +15,6 @@ namespace Yoru.ChoMiniEngine
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
-        private readonly ChoMiniCommandContext _glovalMsg;
         readonly ChoMiniLocalMessageContext _localMsg;
         ChoMiniOrchestrator _orchestrator;
         private bool _disposed;
@@ -44,7 +43,6 @@ namespace Yoru.ChoMiniEngine
             IReadOnlyList<BootRule> factoryRules,
             IReadOnlyList<BootRule> providerRules,
             ChoMiniOptions options,
-            ChoMiniCommandContext choMiniCommand,
             ChoMiniLocalMessageContext localMsg,
             ChoMiniOrchestrator orchestrator)
         {
@@ -52,7 +50,6 @@ namespace Yoru.ChoMiniEngine
             _factoryRules = factoryRules;
             _providerRules = providerRules;
             _options = options;
-            _glovalMsg = choMiniCommand;
             _localMsg = localMsg;
             _orchestrator = orchestrator;
         }
@@ -169,7 +166,7 @@ namespace Yoru.ChoMiniEngine
             factory.Initialize(
                 nodeSource,
                 providers,
-                localMsg.SkipSubscriber
+                localMsg.CompleteSubscriber
             );
 
             return factory;

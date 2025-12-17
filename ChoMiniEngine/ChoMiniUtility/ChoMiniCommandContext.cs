@@ -1,10 +1,11 @@
 using MessagePipe;
+using System;
 
 
 public struct ChoMiniCommandAdvanceRequested { }
 public struct SequenceStartMessage { }
 public struct SequenceEndMessage { }
-public struct ChoMiniLocalSkipRequested { }
+public struct ChoMiniLocalCompleteRequested { }
 
 public class ChoMiniCommandContext
 {
@@ -32,35 +33,32 @@ public class ChoMiniCommandContext
 
 
 
-public class ChoMiniLocalMessageContext
+public class ChoMiniLocalMessageContext : IDisposable
 {
-    public IPublisher<ChoMiniLocalSkipRequested> SkipPublisher { get; }
-    public ISubscriber<ChoMiniLocalSkipRequested> SkipSubscriber { get; }
+    public IPublisher<ChoMiniLocalCompleteRequested> CompletePublisher { get; }
+    public ISubscriber<ChoMiniLocalCompleteRequested> CompleteSubscriber { get; }
 
-    public IPublisher<SequenceStartMessage> StartPublisher { get; }
-    public ISubscriber<SequenceStartMessage> StartSubscriber { get; }
-
-
-    public IPublisher<SequenceEndMessage> EndPublisher { get; }
-    public ISubscriber<SequenceEndMessage> EndSubscriber { get; }
+    private bool _disposed;
 
     public ChoMiniLocalMessageContext()
     {
         var builder = new BuiltinContainerBuilder();
         builder.AddMessagePipe();
-        builder.AddMessageBroker<ChoMiniLocalSkipRequested>();
-        builder.AddMessageBroker<SequenceStartMessage>();
-        builder.AddMessageBroker<SequenceEndMessage>();
+        builder.AddMessageBroker<ChoMiniLocalCompleteRequested>();
+
 
         var provider = builder.BuildServiceProvider();
 
-        SkipPublisher = provider.GetRequiredService<IPublisher<ChoMiniLocalSkipRequested>>();
-        SkipSubscriber = provider.GetRequiredService<ISubscriber<ChoMiniLocalSkipRequested>>();
+        CompletePublisher = provider.GetRequiredService<IPublisher<ChoMiniLocalCompleteRequested>>();
+        CompleteSubscriber = provider.GetRequiredService<ISubscriber<ChoMiniLocalCompleteRequested>>();
 
-        StartPublisher = provider.GetRequiredService<IPublisher<SequenceStartMessage>>();
-        StartSubscriber = provider.GetRequiredService<ISubscriber<SequenceStartMessage>>();
 
-        EndPublisher = provider.GetRequiredService<IPublisher<SequenceEndMessage>>();
-        EndSubscriber = provider.GetRequiredService<ISubscriber<SequenceEndMessage>>();
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+
     }
 }
