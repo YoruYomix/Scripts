@@ -40,7 +40,6 @@ namespace Yoru.ChoMiniEngine
                 _do?.Invoke();
 
                 using var node = _createNode();
-                Debug.Log($"[ReactorLoop] node.Duration = {node.Duration}");
 
                 var runner = new ChoMiniNodeRunner();
 

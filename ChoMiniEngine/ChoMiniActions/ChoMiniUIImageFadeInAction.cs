@@ -77,7 +77,7 @@ namespace Yoru.ChoMiniEngine
         protected override void OnCleanup()
         {
             // 수명 종료 = 중단만
-            _tween?.Kill(false);
+            _tween?.Kill(true);
             _tween = null;
         }
     }

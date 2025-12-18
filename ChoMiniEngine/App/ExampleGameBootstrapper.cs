@@ -87,16 +87,6 @@ namespace Yoru.App
                     .LifetimeLoop()
                     .Do(() => { Debug.Log("리액터 프로바이더 있는 Do 발동됨"); })
 
-                .RegisterReactor()
-                    .WhenSequenceCompleted
-                    .When(() => MockGameState.State == GameState.Playing)
-                    .WhenAnyNodeHasTag("last-textNode")
-                    .Do(() => { Debug.Log("리액터 프로바이더 NULL, 노드 태그 last-textNode Do 발동됨"); })
-
-                .RegisterReactor()
-                    .WhenSequenceCompleted
-                    .When(() => MockGameState.State == GameState.Playing)
-                    .Do(() => { Debug.Log("리액터 프로바이더 NULL, 노드 태그 없는 Do 발동됨"); })
 
                 .Build();
 
@@ -143,9 +133,6 @@ namespace Yoru.App
                 .Bind<ChoMiniStringInstaller>(Language.JP, scriptJP)
                 .Bind<ChoMiniStringInstaller>(Language.CN, scriptCN);
 
-
-            //scope.DebugPrint();
-            //scope.DebugPrintInstallers();
 
             ChoMiniRoot.CommandContext.AdvanceSubscriber
                 .Subscribe(_ => ChoMiniScopeCommand.Advance(scope));

@@ -173,6 +173,7 @@ namespace Yoru.ChoMiniEngine
         protected override void OnCleanup()
         {
             Cancel();
+            _text.text = _fullText;
         }
     }
 }
