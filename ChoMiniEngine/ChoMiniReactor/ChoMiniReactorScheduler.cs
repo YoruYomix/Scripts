@@ -27,13 +27,12 @@ namespace Yoru.ChoMiniEngine
             Debug.Log("[ReactorScheduler] Created");
         }
 
-        // ======================================================
+        // --------------------------------------------------
         // Subscribe
-        // ======================================================
+        // --------------------------------------------------
 
         private void Subscribe()
         {
-            // 시퀀스 완료 시점에만 평가
             _subs.Add(
                 _msg.SequenceCompleteSubscriber.Subscribe(_ =>
                 {
@@ -46,9 +45,9 @@ namespace Yoru.ChoMiniEngine
             );
         }
 
-        // ======================================================
-        // Evaluate
-        // ======================================================
+        // --------------------------------------------------
+        // Evaluate (Scheduler 조건 AND 평가)
+        // --------------------------------------------------
 
         private void Evaluate(ReactorTrigger trigger)
         {
@@ -58,32 +57,42 @@ namespace Yoru.ChoMiniEngine
 
             foreach (var rule in _rules)
             {
-                // 1️⃣ Schedule 조건 (AND)
+                // 1️⃣ Scheduler 조건 (AND)
                 if (!PassScheduleConditions(rule, scheduleCtx))
                     continue;
 
-                // 2️⃣ Node 조립 (ProviderReactor만)
-                ChoMiniNode? node = AssembleNode(rule);
+                // 2️⃣ TargetNodeTag 조건 (AND, 필터)
+                var matchedSources = FilterByTargetNode(rule);
 
-                // -------------------------
-                // SimpleReactor
-                // -------------------------
-                if (node == null)
+                // Target 조건이 있는데 하나도 매칭 안 됨 → 실행 ❌
+                if (rule.NodeConditions.Count > 0 && matchedSources.Count == 0)
+                    continue;
+
+                // 3️⃣ SimpleReactor
+                if (rule.ProviderType == null)
                 {
                     rule.DoHook?.Invoke();
                     continue;
                 }
 
-                // -------------------------
-                // ProviderReactor
-                // -------------------------
+                // 4️⃣ ProviderReactor → Node 생성
+                ChoMiniNode node = CreateNode(rule, matchedSources);
+                if (node == null)
+                    continue;
+
                 new ChoMiniReactorCoordinator(
                     node,
                     _msg,
                     rule.IsLifetimeLoop
                 );
+
+                rule.DoHook?.Invoke();
             }
         }
+
+        // --------------------------------------------------
+        // Scheduler 조건 (When*)
+        // --------------------------------------------------
 
         private bool PassScheduleConditions(
             ReactorRule rule,
@@ -97,41 +106,16 @@ namespace Yoru.ChoMiniEngine
             return true;
         }
 
-        // ======================================================
-        // Assemble Node (ProviderReactor only)
-        // ======================================================
+        // --------------------------------------------------
+        // TargetNodeTag 조건 (필터)
+        // --------------------------------------------------
 
-        private ChoMiniNode? AssembleNode(ReactorRule rule)
+        private List<NodeSource> FilterByTargetNode(ReactorRule rule)
         {
-            // SimpleReactor → Node 없음
-            if (rule.ProviderType == null)
-                return null;
+            if (rule.NodeConditions.Count == 0)
+                return new List<NodeSource>(_nodeSources);
 
-            // 1️⃣ TargetNodeTag 필터
-            List<NodeSource> filteredSources = FilterNodeSources(rule);
-
-            if (rule.NodeConditions.Count > 0 && filteredSources.Count == 0)
-                return null;
-
-            // 2️⃣ Provider 생성
-            IChoMiniProvider provider =
-                (IChoMiniProvider)Activator.CreateInstance(rule.ProviderType);
-
-            // 3️⃣ Reactor 전용 Factory로 Node 생성
-            var factory = new ChoMiniReactorFactory();
-            factory.Initialize(
-                filteredSources,
-                new List<IChoMiniProvider> { provider },
-                _msg.CompleteSubscriber,
-                _msg
-            );
-
-            return factory.Create();
-        }
-
-        private List<NodeSource> FilterNodeSources(ReactorRule rule)
-        {
-            var result = new List<NodeSource>();
+            List<NodeSource> result = new();
 
             foreach (var src in _nodeSources)
             {
@@ -153,9 +137,34 @@ namespace Yoru.ChoMiniEngine
             return result;
         }
 
-        // ======================================================
+        // --------------------------------------------------
+        // Node 생성 (ProviderReactor)
+        // --------------------------------------------------
+
+        private ChoMiniNode CreateNode(
+            ReactorRule rule,
+            List<NodeSource> sources)
+        {
+            if (sources.Count == 0)
+                return null;
+
+            IChoMiniProvider provider =
+                (IChoMiniProvider)Activator.CreateInstance(rule.ProviderType);
+
+            var factory = new ChoMiniReactorFactory();
+            factory.Initialize(
+                sources,
+                new List<IChoMiniProvider> { provider },
+                _msg.CompleteSubscriber,
+                _msg
+            );
+
+            return factory.Create();
+        }
+
+        // --------------------------------------------------
         // Dispose
-        // ======================================================
+        // --------------------------------------------------
 
         public void Dispose()
         {
