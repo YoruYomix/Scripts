@@ -1,21 +1,14 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
 
 namespace Yoru.ChoMiniEngine
 {
+    // -------------------------
+    // Schedule
+    // -------------------------
 
-    // "언제 실행할지" 판단 (Scheduler 전용)
     public interface IReactorScheduleCondition
     {
         bool IsSatisfied(ReactorScheduleContext context);
-    }
-    // "무엇을 만들지" 판단 (ReactorNodeFactory 전용)
-    public interface IReactorNodeCondition
-    {
-        bool IsSatisfied(ReactorNodeContext context);
     }
 
     public enum ReactorTrigger
@@ -30,16 +23,6 @@ namespace Yoru.ChoMiniEngine
         public ReactorScheduleContext(ReactorTrigger trigger)
         {
             Trigger = trigger;
-        }
-    }
-
-    public sealed class ReactorNodeContext
-    {
-        public NodeSource Source { get; }
-
-        public ReactorNodeContext(NodeSource source)
-        {
-            Source = source;
         }
     }
 
@@ -65,6 +48,26 @@ namespace Yoru.ChoMiniEngine
             return _predicate();
         }
     }
+
+    // -------------------------
+    // Node Target
+    // -------------------------
+
+    public interface IReactorNodeCondition
+    {
+        bool IsSatisfied(ReactorNodeContext context);
+    }
+
+    public sealed class ReactorNodeContext
+    {
+        public NodeSource NodeSource { get; }
+
+        public ReactorNodeContext(NodeSource nodeSource)
+        {
+            NodeSource = nodeSource;
+        }
+    }
+
     public sealed class NodeTagCondition : IReactorNodeCondition
     {
         private readonly string _tag;
@@ -76,7 +79,7 @@ namespace Yoru.ChoMiniEngine
 
         public bool IsSatisfied(ReactorNodeContext context)
         {
-            return context.Source.HasTag(_tag);
+            return context.NodeSource.HasTag(_tag);
         }
     }
 }
