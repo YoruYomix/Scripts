@@ -185,7 +185,7 @@ namespace Yoru.ChoMiniEngine
             // -------------------------
             // Target 계열
             // -------------------------
-            public SimpleReactorBuilder TargetNodeTag(string tag)
+            public SimpleReactorBuilder WhenAnyNodeHasTag(string tag)
             {
                 _rule.NodeConditions.Add(
                     new NodeTagCondition(tag));
