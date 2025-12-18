@@ -48,34 +48,41 @@ namespace Yoru.ChoMiniEngine
             for (int i = 0; i < _rules.Count; i++)
             {
                 var rule = _rules[i];
+
+                var providerName = rule.ProviderType?.Name ?? "SimpleReactor";
+                var lifetimeText = (rule.ProviderType != null) ? rule.IsLifetimeLoop.ToString() : "N/A";
+
                 bool pass = true;
+                string? failCondName = null;
 
                 foreach (var cond in rule.ScheduleConditions)
                 {
                     if (!cond.IsSatisfied(ctx))
                     {
                         pass = false;
+                        failCondName = cond.GetType().Name; // 어떤 조건에서 떨어졌는지
                         break;
                     }
                 }
 
                 if (!pass)
                 {
-
-                    Debug.Log($"[ReactorScheduler] FAIL: {rule.ProviderType.Name}");
-
+                    Debug.Log(
+                        $"[ReactorScheduler] FAIL " +
+                        $"Trigger={trigger} Provider={providerName} Lifetime={lifetimeText} " +
+                        $"FailCond={failCondName}"
+                    );
                     continue;
                 }
 
+                Debug.Log(
+                    $"[ReactorScheduler] PASS " +
+                    $"Trigger={trigger} Provider={providerName} Lifetime={lifetimeText} " +
+                    $"ScheduleCondCount={rule.ScheduleConditions.Count} NodeCondCount={rule.NodeConditions.Count}"
+                );
 
-                //Debug.Log(
-                //    $"[ReactorScheduler] PASS: {rule.ProviderType.Name} " +
-                //    $"Lifetime={rule.IsLifetimeLoop}"
-                //);
 
 
-                // 실행은 아직 안 함
-                new ChoMiniReactorCoordinator(rule, _msg);
             }
         }
 

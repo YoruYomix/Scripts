@@ -11,60 +11,38 @@ namespace Yoru.ChoMiniEngine
 {
     public sealed class ChoMiniReactorCoordinator : IDisposable
     {
-        private readonly ReactorRule _rule;
-        private readonly ChoMiniScopeMessageContext _msg;
-
-        private readonly CancellationTokenSource _cts = new();
-        private IDisposable _cleanupSub;
+        private readonly ChoMiniNode _node;
+        private readonly IDisposable _cleanupSub;
         private bool _disposed;
+        private readonly ChoMiniNodeRunner _nodeRunner = new();
 
         public ChoMiniReactorCoordinator(
-            ReactorRule rule,
-            ChoMiniScopeMessageContext msg)
+            ChoMiniNode node,
+            ChoMiniScopeMessageContext msg,
+            bool isLifetimeLoop)
         {
-            _rule = rule;
-            _msg = msg;
+            _node = node;
 
-            _cleanupSub = _msg.CleanupSubscriber.Subscribe(_ => Dispose());
+            _cleanupSub = msg.CleanupSubscriber.Subscribe(_ => Dispose());
 
-            //  Provider 없는 Reactor → Do 1회
-            if (_rule.ProviderType == null)
-            {
-                _rule.DoHook?.Invoke();
-                return;
-            }
-
-            // 🟢 Provider 있는 Reactor
-            if (_rule.IsLifetimeLoop)
-            {
+            if (isLifetimeLoop)
                 RunLoop().Forget();
-            }
             else
-            {
-                ExecuteOnce();
-            }
+                RunOnce();
+        }
+
+        private void RunOnce()
+        {
+            _nodeRunner.RunNode(_node).Forget();
         }
 
         private async UniTaskVoid RunLoop()
         {
-            try
+            while (!_disposed)
             {
-                while (!_cts.IsCancellationRequested)
-                {
-                    ExecuteOnce();
-                    await UniTask.Yield(PlayerLoopTiming.Update, _cts.Token);
-                }
+                await _nodeRunner.RunNode(_node);
+                await UniTask.Yield();
             }
-            catch (OperationCanceledException)
-            {
-                // 정상 종료
-            }
-        }
-
-        private void ExecuteOnce()
-        {
-            // 다음 단계: Provider → Node 생성 → NodeRunner.Run(node)
-            _rule.DoHook?.Invoke();
         }
 
         public void Dispose()
@@ -72,16 +50,10 @@ namespace Yoru.ChoMiniEngine
             if (_disposed) return;
             _disposed = true;
 
-            Debug.Log(
-                _rule.ProviderType != null
-                    ? $"[ReactorCoordinator] disposed: {_rule.ProviderType.Name}"
-                    : "[ReactorCoordinator] disposed: Do-only reactor"
-            );
-
-            _cts.Cancel();
-            _cleanupSub?.Dispose();
-            _cleanupSub = null;
+            _cleanupSub.Dispose();
+            _node.Dispose();
         }
     }
+
 
 }
