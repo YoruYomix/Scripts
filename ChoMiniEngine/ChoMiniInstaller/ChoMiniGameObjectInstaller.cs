@@ -1,8 +1,8 @@
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
+using TMPro;
 
 namespace Yoru.ChoMiniEngine
 {
@@ -29,7 +29,7 @@ namespace Yoru.ChoMiniEngine
         }
 
         // ------------------------------
-        // BuildNodeSources (����)
+        // BuildNodeSources
         // ------------------------------
         public List<NodeSource> BuildNodeSources(
             ChoMiniLifetimeScope scope,
@@ -45,6 +45,9 @@ namespace Yoru.ChoMiniEngine
             List<List<GameObject>> groups = BuildGameObjectGroups();
             List<NodeSource> result = new();
 
+            // ⭐ 텍스트 컴포넌트를 가진 마지막 GameObject 찾기
+            GameObject lastTextObject = FindLastTextGameObject(groups);
+
             foreach (List<GameObject> group in groups)
             {
                 List<object> items = new();
@@ -55,18 +58,25 @@ namespace Yoru.ChoMiniEngine
                         items.Add(go);
                 }
 
-                if (items.Count > 0)
+                if (items.Count == 0)
+                    continue;
+
+                bool isLastTextNode =
+                    lastTextObject != null &&
+                    group.Contains(lastTextObject);
+
+                if (isLastTextNode)
                     result.Add(new NodeSource(items, "last-textNode"));
+                else
+                    result.Add(new NodeSource(items));
             }
 
             Debug.Log("[Installer] NodeSource Steps = " + result.Count);
-
-
             return result;
         }
 
         // ------------------------------
-        // ����: GameObject �� �׷�
+        // 내부: GameObject → 그룹
         // ------------------------------
         private List<List<GameObject>> BuildGameObjectGroups()
         {
@@ -99,7 +109,7 @@ namespace Yoru.ChoMiniEngine
         }
 
         // ------------------------------
-        // ����: Tree �� List
+        // 내부: Tree → List
         // ------------------------------
         private List<GameObject> TreeToList(GameObject root)
         {
@@ -115,6 +125,30 @@ namespace Yoru.ChoMiniEngine
 
             return list;
         }
-    }
 
+        // ------------------------------
+        // 내부: 마지막 텍스트 GameObject 찾기
+        // ------------------------------
+        private GameObject FindLastTextGameObject(List<List<GameObject>> groups)
+        {
+            GameObject last = null;
+
+            foreach (var group in groups)
+            {
+                foreach (var go in group)
+                {
+                    if (go == null)
+                        continue;
+
+                    if (go.GetComponent<Text>() != null ||
+                        go.GetComponent<TMP_Text>() != null)
+                    {
+                        last = go;
+                    }
+                }
+            }
+
+            return last;
+        }
+    }
 }
