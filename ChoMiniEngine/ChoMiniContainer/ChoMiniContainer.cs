@@ -166,7 +166,7 @@ namespace Yoru.ChoMiniEngine
             // When
             // -------------------------
 
-            public SimpleReactorBuilder WhenLastNodeComplete
+            public SimpleReactorBuilder WhenSequenceCompleted
             {
                 get
                 {
@@ -178,12 +178,6 @@ namespace Yoru.ChoMiniEngine
             public SimpleReactorBuilder When(Func<bool> predicate)
             {
                 _rule.ScheduleConditions.Add(new ExternalPredicateCondition(predicate));
-                return this;
-            }
-            public SimpleReactorBuilder WhenNodeTag(string tag)
-            {
-                _rule.NodeConditions.Add(
-                    new NodeTagCondition(tag));
                 return this;
             }
 
@@ -230,7 +224,7 @@ namespace Yoru.ChoMiniEngine
             // When 계열
             // -------------------------
 
-            public ReactorBuilder<TProvider> WhenLastNodeComplete
+            public ReactorBuilder<TProvider> WhenSequenceCompleted
             {
                 get
                 {
@@ -240,17 +234,23 @@ namespace Yoru.ChoMiniEngine
                 }
             }
 
-            public ReactorBuilder<TProvider> WhenNodeTag(string tag)
-            {
-                _rule.NodeConditions.Add(
-                    new NodeTagCondition(tag));
-                return this;
-            }
+
 
             public ReactorBuilder<TProvider> When(Func<bool> predicate)
             {
                 _rule.ScheduleConditions.Add(
                     new ExternalPredicateCondition(predicate));
+                return this;
+            }
+
+            // -------------------------
+            // Target 계열
+            // -------------------------
+
+            public ReactorBuilder<TProvider> TargetNodeTag(string tag)
+            {
+                _rule.NodeConditions.Add(
+                    new NodeTagCondition(tag));
                 return this;
             }
 

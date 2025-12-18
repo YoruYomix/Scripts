@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Collections.Generic;
 using MessagePipe;
 using UnityEngine;
@@ -24,7 +24,7 @@ namespace Yoru.ChoMiniEngine
             _msg = msg ?? throw new ArgumentNullException(nameof(msg));
 
             Subscribe();
-            Debug.Log("¸®¾×ÅÍ ½ºÄÉÁì·¯ »ı¼º µÊ");
+            Debug.Log("ë¦¬ì•¡í„° ìŠ¤ì¼€ì¥´ëŸ¬ ìƒì„± ë¨");
         }
 
         private void Subscribe()
@@ -62,6 +62,14 @@ namespace Yoru.ChoMiniEngine
                 if (!pass)
                     continue;
 
+                // âœ… SimpleReactor: Do ì¦‰ì‹œ ì‹¤í–‰
+                if (rule.ProviderType == null)
+                {
+                    rule.DoHook?.Invoke();
+                    continue;
+                }
+
+                // ProviderReactor
                 ChoMiniNode? node = AssembleNode(rule);
                 if (node == null)
                     continue;
@@ -74,22 +82,20 @@ namespace Yoru.ChoMiniEngine
             }
         }
 
+
         // -------------------------
         // Assemble
         // -------------------------
 
         private ChoMiniNode? AssembleNode(ReactorRule rule)
         {
-            // SimpleReactor´Â Node ¾øÀ½
-            if (rule.ProviderType == null)
-                return null;
-
-            // 1) NodeSource ÇÊÅÍ
+            // 1ï¸âƒ£ NodeCondition í•„í„° (í•­ìƒ ì‹¤í–‰)
             List<NodeSource> filtered = new();
 
             foreach (var src in _nodeSources)
             {
                 bool pass = true;
+
                 foreach (var cond in rule.NodeConditions)
                 {
                     if (!cond.IsSatisfied(new ReactorNodeContext(src)))
@@ -103,16 +109,19 @@ namespace Yoru.ChoMiniEngine
                     filtered.Add(src);
             }
 
-            if (filtered.Count == 0)
+            // NodeConditionì´ ìˆëŠ”ë° í†µê³¼í•œ ì†ŒìŠ¤ê°€ ì—†ìœ¼ë©´ ì¢…ë£Œ
+            if (rule.NodeConditions.Count > 0 && filtered.Count == 0)
                 return null;
 
-            // 2) Provider Á÷Á¢ »ı¼º (Áß¿ä)
+            // 2ï¸âƒ£ SimpleReactor â†’ Node ì—†ì´ Doë§Œ ì‹¤í–‰
+            if (rule.ProviderType == null)
+                return new ChoMiniNode(_msg.CompleteSubscriber); // or null + Doë§Œ ë³„ë„ ì²˜ë¦¬
+
+            // 3ï¸âƒ£ ProviderReactor â†’ Node ìƒì„±
             IChoMiniProvider provider =
                 (IChoMiniProvider)Activator.CreateInstance(rule.ProviderType);
 
-            // 3) ReactorFactory·Î Node »ı»ê
             var factory = new ChoMiniReactorFactory();
-
             factory.Initialize(
                 filtered,
                 new List<IChoMiniProvider> { provider },
@@ -122,6 +131,7 @@ namespace Yoru.ChoMiniEngine
 
             return factory.Create();
         }
+
 
         public void Dispose()
         {

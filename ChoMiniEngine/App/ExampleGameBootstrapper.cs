@@ -81,20 +81,14 @@ namespace Yoru.App
                     .End()
 
                 .RegisterReactor<ChoMiniUITextComponentTypingProvider>()
-                    .WhenLastNodeComplete
-                    .WhenNodeTag("last-textNode")
+                    .WhenSequenceCompleted
+                    .TargetNodeTag("last-textNode")
                     .When(()=> MockGameState.State == GameState.Playing)
                     .LifetimeLoop()
                     .Do(() => { Debug.Log("리액터 프로바이더 있는 Do 발동됨"); })
 
                 .RegisterReactor()
-                    .WhenLastNodeComplete
-                    .WhenNodeTag("last-textNode")
-                    .When(() => MockGameState.State == GameState.Playing)
-                    .Do(() => { Debug.Log("리액터 프로바이더 NULL Do 발동됨"); })
-
-                .RegisterReactor()
-                    .WhenLastNodeComplete
+                    .WhenSequenceCompleted
                     .When(() => MockGameState.State == GameState.Playing)
                     .Do(() => { Debug.Log("리액터 프로바이더 NULL, 노드 태그 없는 Do 발동됨"); })
 
