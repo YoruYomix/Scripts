@@ -10,6 +10,7 @@ namespace Yoru.ChoMiniEngine
         private readonly IReadOnlyList<BootRule> _installerRules;
         private readonly IReadOnlyList<BootRule> _factoryRules;
         private readonly IReadOnlyList<BootRule> _providerRules;
+        private readonly IReadOnlyList<ReactorRule> _reactorRules;
         private ChoMiniReactorScheduler _reactorScheduler;
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
@@ -51,15 +52,10 @@ namespace Yoru.ChoMiniEngine
             _installerRules = installerRules;
             _factoryRules = factoryRules;
             _providerRules = providerRules;
+            _reactorRules = reactorRules;
             _options = options;
             _localMsg = localMsg;
             _orchestrator = orchestrator;
-            _reactorScheduler = new ChoMiniReactorScheduler
-                (
-                    rules: reactorRules,
-                    nodeSources: BuildComposedNodeSources(),
-                    msg: localMsg
-                );
         }
 
 
@@ -78,6 +74,15 @@ namespace Yoru.ChoMiniEngine
 
             _state = ScopeState.Playing;
             Debug.Log("[Scope] Play()");
+
+            // 여기서 NodeSource 확정
+            List<NodeSource> nodeSources = BuildComposedNodeSources();
+
+            // 여기서 Scheduler 생성
+            _reactorScheduler = new ChoMiniReactorScheduler(
+                rules: _reactorRules,
+                nodeSources: nodeSources,
+                msg: _localMsg);
 
             try
             {
