@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -45,7 +45,7 @@ namespace Yoru.ChoMiniEngine
             IReadOnlyList<BootRule> installerRules,
             IReadOnlyList<BootRule> factoryRules,
             IReadOnlyList<BootRule> providerRules,
-            IReadOnlyList<ReactorRule> reactorRules,   // ¡ç Ãß°¡
+            IReadOnlyList<ReactorRule> reactorRules,   // â† ì¶”ê°€
             ChoMiniOptions options,
             ChoMiniScopeMessageContext localMsg,
             ChoMiniOrchestrator orchestrator)
@@ -61,7 +61,7 @@ namespace Yoru.ChoMiniEngine
 
 
         // ================================
-        // Àç»ı Á¦¾î
+        // ì¬ìƒ ì œì–´
         // ================================
         public async UniTask Play()
         {
@@ -76,13 +76,13 @@ namespace Yoru.ChoMiniEngine
             _state = ScopeState.Playing;
             Debug.Log("[Scope] Play()");
 
-            // ¿©±â¼­ NodeSource È®Á¤
-            List<NodeSource> nodeSources = BuildComposedNodeSources();
-
-            // ¿©±â¼­ Scheduler »ı¼º
+            // ì—¬ê¸°ì„œ NodeSource í™•ì •
+            _nodeSources = BuildComposedNodeSources();
+ 
+            // ì—¬ê¸°ì„œ Scheduler ìƒì„±
             _reactorScheduler = new ChoMiniReactorScheduler(
                 rules: _reactorRules,
-                nodeSources: nodeSources,
+                nodeSources: _nodeSources,
                 msg: _localMsg);
 
             try
@@ -128,9 +128,9 @@ namespace Yoru.ChoMiniEngine
         }
 
         // ==========================================================
-        // ¿ÜºÎ DSL UX ¿£Æ®¸®:
-        // Installer Å¸ÀÔ + ¿É¼Ç Å° ¡æ ¸®¼Ò½º ¸ÅÇÎ
-        // (ÀÎ½ºÅÏ½º »ı¼ºÀÌ³ª ½ÇÇàÀº ¿©±â¼­ ÇÏÁö ¾ÊÀ½)
+        // ì™¸ë¶€ DSL UX ì—”íŠ¸ë¦¬:
+        // Installer íƒ€ì… + ì˜µì…˜ í‚¤ â†’ ë¦¬ì†ŒìŠ¤ ë§¤í•‘
+        // (ì¸ìŠ¤í„´ìŠ¤ ìƒì„±ì´ë‚˜ ì‹¤í–‰ì€ ì—¬ê¸°ì„œ í•˜ì§€ ì•ŠìŒ)
         // ==========================================================
         public ChoMiniLifetimeScope Bind<TInstaller>(object resource)
             => Bind<TInstaller>(null, resource);
@@ -150,26 +150,26 @@ namespace Yoru.ChoMiniEngine
 
 
         // ================================
-        // Factory ÇÕ¼º
+        // Factory í•©ì„±
         // ================================
 
-        // ¿É¼Ç¿¡ ¸Â´Â ÇÁ·Î¹ÙÀÌ´õ°¡ ÁÖÀÔµÈ ÆÑÅä¸®¸¦ ÄÄÆ÷Àú¿¡°Ô¼­ °¡Á®¿È
+        // ì˜µì…˜ì— ë§ëŠ” í”„ë¡œë°”ì´ë”ê°€ ì£¼ì…ëœ íŒ©í† ë¦¬ë¥¼ ì»´í¬ì €ì—ê²Œì„œ ê°€ì ¸ì˜´
         public IChoMiniFactory BuildFactory(ChoMiniScopeMessageContext localMsg)
         {
-            // 1) Composer ¿¡°Ô ÆÑÅä¸®¿Í ÇÁ·Î¹ÙÀÌ´õÀÇ Å¸ÀÔ ¼±ÅÃÀ» ½ÃÅ´
+            // 1) Composer ì—ê²Œ íŒ©í† ë¦¬ì™€ í”„ë¡œë°”ì´ë”ì˜ íƒ€ì… ì„ íƒì„ ì‹œí‚´
             Composer.EnsureComposed();
 
             if (Composer.SelectedFactoryType == null)
                 throw new InvalidOperationException("Factory not selected");
 
 
-            // 2) Factory »ı¼º
-            // Activator.CreateInstance(Type) : ·±Å¸ÀÓ¿¡ °áÁ¤µÈ TypeÀÇ °´Ã¼¸¦ ±âº» »ı¼ºÀÚ·Î »ı¼ºÇÔ
-            // (IChoMiniFactory)Activator.CreateInstance(type) : ·±Å¸ÀÓ¿¡ ¼±ÅÃµÈ TypeÀ» IChoMiniFactory ÀÎ½ºÅÏ½º·Î »ı¼º
+            // 2) Factory ìƒì„±
+            // Activator.CreateInstance(Type) : ëŸ°íƒ€ì„ì— ê²°ì •ëœ Typeì˜ ê°ì²´ë¥¼ ê¸°ë³¸ ìƒì„±ìë¡œ ìƒì„±í•¨
+            // (IChoMiniFactory)Activator.CreateInstance(type) : ëŸ°íƒ€ì„ì— ì„ íƒëœ Typeì„ IChoMiniFactory ì¸ìŠ¤í„´ìŠ¤ë¡œ ìƒì„±
             IChoMiniFactory factory =
                 (IChoMiniFactory)Activator.CreateInstance(Composer.SelectedFactoryType);
 
-            // 3) Provider »ı¼º
+            // 3) Provider ìƒì„±
             List<IChoMiniProvider> providers = new();
 
             foreach (Type providerType in Composer.SelectedProviderTypes)
@@ -179,8 +179,8 @@ namespace Yoru.ChoMiniEngine
                 providers.Add(provider);
             }
 
-            // 4) Installer °á°ú¸¦ º´ÇÕÇÑ NodeSource »ı¼º
-            List<NodeSource> nodeSource = BuildComposedNodeSources();
+            // 4) Installer ê²°ê³¼ë¥¼ ë³‘í•©í•œ NodeSource ìƒì„±
+            List<NodeSource> nodeSource = _nodeSources;
 
             // 5) Factory Initialize
             factory.Initialize(
@@ -193,19 +193,19 @@ namespace Yoru.ChoMiniEngine
             return factory;
         }
 
-        // ¿É¼Ç¿¡ ¸Â°Ô ¼±º°µÈ ÀÎ½ºÅç·¯µéÀÇ NodeSource¸¦ ¼öÁıÇÏ°í step ±âÁØÀ¸·Î º´ÇÕ
+        // ì˜µì…˜ì— ë§ê²Œ ì„ ë³„ëœ ì¸ìŠ¤í†¨ëŸ¬ë“¤ì˜ NodeSourceë¥¼ ìˆ˜ì§‘í•˜ê³  step ê¸°ì¤€ìœ¼ë¡œ ë³‘í•©
         public List<NodeSource> BuildComposedNodeSources()
         {
             Debug.Log("[Debug] Build Composed NodeSources By Options");
 
             // -----------------------------------
-            // 1) ¸ğµç InstallerÀÇ NodeSource ½ÃÄö½º ¼öÁı
+            // 1) ëª¨ë“  Installerì˜ NodeSource ì‹œí€€ìŠ¤ ìˆ˜ì§‘
             // -----------------------------------
             List<List<NodeSource>> allSequences =
                 new List<List<NodeSource>>();
 
-            // Installer Å¸ÀÔ ¼öÁı
-            // HashSet<T> : Áßº¹À» Çã¿ëÇÏÁö ¾Ê´Â ÁıÇÕ ÄÃ·º¼Ç (°°Àº TypeÀº ÇÑ ¹ø¸¸ ÀúÀåµÊ)
+            // Installer íƒ€ì… ìˆ˜ì§‘
+            // HashSet<T> : ì¤‘ë³µì„ í—ˆìš©í•˜ì§€ ì•ŠëŠ” ì§‘í•© ì»¬ë ‰ì…˜ (ê°™ì€ Typeì€ í•œ ë²ˆë§Œ ì €ì¥ë¨)
             HashSet<Type> installerTypes = new HashSet<Type>();
 
             foreach (var kv in _bindings)
@@ -213,7 +213,7 @@ namespace Yoru.ChoMiniEngine
                 installerTypes.Add(kv.Key.installerType);
             }
 
-            // °¢ Installerº° NodeSource ½ÃÄö½º »ı¼º
+            // ê° Installerë³„ NodeSource ì‹œí€€ìŠ¤ ìƒì„±
             foreach (Type installerType in installerTypes)
             {
                 List<NodeSource> sequence =
@@ -224,7 +224,7 @@ namespace Yoru.ChoMiniEngine
             }
 
             // -----------------------------------
-            // 2) step ±âÁØÀ¸·Î ¸ÓÂ¡
+            // 2) step ê¸°ì¤€ìœ¼ë¡œ ë¨¸ì§•
             // -----------------------------------
             List<NodeSource> composed =
                 ComposeNodeSources(allSequences);
@@ -232,17 +232,17 @@ namespace Yoru.ChoMiniEngine
             return composed;
         }
 
-        // ¿É¼Ç¿¡ ¸Â´Â ¸®¼Ò½º¸¦ »ç¿ëÇØ ´ÜÀÏ InstallerÀÇ NodeSource¸¦ »ı¼º
+        // ì˜µì…˜ì— ë§ëŠ” ë¦¬ì†ŒìŠ¤ë¥¼ ì‚¬ìš©í•´ ë‹¨ì¼ Installerì˜ NodeSourceë¥¼ ìƒì„±
 
         private List<NodeSource> BuildSingleInstallerNodeSources(
             Type installerType)
         {
             // -----------------------------------
-            // 1) ¿É¼Ç + ¹ÙÀÎµùÀ¸·Î key ¼±ÅÃ
+            // 1) ì˜µì…˜ + ë°”ì¸ë”©ìœ¼ë¡œ key ì„ íƒ
             // -----------------------------------
             object key = null;
 
-            // KeyValuePair<TKey, TValue> : Dictionary ¼øÈ¸ ½Ã ¹İÈ¯µÇ´Â Key¿Í Value ÇÑ ½Ö
+            // KeyValuePair<TKey, TValue> : Dictionary ìˆœíšŒ ì‹œ ë°˜í™˜ë˜ëŠ” Keyì™€ Value í•œ ìŒ
             foreach (KeyValuePair<Type, object> pair in _options.DebugPairs())
             {
                 object optionValue = pair.Value;
@@ -273,13 +273,13 @@ namespace Yoru.ChoMiniEngine
             }
 
             // -----------------------------------
-            // 3) Installer ÀÎ½ºÅÏ½º »ı¼º
+            // 3) Installer ì¸ìŠ¤í„´ìŠ¤ ìƒì„±
             // -----------------------------------
             IChoMiniInstaller installer =
                 (IChoMiniInstaller)Activator.CreateInstance(installerType);
 
             // -----------------------------------
-            // 4) Installer¿¡ resource ÁÖÀÔ
+            // 4) Installerì— resource ì£¼ì…
             // -----------------------------------
             System.Reflection.MethodInfo bindMethod =
                 installerType.GetMethod("Bind");
@@ -287,12 +287,12 @@ namespace Yoru.ChoMiniEngine
             bindMethod.Invoke(installer, new[] { resource });
 
             // -----------------------------------
-            // 5) NodeSource »ı¼º
+            // 5) NodeSource ìƒì„±
             // -----------------------------------
             return installer.BuildNodeSources(this, _options);
         }
 
-        // key ¿ì¼± ¡æ default fallback ±ÔÄ¢À¸·Î ¹ÙÀÎµù ¸®¼Ò½º ¼±ÅÃ
+        // key ìš°ì„  â†’ default fallback ê·œì¹™ìœ¼ë¡œ ë°”ì¸ë”© ë¦¬ì†ŒìŠ¤ ì„ íƒ
         private object ResolveByType(Type installerType, object key)
         {
             if (_bindings.TryGetValue((installerType, key), out object obj))
@@ -304,46 +304,47 @@ namespace Yoru.ChoMiniEngine
             throw new KeyNotFoundException();
         }
 
-        // º¹¼öÀÇ ¼±º°µÈ ÀÎ½ºÅç·¯µéÀÌ µé°í¿Â ³ëµå¼Ò½º¸¦ ÇÏ³ª·Î ¸ÓÂ¡
+        // ë³µìˆ˜ì˜ ì„ ë³„ëœ ì¸ìŠ¤í†¨ëŸ¬ë“¤ì´ ë“¤ê³ ì˜¨ ë…¸ë“œì†ŒìŠ¤ë¥¼ í•˜ë‚˜ë¡œ ë¨¸ì§•
         private List<NodeSource> ComposeNodeSources(
-           List<List<NodeSource>> sequences)
+            List<List<NodeSource>> sequences)
         {
             List<NodeSource> result = new List<NodeSource>();
 
             int maxSteps = 0;
 
-            // ---------------------------------
-            // 1) ÃÖ´ë step ¼ö °è»ê
-            // ---------------------------------
-            foreach (List<NodeSource> seq in sequences)
-            {
-                if (seq.Count > maxSteps)
-                    maxSteps = seq.Count;
-            }
+            foreach (var seq in sequences)
+                maxSteps = Math.Max(maxSteps, seq.Count);
 
-            // ---------------------------------
-            // 2) step ±âÁØÀ¸·Î ¸ÓÂ¡
-            // ---------------------------------
             for (int stepIndex = 0; stepIndex < maxSteps; stepIndex++)
             {
-                List<object> mergedItems = new List<object>();
+                List<object> mergedItems = new();
+                HashSet<string> mergedTags = new();
 
-                foreach (List<NodeSource> seq in sequences)
+                foreach (var seq in sequences)
                 {
                     if (stepIndex < seq.Count)
                     {
-                        mergedItems.AddRange(seq[stepIndex].Items);
+                        var src = seq[stepIndex];
+                        mergedItems.AddRange(src.Items);
+
+                        // â­ íƒœê·¸ ë³‘í•©
+                        foreach (var tag in src.Tags)   // â€» Tags ì ‘ê·¼ì í•„ìš”
+                            mergedTags.Add(tag);
                     }
                 }
 
                 if (mergedItems.Count > 0)
                 {
-                    result.Add(new NodeSource(mergedItems));
+                    result.Add(new NodeSource(
+                        mergedItems,
+                        mergedTags
+                    ));
                 }
             }
 
             return result;
         }
+
 
 
 
@@ -358,7 +359,7 @@ namespace Yoru.ChoMiniEngine
             _localMsg.CleanupPublisher.Publish(new ChoMiniScopeCleanupRequested());
 
 
-            // TODO: Provider / Factory / ÄÄÆ÷Àú ¶óÀÌÇÁ»çÀÌÅ¬ Å¬¸°¾÷
+            // TODO: Provider / Factory / ì»´í¬ì € ë¼ì´í”„ì‚¬ì´í´ í´ë¦°ì—…
             _composer?.Dispose();
             _orchestrator?.Dispose();
             _localMsg?.Dispose();

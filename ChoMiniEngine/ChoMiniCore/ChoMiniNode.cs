@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 using System;
 using MessagePipe;
@@ -10,7 +10,7 @@ namespace Yoru.ChoMiniEngine
         public float Duration;
         public List<IChoMiniNodeAction> Actions = new List<IChoMiniNodeAction>();
 
-        private IDisposable _skipSubscription;  ///< ±¸µ¶ ÇÚµé (³ªÁß¿¡ ÇÊ¿äÇÏ¸é Dispose)
+        private IDisposable _skipSubscription;  ///< êµ¬ë… í•¸ë“¤ (ë‚˜ì¤‘ì— í•„ìš”í•˜ë©´ Dispose)
 
         public ChoMiniNode(ISubscriber<ChoMiniScopeCompleteRequested> skipSubscriber)
         {
@@ -39,19 +39,22 @@ namespace Yoru.ChoMiniEngine
         public readonly IReadOnlyList<object> Items;
         private readonly HashSet<string> _tags;
 
-        // 1) ±âÁ¸ ÄÚµå È£È¯: tags ¾øÀÌµµ »ı¼º °¡´É
+        // â­ ì¶”ê°€
+        public IEnumerable<string> Tags => _tags;
+
+        // 1) ê¸°ì¡´ ì½”ë“œ í˜¸í™˜: tags ì—†ì´ë„ ìƒì„± ê°€ëŠ¥
         public NodeSource(IReadOnlyList<object> items)
             : this(items, Array.Empty<string>())
         {
         }
 
-        // 2) °¡Àå ÆíÇÑ DSL¿ë: °¡º¯ ÀÎÀÚ ÅÂ±×
+        // 2) ê°€ì¥ í¸í•œ DSLìš©: ê°€ë³€ ì¸ì íƒœê·¸
         public NodeSource(IReadOnlyList<object> items, params string[] tags)
             : this(items, (IEnumerable<string>)tags)
         {
         }
 
-        // 3) ¹ü¿ë: IEnumerable·Î ¹Ş±â
+        // 3) ë²”ìš©: IEnumerableë¡œ ë°›ê¸°
         public NodeSource(IReadOnlyList<object> items, IEnumerable<string> tags)
         {
             Items = items ?? throw new ArgumentNullException(nameof(items));
