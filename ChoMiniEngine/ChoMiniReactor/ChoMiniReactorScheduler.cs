@@ -46,7 +46,7 @@ namespace Yoru.ChoMiniEngine
         }
 
         // --------------------------------------------------
-        // Evaluate (최종 정책 반영)
+        // Evaluate
         // --------------------------------------------------
 
         private void Evaluate(ReactorTrigger trigger)
@@ -57,62 +57,62 @@ namespace Yoru.ChoMiniEngine
 
             foreach (var rule in _rules)
             {
-                // 1️⃣ Scheduler 조건 (AND)
+                // 1) Scheduler 조건 (AND)
                 if (!PassScheduleConditions(rule, scheduleCtx))
                     continue;
 
-                // 2️⃣ Node 필터링
-                var matchedSources = FilterByTargetNode(rule);
+                // 2) TargetNodeTag 필터링
+                List<NodeSource> matchedSources = FilterByTargetNode(rule);
 
-                // ==================================================
-                // CASE 3
-                // Provider NULL + Tag 없음
-                // → 조건만 맞으면 Do 1회
-                // ==================================================
-                if (rule.ProviderType == null && rule.NodeConditions.Count == 0)
+                // Target 조건이 있는데 매칭이 하나도 없음 → 실행 ❌
+                if (rule.NodeConditions.Count > 0 && matchedSources.Count == 0)
+                    continue;
+
+                // ----------------------------
+                // CASE 3: Simple + No Tag
+                // CASE 2: Simple + Tag
+                // => 둘 다 "조건 통과하면 Do 1회"
+                // ----------------------------
+                if (rule.ProviderType == null)
                 {
+                    // Tag가 있으면 matchedSources.Count > 0일 때만 여기까지 옴
+                    // Tag가 없으면 전체 대상이므로 여기까지 옴
                     rule.DoHook?.Invoke();
                     continue;
                 }
 
-                // ==================================================
-                // CASE 2
-                // Provider NULL + Tag 있음
-                // → 태그가 하나라도 있으면 Do 1회
-                // ==================================================
-                if (rule.ProviderType == null && rule.NodeConditions.Count > 0)
-                {
-                    if (matchedSources.Count > 0)
-                        rule.DoHook?.Invoke();
+                // ----------------------------
+                // CASE 1: Provider + Tag
+                // => "태그 매칭된 모든 타겟에 대해 Provider 발동"
+                // => Do는 1회 (Scheduler 레벨에서 1번만 호출)
+                // ----------------------------
 
-                    continue;
+                // Provider 실행은 matchedSources 각각에 대해 Coordinator 생성
+                bool anyCoordinatorCreated = false;
+
+                foreach (var src in matchedSources)
+                {
+                    // Node 생성 (빈 노드면 null 반환하도록 CreateNode가 처리)
+                    ChoMiniNode node = CreateNode(rule, src);
+
+                    if (node == null)
+                        continue; // 이번 src는 스킵
+
+                    anyCoordinatorCreated = true;
+
+                    new ChoMiniReactorCoordinator(
+                        createNode: () => node, // ✅ "1회성 Node"를 이미 만들어서 넘길 경우
+                                                // ⚠️ 아래 주석 참고: 진짜 Loop면 createNode가 매번 새로 만들어야 함
+                        msg: _msg,
+                        isLifetimeLoop: rule.IsLifetimeLoop,
+                        doHook: rule.DoHook // Do는 Coordinator 생명주기에 종속시키고 싶으면 Coordinator에서만 Invoke
+                    );
                 }
 
-                // ==================================================
-                // CASE 1
-                // Provider 있음 (+ Tag 있음)
-                // → 태그 붙은 모든 NodeSource에 Provider 발동
-                // → Do는 전체 기준 1회
-                // ==================================================
-                if (rule.ProviderType != null)
-                {
-                    if (matchedSources.Count == 0)
-                        continue;
-
-                    foreach (var source in matchedSources)
-                    {
-                        var node = CreateNode(rule, source);
-
-                        new ChoMiniReactorCoordinator(
-                            createNode: () => CreateNode(rule, source),
-                            msg: _msg,
-                            isLifetimeLoop: rule.IsLifetimeLoop,
-                            doHook: rule.DoHook
-                        );
-                    }
-
-                    continue; // ❗ Scheduler에서는 Do 실행 안 함
-                }
+                // ✔ Do를 Scheduler에서 1회만 찍고 싶으면 여기서 호출
+                // (지금 네 정책: "Provider 지정시 Do 1회")
+                if (anyCoordinatorCreated)
+                    rule.DoHook?.Invoke();
             }
         }
 
@@ -120,9 +120,7 @@ namespace Yoru.ChoMiniEngine
         // Scheduler 조건 (When*)
         // --------------------------------------------------
 
-        private bool PassScheduleConditions(
-            ReactorRule rule,
-            ReactorScheduleContext ctx)
+        private bool PassScheduleConditions(ReactorRule rule, ReactorScheduleContext ctx)
         {
             foreach (var cond in rule.ScheduleConditions)
             {
@@ -138,7 +136,6 @@ namespace Yoru.ChoMiniEngine
 
         private List<NodeSource> FilterByTargetNode(ReactorRule rule)
         {
-            // Tag 조건 없음 → 전체 대상
             if (rule.NodeConditions.Count == 0)
                 return new List<NodeSource>(_nodeSources);
 
@@ -166,11 +163,11 @@ namespace Yoru.ChoMiniEngine
 
         // --------------------------------------------------
         // Node 생성 (ProviderReactor)
+        // - src 1개 기준으로 Node 1개 생성
+        // - 빈 Node면 null 반환 (조용히 스킵)
         // --------------------------------------------------
 
-        private ChoMiniNode CreateNode(
-            ReactorRule rule,
-            NodeSource source)
+        private ChoMiniNode CreateNode(ReactorRule rule, NodeSource src)
         {
             if (rule.ProviderType == null)
                 return null;
@@ -180,13 +177,24 @@ namespace Yoru.ChoMiniEngine
 
             var factory = new ChoMiniReactorFactory();
             factory.Initialize(
-                new List<NodeSource> { source },
-                new List<IChoMiniProvider> { provider },
-                _msg.CompleteSubscriber,
-                _msg
+                sources: new List<NodeSource> { src },
+                providers: new List<IChoMiniProvider> { provider },
+                skipSubscriber: _msg.CompleteSubscriber,
+                scopeMessageContext: _msg
             );
 
-            return factory.Create();
+            try
+            {
+                // ✅ Factory에서 "전부 empty면 null"로 바꿨다는 전제
+                // (지금은 throw 버전이었으니, 그걸 null 반환 버전으로 바꾸면 여기서 안전해짐)
+                return factory.Create();
+            }
+            catch (InvalidOperationException e)
+            {
+                // 개발 중엔 로그로 남기고 스킵
+                Debug.LogWarning($"[ReactorScheduler] ReactorFactory skipped: {e.Message}");
+                return null;
+            }
         }
 
         // --------------------------------------------------

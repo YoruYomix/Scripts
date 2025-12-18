@@ -50,35 +50,48 @@ namespace Yoru.ChoMiniEngine
                     "ChoMiniReactorFactory has no NodeSources."
                 );
 
-            // 🔹 Reactor는 순환 or 단발 여부를 Coordinator가 결정
-            NodeSource source = _sources[_index];
-            _index = (_index + 1) % _sources.Count;
+            int tried = 0;
+            int max = _sources.Count;
 
-            // Node 생성
-            ChoMiniNode node = new ChoMiniNode(_skipSubscriber);
-
-            // Provider에게 source 전달
-            foreach (var item in source.Items)
+            while (tried < max)
             {
-                if (item == null) continue;
+                NodeSource source = _sources[_index];
+                _index = (_index + 1) % _sources.Count;
+                tried++;
 
-                foreach (var provider in _providers)
+                ChoMiniNode node = new ChoMiniNode(_skipSubscriber);
+
+                foreach (var item in source.Items)
                 {
-                    if (provider == null) continue;
+                    if (item == null) continue;
 
-                    provider.CollectEffects(item, node, _messageContext);
+                    foreach (var provider in _providers)
+                    {
+                        if (provider == null) continue;
+                        provider.CollectEffects(item, node, _messageContext);
+                    }
                 }
+
+                if (node.Actions.Count == 0)
+                {
+                    Debug.Log("[ReactorFactory] Empty node skipped");
+                    node.Dispose();
+                    continue; // 다음 source
+                }
+
+                float maxDuration = 0f;
+                foreach (var action in node.Actions)
+                    maxDuration = Mathf.Max(maxDuration, action.GetRequiredDuration());
+
+                node.Duration = maxDuration;
+                return node;
             }
 
-            // Duration 계산 (기존 규칙 그대로)
-            float maxDuration = 0f;
-            foreach (var action in node.Actions)
-            {
-                maxDuration = Mathf.Max(maxDuration, action.GetRequiredDuration());
-            }
-
-            node.Duration = maxDuration;
-            return node;
+            // ❗ 한 바퀴 다 돌았는데도 유효 Node 없음
+            throw new InvalidOperationException(
+                "[ReactorFactory] No valid Node could be created (all empty)."
+            );
         }
+
     }
 }
