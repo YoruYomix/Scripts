@@ -23,8 +23,9 @@ namespace Yoru.ChoMiniEngine
         public IReadOnlyList<BootRule> ProviderRules => _providerRules;
         public ChoMiniOptions Options => _options;
 
+        List<NodeSource> _nodeSources;
 
- 
+
 
         private ScopeState _state = ScopeState.Created;
         private bool _paused;

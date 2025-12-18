@@ -46,7 +46,7 @@ namespace Yoru.ChoMiniEngine
         }
 
         // --------------------------------------------------
-        // Evaluate (Scheduler 조건 AND 평가)
+        // Evaluate (최종 정책 반영)
         // --------------------------------------------------
 
         private void Evaluate(ReactorTrigger trigger)
@@ -61,32 +61,60 @@ namespace Yoru.ChoMiniEngine
                 if (!PassScheduleConditions(rule, scheduleCtx))
                     continue;
 
-                // 2️⃣ TargetNodeTag 조건 (AND, 필터)
+                // 2️⃣ Node 필터링
                 var matchedSources = FilterByTargetNode(rule);
 
-                // Target 조건이 있는데 하나도 매칭 안 됨 → 실행 ❌
-                if (rule.NodeConditions.Count > 0 && matchedSources.Count == 0)
-                    continue;
-
-                // 3️⃣ SimpleReactor
-                if (rule.ProviderType == null)
+                // ==================================================
+                // CASE 3
+                // Provider NULL + Tag 없음
+                // → 조건만 맞으면 Do 1회
+                // ==================================================
+                if (rule.ProviderType == null && rule.NodeConditions.Count == 0)
                 {
                     rule.DoHook?.Invoke();
                     continue;
                 }
 
-                // 4️⃣ ProviderReactor → Node 생성
-                ChoMiniNode node = CreateNode(rule, matchedSources);
-                if (node == null)
+                // ==================================================
+                // CASE 2
+                // Provider NULL + Tag 있음
+                // → 태그가 하나라도 있으면 Do 1회
+                // ==================================================
+                if (rule.ProviderType == null && rule.NodeConditions.Count > 0)
+                {
+                    if (matchedSources.Count > 0)
+                        rule.DoHook?.Invoke();
+
                     continue;
+                }
 
-                new ChoMiniReactorCoordinator(
-                    node,
-                    _msg,
-                    rule.IsLifetimeLoop
-                );
+                // ==================================================
+                // CASE 1
+                // Provider 있음 (+ Tag 있음)
+                // → 태그 붙은 모든 NodeSource에 Provider 발동
+                // → Do는 전체 기준 1회
+                // ==================================================
+                if (rule.ProviderType != null)
+                {
+                    if (matchedSources.Count == 0)
+                        continue;
 
-                rule.DoHook?.Invoke();
+                    foreach (var source in matchedSources)
+                    {
+                        ChoMiniNode node = CreateNode(rule, source);
+                        if (node == null)
+                            continue;
+
+                        new ChoMiniReactorCoordinator(
+                            node,
+                            _msg,
+                            rule.IsLifetimeLoop
+                        );
+                    }
+
+                    // ⭐ Do는 단 1회
+                    rule.DoHook?.Invoke();
+                }
             }
         }
 
@@ -112,6 +140,7 @@ namespace Yoru.ChoMiniEngine
 
         private List<NodeSource> FilterByTargetNode(ReactorRule rule)
         {
+            // Tag 조건 없음 → 전체 대상
             if (rule.NodeConditions.Count == 0)
                 return new List<NodeSource>(_nodeSources);
 
@@ -143,9 +172,9 @@ namespace Yoru.ChoMiniEngine
 
         private ChoMiniNode CreateNode(
             ReactorRule rule,
-            List<NodeSource> sources)
+            NodeSource source)
         {
-            if (sources.Count == 0)
+            if (rule.ProviderType == null)
                 return null;
 
             IChoMiniProvider provider =
@@ -153,7 +182,7 @@ namespace Yoru.ChoMiniEngine
 
             var factory = new ChoMiniReactorFactory();
             factory.Initialize(
-                sources,
+                new List<NodeSource> { source },
                 new List<IChoMiniProvider> { provider },
                 _msg.CompleteSubscriber,
                 _msg

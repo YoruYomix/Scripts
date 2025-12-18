@@ -71,10 +71,12 @@ namespace Yoru.ChoMiniEngine
                 }
 
                 if (items.Count > 0)
-                    result.Add(new NodeSource(items));
+                    result.Add(new NodeSource(items, "last-textNode"));
             }
 
             Debug.Log("[Installer] NodeSource Steps = " + result.Count);
+
+
             return result;
         }
 
