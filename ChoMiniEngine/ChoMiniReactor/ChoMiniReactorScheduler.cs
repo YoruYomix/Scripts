@@ -101,19 +101,17 @@ namespace Yoru.ChoMiniEngine
 
                     foreach (var source in matchedSources)
                     {
-                        ChoMiniNode node = CreateNode(rule, source);
-                        if (node == null)
-                            continue;
+                        var node = CreateNode(rule, source);
 
                         new ChoMiniReactorCoordinator(
-                            node,
-                            _msg,
-                            rule.IsLifetimeLoop
+                            createNode: () => CreateNode(rule, source),
+                            msg: _msg,
+                            isLifetimeLoop: rule.IsLifetimeLoop,
+                            doHook: rule.DoHook
                         );
                     }
 
-                    // ⭐ Do는 단 1회
-                    rule.DoHook?.Invoke();
+                    continue; // ❗ Scheduler에서는 Do 실행 안 함
                 }
             }
         }

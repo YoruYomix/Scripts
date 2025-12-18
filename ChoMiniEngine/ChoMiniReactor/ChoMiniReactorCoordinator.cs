@@ -1,57 +1,65 @@
 ﻿using Cysharp.Threading.Tasks;
 using MessagePipe;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
-using Yoru.ChoMiniEngine;
 
 namespace Yoru.ChoMiniEngine
 {
     public sealed class ChoMiniReactorCoordinator : IDisposable
     {
-        private readonly ChoMiniNode _node;
+        private readonly Func<ChoMiniNode> _createNode;
+        private readonly Action _do;
+        private readonly bool _isLifetimeLoop;
         private readonly IDisposable _cleanupSub;
-        private bool _disposed;
-        private readonly ChoMiniNodeRunner _nodeRunner = new();
+
+        private readonly CancellationTokenSource _cts = new();
+        private UniTask _runTask;
 
         public ChoMiniReactorCoordinator(
-            ChoMiniNode node,
+            Func<ChoMiniNode> createNode,
             ChoMiniScopeMessageContext msg,
-            bool isLifetimeLoop)
+            bool isLifetimeLoop,
+            Action doHook)
         {
-            _node = node;
+            _createNode = createNode;
+            _do = doHook;
+            _isLifetimeLoop = isLifetimeLoop;
 
             _cleanupSub = msg.CleanupSubscriber.Subscribe(_ => Dispose());
 
-            if (isLifetimeLoop)
-                RunLoop().Forget();
-            else
-                RunOnce();
+            _runTask = RunAsync(_cts.Token);
         }
 
-        private void RunOnce()
+        private async UniTask RunAsync(CancellationToken ct)
         {
-            _nodeRunner.RunNode(_node).Forget();
-        }
-
-        private async UniTaskVoid RunLoop()
-        {
-            while (!_disposed)
+            do
             {
-                await _nodeRunner.RunNode(_node);
+                ct.ThrowIfCancellationRequested();
+
+                _do?.Invoke();
+
+                using var node = _createNode();
+                Debug.Log($"[ReactorLoop] node.Duration = {node.Duration}");
+
+                var runner = new ChoMiniNodeRunner();
+
+                await runner.RunNode(node)
+                            .AttachExternalCancellation(ct);
+
                 await UniTask.Yield();
-            }
+
+            } while (_isLifetimeLoop && !ct.IsCancellationRequested);
         }
 
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
+            if (_cts.IsCancellationRequested)
+                return;
 
+            _cts.Cancel();
             _cleanupSub.Dispose();
-            _node.Dispose();
+            _cts.Dispose();
         }
     }
 
