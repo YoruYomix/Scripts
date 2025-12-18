@@ -80,12 +80,12 @@ namespace Yoru.App
                     .Base<ChoMiniUITextComponentTypingProvider>()
                     .End()
 
-                .RegisterReactor<IChoMiniStringTypingProvider>()
+                .RegisterReactor<ChoMiniUITextComponentTypingProvider>()
                     .WhenLastNodeComplete
                     .WhenNodeTag("last-textNode")
                     .When(()=> MockGameState.State == GameState.Playing)
                     .LifetimeLoop()
-                    .Do()
+                    .Do(() => { Debug.Log("리액터 Do 발동됨"); })
 
                 .Build();
 

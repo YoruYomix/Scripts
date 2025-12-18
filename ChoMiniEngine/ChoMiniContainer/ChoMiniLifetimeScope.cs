@@ -351,15 +351,7 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-    public readonly struct NodeSource
-    {
-        public readonly IReadOnlyList<object> Items;
 
-        public NodeSource(IReadOnlyList<object> items)
-        {
-            Items = items;
-        }
-    }
 
     public enum ScopeState
     {

@@ -164,20 +164,23 @@ namespace Yoru.ChoMiniEngine
             {
                 get
                 {
-                    _rule.AddCondition(new LastNodeCompleteCondition());
+                    _rule.ScheduleConditions.Add(
+                        new OnSequenceCompletedCondition());
                     return this;
                 }
             }
 
             public ReactorBuilder<TProvider> WhenNodeTag(string tag)
             {
-                _rule.AddCondition(new NodeTagCondition(tag));
+                _rule.NodeConditions.Add(
+                    new NodeTagCondition(tag));
                 return this;
             }
 
             public ReactorBuilder<TProvider> When(Func<bool> predicate)
             {
-                _rule.AddCondition(new ExternalPredicateCondition(predicate));
+                _rule.ScheduleConditions.Add(
+                    new ExternalPredicateCondition(predicate));
                 return this;
             }
 
@@ -392,18 +395,15 @@ namespace Yoru.ChoMiniEngine
 
     public sealed class ReactorRule
     {
-        private readonly List<IReactorCondition> _conditions = new();
+        // 언제 실행할지 (Scheduler용)
+        public readonly List<IReactorScheduleCondition> ScheduleConditions = new();
 
-        public IReadOnlyList<IReactorCondition> Conditions => _conditions;
+        // 무엇을 실행할지 (ReactorNodeFactory용)
+        public readonly List<IReactorNodeCondition> NodeConditions = new();
 
         public Type ProviderType;
         public bool IsLifetimeLoop;
         public Action DoHook;
-
-        internal void AddCondition(IReactorCondition condition)
-        {
-            _conditions.Add(condition);
-        }
     }
 }
 

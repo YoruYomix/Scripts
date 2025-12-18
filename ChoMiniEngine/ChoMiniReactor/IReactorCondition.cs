@@ -6,52 +6,53 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    // 리액터 실행 여부를 판단하는 순수 조건 인터페이스
-    public interface IReactorCondition
-    {
-        bool IsSatisfied(ReactorContext context);
-    }
-    // IReactorCondition 평가에 전달되는 실행 컨텍스트
-    // 리액터 조건 평가에 필요한 읽기 전용 컨텍스트
-    public sealed class ReactorContext
-    {
-        public ChoMiniNode? CurrentNode { get; }
-        public bool IsLastNodeComplete { get; }
 
-        public ReactorContext(
-            ChoMiniNode? currentNode,
-            bool isLastNodeComplete)
-        {
-            CurrentNode = currentNode;
-            IsLastNodeComplete = isLastNodeComplete;
-        }
-    }
-    // 마지막 노드가 완료되었는지 검사
-    public sealed class LastNodeCompleteCondition : IReactorCondition
+    // "언제 실행할지" 판단 (Scheduler 전용)
+    public interface IReactorScheduleCondition
     {
-        public bool IsSatisfied(ReactorContext context)
+        bool IsSatisfied(ReactorScheduleContext context);
+    }
+    // "무엇을 만들지" 판단 (ReactorNodeFactory 전용)
+    public interface IReactorNodeCondition
+    {
+        bool IsSatisfied(ReactorNodeContext context);
+    }
+
+    public enum ReactorTrigger
+    {
+        SequenceCompleted,
+    }
+
+    public sealed class ReactorScheduleContext
+    {
+        public ReactorTrigger Trigger { get; }
+
+        public ReactorScheduleContext(ReactorTrigger trigger)
         {
-            return context.IsLastNodeComplete;
+            Trigger = trigger;
         }
     }
 
-    // 노드 태그 검사
-    public sealed class NodeTagCondition : IReactorCondition
+    public sealed class ReactorNodeContext
     {
-        private readonly string _tag;
+        public IReadOnlyList<NodeSource> NodeSources { get; }
 
-        public NodeTagCondition(string tag)
+        public ReactorNodeContext(IReadOnlyList<NodeSource> nodeSources)
         {
-            _tag = tag;
-        }
-
-        public bool IsSatisfied(ReactorContext context)
-        {
-            return context.CurrentNode?.HasTag(_tag) == true;
+            NodeSources = nodeSources;
         }
     }
-    // 엔진 외부 상태를 확인하는 조건 (외부 훅)
-    public sealed class ExternalPredicateCondition : IReactorCondition
+
+
+    public sealed class OnSequenceCompletedCondition : IReactorScheduleCondition
+    {
+        public bool IsSatisfied(ReactorScheduleContext context)
+        {
+            return context.Trigger == ReactorTrigger.SequenceCompleted;
+        }
+    }
+
+    public sealed class ExternalPredicateCondition : IReactorScheduleCondition
     {
         private readonly Func<bool> _predicate;
 
@@ -60,10 +61,29 @@ namespace Yoru.ChoMiniEngine
             _predicate = predicate;
         }
 
-        public bool IsSatisfied(ReactorContext context)
+        public bool IsSatisfied(ReactorScheduleContext context)
         {
             return _predicate();
         }
     }
+    public sealed class NodeTagCondition : IReactorNodeCondition
+    {
+        private readonly string _tag;
 
+        public NodeTagCondition(string tag)
+        {
+            _tag = tag;
+        }
+
+        public bool IsSatisfied(ReactorNodeContext context)
+        {
+            var sources = context.NodeSources;
+            for (int i = 0; i < sources.Count; i++)
+            {
+                if (sources[i].HasTag(_tag))
+                    return true;
+            }
+            return false;
+        }
+    }
 }
