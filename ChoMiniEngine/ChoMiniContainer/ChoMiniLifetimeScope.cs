@@ -57,6 +57,7 @@ namespace Yoru.ChoMiniEngine
             _reactorScheduler = new ChoMiniReactorScheduler
                 (
                     rules: reactorRules,
+                    nodeSources: BuildComposedNodeSources(),
                     msg: localMsg
                 );
         }

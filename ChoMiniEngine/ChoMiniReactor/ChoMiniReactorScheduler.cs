@@ -8,6 +8,7 @@ namespace Yoru.ChoMiniEngine
     public sealed class ChoMiniReactorScheduler : IDisposable
     {
         private readonly IReadOnlyList<ReactorRule> _rules;
+        private readonly IReadOnlyList<NodeSource> _nodeSources;
         private readonly ChoMiniScopeMessageContext _msg;
 
         private readonly List<IDisposable> _subs = new();
@@ -15,9 +16,11 @@ namespace Yoru.ChoMiniEngine
 
         public ChoMiniReactorScheduler(
             IReadOnlyList<ReactorRule> rules,
+            IReadOnlyList<NodeSource> nodeSources,
             ChoMiniScopeMessageContext msg)
         {
             _rules = rules ?? Array.Empty<ReactorRule>();
+            _nodeSources = nodeSources ?? Array.Empty<NodeSource>();
             _msg = msg ?? throw new ArgumentNullException(nameof(msg));
 
             Subscribe();
@@ -33,7 +36,6 @@ namespace Yoru.ChoMiniEngine
                 })
             );
 
-
             _subs.Add(
                 _msg.CleanupSubscriber.Subscribe(_ => Dispose())
             );
@@ -45,47 +47,81 @@ namespace Yoru.ChoMiniEngine
 
             var ctx = new ReactorScheduleContext(trigger);
 
-            for (int i = 0; i < _rules.Count; i++)
+            foreach (var rule in _rules)
             {
-                var rule = _rules[i];
-
-                var providerName = rule.ProviderType?.Name ?? "SimpleReactor";
-                var lifetimeText = (rule.ProviderType != null) ? rule.IsLifetimeLoop.ToString() : "N/A";
-
                 bool pass = true;
-                string? failCondName = null;
-
                 foreach (var cond in rule.ScheduleConditions)
                 {
                     if (!cond.IsSatisfied(ctx))
                     {
                         pass = false;
-                        failCondName = cond.GetType().Name; // 어떤 조건에서 떨어졌는지
                         break;
                     }
                 }
 
                 if (!pass)
-                {
-                    Debug.Log(
-                        $"[ReactorScheduler] FAIL " +
-                        $"Trigger={trigger} Provider={providerName} Lifetime={lifetimeText} " +
-                        $"FailCond={failCondName}"
-                    );
                     continue;
-                }
 
-                Debug.Log(
-                    $"[ReactorScheduler] PASS " +
-                    $"Trigger={trigger} Provider={providerName} Lifetime={lifetimeText} " +
-                    $"ScheduleCondCount={rule.ScheduleConditions.Count} NodeCondCount={rule.NodeConditions.Count}"
+                ChoMiniNode? node = AssembleNode(rule);
+                if (node == null)
+                    continue;
+
+                new ChoMiniReactorCoordinator(
+                    node,
+                    _msg,
+                    rule.IsLifetimeLoop
                 );
-
-
-
             }
         }
 
+        // -------------------------
+        // Assemble
+        // -------------------------
+
+        private ChoMiniNode? AssembleNode(ReactorRule rule)
+        {
+            // SimpleReactor는 Node 없음
+            if (rule.ProviderType == null)
+                return null;
+
+            // 1) NodeSource 필터
+            List<NodeSource> filtered = new();
+
+            foreach (var src in _nodeSources)
+            {
+                bool pass = true;
+                foreach (var cond in rule.NodeConditions)
+                {
+                    if (!cond.IsSatisfied(new ReactorNodeContext(src)))
+                    {
+                        pass = false;
+                        break;
+                    }
+                }
+
+                if (pass)
+                    filtered.Add(src);
+            }
+
+            if (filtered.Count == 0)
+                return null;
+
+            // 2) Provider 직접 생성 (중요)
+            IChoMiniProvider provider =
+                (IChoMiniProvider)Activator.CreateInstance(rule.ProviderType);
+
+            // 3) ReactorFactory로 Node 생산
+            var factory = new ChoMiniReactorFactory();
+
+            factory.Initialize(
+                filtered,
+                new List<IChoMiniProvider> { provider },
+                _msg.CompleteSubscriber,
+                _msg
+            );
+
+            return factory.Create();
+        }
 
         public void Dispose()
         {
@@ -98,5 +134,4 @@ namespace Yoru.ChoMiniEngine
             _subs.Clear();
         }
     }
-
 }

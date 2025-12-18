@@ -35,14 +35,13 @@ namespace Yoru.ChoMiniEngine
 
     public sealed class ReactorNodeContext
     {
-        public IReadOnlyList<NodeSource> NodeSources { get; }
+        public NodeSource Source { get; }
 
-        public ReactorNodeContext(IReadOnlyList<NodeSource> nodeSources)
+        public ReactorNodeContext(NodeSource source)
         {
-            NodeSources = nodeSources;
+            Source = source;
         }
     }
-
 
     public sealed class OnSequenceCompletedCondition : IReactorScheduleCondition
     {
@@ -77,13 +76,7 @@ namespace Yoru.ChoMiniEngine
 
         public bool IsSatisfied(ReactorNodeContext context)
         {
-            var sources = context.NodeSources;
-            for (int i = 0; i < sources.Count; i++)
-            {
-                if (sources[i].HasTag(_tag))
-                    return true;
-            }
-            return false;
+            return context.Source.HasTag(_tag);
         }
     }
 }
