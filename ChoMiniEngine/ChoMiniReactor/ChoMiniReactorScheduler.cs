@@ -1,103 +1,95 @@
 using System;
 using System.Collections.Generic;
 using MessagePipe;
+using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    /// <summary>
-    /// ReactorScheduler
-    /// - ReactorRule을 보관
-    /// - NodeSource를 검사
-    /// - Scope / Orchestrator 이벤트를 구독
-    /// - 조건 만족 시 Coordinator를 생성
-    ///
-    /// ※ 누구에게도 소유되지 않음
-    /// ※ 구독으로 생존, Cleanup 이벤트로 종료
-    /// </summary>
     public sealed class ChoMiniReactorScheduler : IDisposable
     {
-        // ======================================================
-        // Immutable inputs (Scope lifetime)
-        // ======================================================
-
         private readonly IReadOnlyList<ReactorRule> _rules;
-        private readonly IReadOnlyList<NodeSource> _nodeSources;
-        private readonly ChoMiniScopeMessageContext _messageContext;
+        private readonly ChoMiniScopeMessageContext _msg;
 
-        // ======================================================
-        // Subscriptions
-        // ======================================================
-
-        private readonly List<IDisposable> _subscriptions = new();
-
+        private readonly List<IDisposable> _subs = new();
         private bool _disposed;
 
-        // ======================================================
-        // Constructor
-        // ======================================================
-
         public ChoMiniReactorScheduler(
-            IReadOnlyList<ReactorRule> reactorRules,
-            IReadOnlyList<NodeSource> nodeSources,
-            ChoMiniScopeMessageContext messageContext)
+            IReadOnlyList<ReactorRule> rules,
+            ChoMiniScopeMessageContext msg)
         {
-            _rules = reactorRules ?? throw new ArgumentNullException(nameof(reactorRules));
-            _nodeSources = nodeSources ?? throw new ArgumentNullException(nameof(nodeSources));
-            _messageContext = messageContext ?? throw new ArgumentNullException(nameof(messageContext));
+            _rules = rules ?? Array.Empty<ReactorRule>();
+            _msg = msg ?? throw new ArgumentNullException(nameof(msg));
 
-            SubscribeEvents();
+            Subscribe();
+            Debug.Log("리액터 스케쥴러 생성 됨");
         }
 
-        // ======================================================
-        // Event subscription
-        // ======================================================
-
-        private void SubscribeEvents()
+        private void Subscribe()
         {
-            // 예: 노드 재생 완료 이벤트
-            _subscriptions.Add(
-                _messageContext.CompleteSubscriber.Subscribe(OnScopeCompleted)
+            _subs.Add(
+                _msg.SequenceCompleteSubscriber.Subscribe(_ =>
+                {
+                    Evaluate(ReactorTrigger.SequenceCompleted);
+                })
             );
 
-            // Scope Cleanup 이벤트
-            _subscriptions.Add(
-                _messageContext.CleanupSubscriber.Subscribe(_ => Dispose())
+
+            _subs.Add(
+                _msg.CleanupSubscriber.Subscribe(_ => Dispose())
             );
         }
 
-        // ======================================================
-        // Event handlers
-        // ======================================================
-
-        private void OnScopeCompleted(ChoMiniScopeCompleteRequested msg)
+        private void Evaluate(ReactorTrigger trigger)
         {
-            if (_disposed)
-                return;
+            if (_disposed) return;
 
-            // TODO:
-            // 1) ReactorContext 구성
-            // 2) ReactorRule 조건 검사
-            // 3) 만족하는 Rule에 대해
-            //    - Coordinator 생성 (fire-and-forget)
+            var ctx = new ReactorScheduleContext(trigger);
+
+            for (int i = 0; i < _rules.Count; i++)
+            {
+                var rule = _rules[i];
+                bool pass = true;
+
+                foreach (var cond in rule.ScheduleConditions)
+                {
+                    if (!cond.IsSatisfied(ctx))
+                    {
+                        pass = false;
+                        break;
+                    }
+                }
+
+                if (!pass)
+                {
+
+                    Debug.Log($"[ReactorScheduler] FAIL: {rule.ProviderType.Name}");
+
+                    continue;
+                }
+
+
+                Debug.Log(
+                    $"[ReactorScheduler] PASS: {rule.ProviderType.Name} " +
+                    $"Lifetime={rule.IsLifetimeLoop}"
+                );
+
+
+                // 실행은 아직 안 함
+                // new ChoMiniReactorCoordinator(rule, _msg);
+            }
         }
 
-        // ======================================================
-        // Dispose (lifetime ends by Cleanup event)
-        // ======================================================
 
         public void Dispose()
         {
-            if (_disposed)
-                return;
-
+            if (_disposed) return;
             _disposed = true;
 
-            foreach (var sub in _subscriptions)
-            {
-                sub.Dispose();
-            }
+            foreach (var s in _subs)
+                s.Dispose();
 
-            _subscriptions.Clear();
+            _subs.Clear();
         }
     }
+
 }

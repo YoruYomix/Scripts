@@ -5,12 +5,18 @@ namespace Yoru.ChoMiniEngine
 {
     public struct ChoMiniScopeCompleteRequested { }
     public struct ChoMiniScopeCleanupRequested { }
+    public struct ChoMiniSOrchestratorPlaySequenceCompleteRequested { }
     public sealed class ChoMiniScopeMessageContext : IDisposable
     {
         public IPublisher<ChoMiniScopeCompleteRequested> CompletePublisher { get; }
         public ISubscriber<ChoMiniScopeCompleteRequested> CompleteSubscriber { get; }
+
+
         public IPublisher<ChoMiniScopeCleanupRequested> CleanupPublisher { get; }
         public ISubscriber<ChoMiniScopeCleanupRequested> CleanupSubscriber { get; }
+
+        public IPublisher<ChoMiniSOrchestratorPlaySequenceCompleteRequested> SequenceCompletePublisher { get; }
+        public ISubscriber<ChoMiniSOrchestratorPlaySequenceCompleteRequested> SequenceCompleteSubscriber { get; }
 
         // Provider를 필드로 보관합니다.
         private readonly IServiceProvider _provider;
@@ -23,6 +29,7 @@ namespace Yoru.ChoMiniEngine
             builder.AddMessagePipe();
             builder.AddMessageBroker<ChoMiniScopeCompleteRequested>();
             builder.AddMessageBroker<ChoMiniScopeCleanupRequested>();
+            builder.AddMessageBroker<ChoMiniSOrchestratorPlaySequenceCompleteRequested>();
 
             _provider = builder.BuildServiceProvider();
 
@@ -39,6 +46,12 @@ namespace Yoru.ChoMiniEngine
 
             CleanupSubscriber =
                 _provider.GetRequiredService<ISubscriber<ChoMiniScopeCleanupRequested>>();
+
+            SequenceCompletePublisher =
+                _provider.GetRequiredService<IPublisher<ChoMiniSOrchestratorPlaySequenceCompleteRequested>>();
+
+            SequenceCompleteSubscriber =
+                _provider.GetRequiredService<ISubscriber<ChoMiniSOrchestratorPlaySequenceCompleteRequested>>();
         }
 
         public void Dispose()

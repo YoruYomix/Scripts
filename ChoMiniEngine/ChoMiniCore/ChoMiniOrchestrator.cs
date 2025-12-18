@@ -12,7 +12,7 @@ namespace Yoru.ChoMiniEngine
     {
         private readonly ChoMiniNodeRunner _runner;
         private IChoMiniFactory _factory;
-        ChoMiniScopeMessageContext _localMsg;
+        ChoMiniScopeMessageContext _scopeMsg;
 
         private bool _hasStarted = false;
         private bool _disposed = false;
@@ -23,10 +23,10 @@ namespace Yoru.ChoMiniEngine
         {
             _runner = runner;
         }
-        public void Initialize(IChoMiniFactory factory, ChoMiniScopeMessageContext localMessageContext)
+        public void Initialize(IChoMiniFactory factory, ChoMiniScopeMessageContext scopeMessageContext)
         {
             _factory = factory;
-            _localMsg = localMessageContext;
+            _scopeMsg = scopeMessageContext;
         }
         public void Pause()
         {
@@ -49,14 +49,23 @@ namespace Yoru.ChoMiniEngine
         public void CompleteSequence()
         {
             if (_disposed) return;
-            if (_localMsg == null) return;
+            if (_scopeMsg == null) return;
             if (!_hasStarted)
             {
                 return;
             }
-            _localMsg.CompletePublisher.Publish(new ChoMiniScopeCompleteRequested());
+            _scopeMsg.CompletePublisher.Publish(new ChoMiniScopeCompleteRequested());
         }
-
+        public void PlayCompleteSequence()
+        {
+            if (_disposed) return;
+            if (_scopeMsg == null) return;
+            if (!_hasStarted)
+            {
+                return;
+            }
+            _scopeMsg.SequenceCompletePublisher.Publish(new ChoMiniSOrchestratorPlaySequenceCompleteRequested());
+        }
         public async UniTask PlaySequence()
         {
 
@@ -85,7 +94,7 @@ namespace Yoru.ChoMiniEngine
             }
 
             Debug.Log("[오케스트레이터] PlaySequence COMPLETE");
-
+            PlayCompleteSequence();
         }
 
 

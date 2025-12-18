@@ -10,6 +10,7 @@ namespace Yoru.ChoMiniEngine
         private readonly IReadOnlyList<BootRule> _installerRules;
         private readonly IReadOnlyList<BootRule> _factoryRules;
         private readonly IReadOnlyList<BootRule> _providerRules;
+        private ChoMiniReactorScheduler _reactorScheduler;
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
@@ -42,6 +43,7 @@ namespace Yoru.ChoMiniEngine
             IReadOnlyList<BootRule> installerRules,
             IReadOnlyList<BootRule> factoryRules,
             IReadOnlyList<BootRule> providerRules,
+            IReadOnlyList<ReactorRule> reactorRules,   // ¡ç Ãß°¡
             ChoMiniOptions options,
             ChoMiniScopeMessageContext localMsg,
             ChoMiniOrchestrator orchestrator)
@@ -52,6 +54,11 @@ namespace Yoru.ChoMiniEngine
             _options = options;
             _localMsg = localMsg;
             _orchestrator = orchestrator;
+            _reactorScheduler = new ChoMiniReactorScheduler
+                (
+                    rules: reactorRules,
+                    msg: localMsg
+                );
         }
 
 
@@ -76,7 +83,7 @@ namespace Yoru.ChoMiniEngine
                 IChoMiniFactory factory = BuildFactory(_localMsg);
                 _orchestrator.Initialize(
                     factory: factory,
-                    localMessageContext: _localMsg
+                    scopeMessageContext: _localMsg
                     );
                 await _orchestrator.PlaySequence();
 

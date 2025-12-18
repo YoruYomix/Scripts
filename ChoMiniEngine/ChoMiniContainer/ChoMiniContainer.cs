@@ -60,6 +60,7 @@ namespace Yoru.ChoMiniEngine
                     installerRules: _installerRules,
                     factoryRules: _factoryRules,
                     providerRules: _providerRules,
+                    reactorRules: _reactorRules, 
                     options: options,
                     localMsg: localMsg,
                     orchestrator: orchestrator
