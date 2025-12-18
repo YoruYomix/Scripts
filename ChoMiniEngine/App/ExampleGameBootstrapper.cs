@@ -85,7 +85,13 @@ namespace Yoru.App
                     .WhenNodeTag("last-textNode")
                     .When(()=> MockGameState.State == GameState.Playing)
                     .LifetimeLoop()
-                    .Do(() => { Debug.Log("리액터 Do 발동됨"); })
+                    .Do(() => { Debug.Log("리액터 프로바이더 있는 Do 발동됨"); })
+
+                .RegisterReactor()
+                    .WhenLastNodeComplete
+                    .WhenNodeTag("last-textNode")
+                    .When(() => MockGameState.State == GameState.Playing)
+                    .Do(() => { Debug.Log("리액터 프로바이더 NULL Do 발동됨"); })
 
                 .Build();
 

@@ -68,14 +68,14 @@ namespace Yoru.ChoMiniEngine
                 }
 
 
-                Debug.Log(
-                    $"[ReactorScheduler] PASS: {rule.ProviderType.Name} " +
-                    $"Lifetime={rule.IsLifetimeLoop}"
-                );
+                //Debug.Log(
+                //    $"[ReactorScheduler] PASS: {rule.ProviderType.Name} " +
+                //    $"Lifetime={rule.IsLifetimeLoop}"
+                //);
 
 
                 // 실행은 아직 안 함
-                // new ChoMiniReactorCoordinator(rule, _msg);
+                new ChoMiniReactorCoordinator(rule, _msg);
             }
         }
 

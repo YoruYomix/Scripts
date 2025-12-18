@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using UnityEngine;
+using static Yoru.ChoMiniEngine.ChoMiniContainer;
 
 namespace Yoru.ChoMiniEngine
 {
@@ -127,6 +128,10 @@ namespace Yoru.ChoMiniEngine
             }
 
             // 리액터 등록
+            public SimpleReactorBuilder RegisterReactor()
+            {
+                return new SimpleReactorBuilder(_container, this);
+            }
             public ReactorBuilder<TProvider> RegisterReactor<TProvider>()
             {
                 return new ReactorBuilder<TProvider>(_container, this);
@@ -136,6 +141,70 @@ namespace Yoru.ChoMiniEngine
                 return _container;
             }
         }
+        // Provider 없는 Reactor
+
+        public sealed class SimpleReactorBuilder
+        {
+            private readonly ChoMiniContainer _container;
+            private readonly ChoMiniContainer.Builder _builder;
+            private readonly ReactorRule _rule;
+
+            internal SimpleReactorBuilder(
+                ChoMiniContainer container,
+                ChoMiniContainer.Builder builder)
+            {
+                _container = container;
+                _builder = builder;
+
+                _rule = new ReactorRule
+                {
+                    ProviderType = null // ⭐ 핵심
+                };
+            }
+
+            // -------------------------
+            // When
+            // -------------------------
+
+            public SimpleReactorBuilder WhenLastNodeComplete
+            {
+                get
+                {
+                    _rule.ScheduleConditions.Add(new OnSequenceCompletedCondition());
+                    return this;
+                }
+            }
+
+            public SimpleReactorBuilder When(Func<bool> predicate)
+            {
+                _rule.ScheduleConditions.Add(new ExternalPredicateCondition(predicate));
+                return this;
+            }
+            public SimpleReactorBuilder WhenNodeTag(string tag)
+            {
+                _rule.NodeConditions.Add(
+                    new NodeTagCondition(tag));
+                return this;
+            }
+
+
+            // -------------------------
+            // Do
+            // -------------------------
+
+            public ChoMiniContainer.Builder Do(Action action)
+            {
+                _rule.DoHook = action;
+                _container.AddReactorRule(_rule);
+                return _builder;
+            }
+
+            public ChoMiniContainer.Builder Do()
+            {
+                return Do(() => { });
+            }
+        }
+
 
         public sealed class ReactorBuilder<TProvider>
         {
@@ -402,7 +471,7 @@ namespace Yoru.ChoMiniEngine
         // 무엇을 실행할지 (ReactorNodeFactory용)
         public readonly List<IReactorNodeCondition> NodeConditions = new();
 
-        public Type ProviderType;
+        public Type? ProviderType;
         public bool IsLifetimeLoop;
         public Action DoHook;
     }
