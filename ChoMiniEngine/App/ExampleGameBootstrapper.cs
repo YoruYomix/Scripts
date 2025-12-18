@@ -70,7 +70,7 @@ namespace Yoru.App
                     .Base<ChoMiniUIImageFadeProvider>()
                     .Override<ChoMiniUIImageFadeProviderSpeed2x>(PlaySpeed.Speed2x)
                     .End()
-                    
+
                 .RegisterProvider<IChoMiniStringTypingProvider>()
                     .Base<ChoMiniStringTypingProvider>()
                     .Override<ChoMiniStringTypingProviderSpeed2x>(PlaySpeed.Speed2x)
@@ -80,12 +80,12 @@ namespace Yoru.App
                     .Base<ChoMiniUITextComponentTypingProvider>()
                     .End()
 
-                .RegisterReactor<ChoMiniUITextComponentTypingProvider>()
-                    .WhenSequenceCompleted
-                    .When(()=> MockGameState.State == GameState.Playing)
-                    .TargetNodeTag("last-textNode")
-                    .LifetimeLoop()
-                    .Do(() => { Debug.Log("리액터 프로바이더 있는 Do 발동됨"); })
+                //.RegisterReactor<ChoMiniUITextComponentTypingProvider>()
+                //    .WhenSequenceCompleted
+                //    .When(() => MockGameState.State == GameState.Playing)
+                //    .TargetNodeTag("last-textNode")
+                //    .LifetimeLoop()
+                //    .Do(() => { Debug.Log("리액터 프로바이더 있는 Do 발동됨"); })
 
                 .RegisterReactor()
                     .WhenSequenceCompleted
@@ -93,10 +93,10 @@ namespace Yoru.App
                     .TargetNodeTag("last-textNode")
                     .Do(() => { Debug.Log("리액터 프로바이더 NULL, 노드 태그 last-textNode Do 발동됨"); })
 
-                .RegisterReactor()
-                    .WhenSequenceCompleted
-                    .When(() => MockGameState.State == GameState.Playing)
-                    .Do(() => { Debug.Log("리액터 프로바이더 NULL, 노드 태그 없는 Do 발동됨"); })
+                //.RegisterReactor()
+                //    .WhenSequenceCompleted
+                //    .When(() => MockGameState.State == GameState.Playing)
+                //    .Do(() => { Debug.Log("리액터 프로바이더 NULL, 노드 태그 없는 Do 발동됨"); })
 
                 .Build();
 
