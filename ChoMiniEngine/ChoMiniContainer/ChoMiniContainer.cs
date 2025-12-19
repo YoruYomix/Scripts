@@ -53,7 +53,7 @@ namespace Yoru.ChoMiniEngine
                 throw new ArgumentNullException("options");
 
 
-            ChoMiniScopeMessageContext localMsg = new ChoMiniScopeMessageContext();
+            ChoMiniScopeMessageContext scopeMsg = new ChoMiniScopeMessageContext();
             ChoMiniNodeRunner nodeRunner = new ChoMiniNodeRunner();
             ChoMiniOrchestrator orchestrator = new ChoMiniOrchestrator(nodeRunner);
 
@@ -63,7 +63,7 @@ namespace Yoru.ChoMiniEngine
                     providerRules: _providerRules,
                     reactorRules: _reactorRules, 
                     options: options,
-                    localMsg: localMsg,
+                    scopeMsg: scopeMsg,
                     orchestrator: orchestrator
                 );
         }

@@ -5,19 +5,19 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    public sealed class ChoMiniComposer
+    public sealed class ChoMiniImplementationSelector
     {
         private readonly ChoMiniLifetimeScope _scope;
         private bool _isComposed;
         public Type SelectedFactoryType { get; private set; }
         public List<Type> SelectedProviderTypes { get; } = new();
 
-        public ChoMiniComposer(ChoMiniLifetimeScope scope)
+        public ChoMiniImplementationSelector(ChoMiniLifetimeScope scope)
         {
             _scope = scope;
         }
 
-        public void EnsureComposed()
+        public void EnsureSelected()
         {
             if (_isComposed)
                 return;
