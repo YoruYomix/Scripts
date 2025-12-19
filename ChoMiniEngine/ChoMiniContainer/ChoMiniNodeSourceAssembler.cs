@@ -45,7 +45,7 @@ namespace Yoru.ChoMiniEngine
         {
             object key = null;
 
-            foreach (var pair in _options.DebugPairs())
+            foreach (var pair in _options.GetPairs())
             {
                 if (_bindings.ContainsKey((installerType, pair.Value)))
                 {

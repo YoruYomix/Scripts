@@ -13,19 +13,7 @@ namespace Yoru.ChoMiniEngine
             _values[typeof(T)] = value;
         }
 
-        public bool TryGet<T>(out T value)
-        {
-            if (_values.TryGetValue(typeof(T), out var obj))
-            {
-                value = (T)obj;
-                return true;
-            }
-
-            value = default;
-            return false;
-        }
-
-        public IEnumerable<KeyValuePair<Type, object>> DebugPairs()
+        public IEnumerable<KeyValuePair<Type, object>> GetPairs()
         {
             return _values;
         }

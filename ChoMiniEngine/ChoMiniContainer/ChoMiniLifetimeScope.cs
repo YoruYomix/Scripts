@@ -5,6 +5,13 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
+    public enum ScopeState
+    {
+        Created,
+        Playing,
+        Completed,
+        Disposed
+    }
     public sealed class ChoMiniLifetimeScope : IDisposable
     {
         private readonly IReadOnlyList<BootRule> _installerRules;
@@ -180,11 +187,5 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-    public enum ScopeState
-    {
-        Created,
-        Playing,
-        Completed,
-        Disposed
-    }
+
 }

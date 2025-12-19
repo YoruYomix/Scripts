@@ -1,12 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using UnityEngine;
-using static Yoru.ChoMiniEngine.ChoMiniContainer;
 
 namespace Yoru.ChoMiniEngine
 {
+    // ======================================================
+    // BootRule
+    // ======================================================
+    public sealed class BootRule
+    {
+        public Type Category;   // ChoMiniStringSourceInstaller
+        public Type ImplType; // ChoMiniSequenceFactory 등
+        public RuleKind Kind;        // Base / Override
+        public object? Key;          // Override만 사용
+    }
+    public enum RuleKind
+    {
+        Base,
+        Override
+    }
+
+    public sealed class ReactorRule
+    {
+        // 언제 실행할지 (Scheduler용)
+        public readonly List<IChoMiniReactorScheduleCondition> ScheduleConditions = new();
+
+        // 무엇을 실행할지 (ReactorNodeFactory용)
+        public readonly List<IReactorNodeCondition> NodeConditions = new();
+
+        public Type? ProviderType;
+        public bool IsLifetimeLoop;
+        public Action DoHook;
+    }
+
     public class ChoMiniContainer
     {
         private readonly List<BootRule> _installerRules = new();
@@ -457,34 +484,7 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-    // ======================================================
-    // BootRule
-    // ======================================================
-    public sealed class BootRule
-    {
-        public Type Category;   // ChoMiniStringSourceInstaller
-        public Type ImplType; // ChoMiniSequenceFactory 등
-        public RuleKind Kind;        // Base / Override
-        public object? Key;          // Override만 사용
-    }
-    public enum RuleKind
-    {
-        Base,
-        Override
-    }
 
-    public sealed class ReactorRule
-    {
-        // 언제 실행할지 (Scheduler용)
-        public readonly List<IChoMiniReactorScheduleCondition> ScheduleConditions = new();
-
-        // 무엇을 실행할지 (ReactorNodeFactory용)
-        public readonly List<IReactorNodeCondition> NodeConditions = new();
-
-        public Type? ProviderType;
-        public bool IsLifetimeLoop;
-        public Action DoHook;
-    }
 }
 
 
