@@ -134,7 +134,7 @@ namespace Yoru.App
             ChoMiniRoot.GrovalCommandContext.AdvanceSubscriber
                 .Subscribe(_ => ChoMiniScopeCommand.Advance(scope));
         }
-
+          
 
     }
 }
