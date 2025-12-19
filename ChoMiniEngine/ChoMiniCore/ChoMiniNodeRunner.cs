@@ -13,7 +13,7 @@ namespace Yoru.ChoMiniEngine
         private ChoMiniNode _currentNode;
         private bool _paused;
         private bool _disposed;
-        private bool _stopped;
+
 
         public void Pause()
         {
@@ -75,7 +75,7 @@ namespace Yoru.ChoMiniEngine
                 while (time < node.Duration)
                 {
                     if (_disposed)
-                        return; // Dispose = 즉시 종료
+                        return; // Dispose = ��� ����
 
                     if (!_paused)
                         time += Time.deltaTime;
@@ -96,26 +96,7 @@ namespace Yoru.ChoMiniEngine
                 _currentNode = null;
             }
         }
-        public void Stop()
-        {
-            if (_disposed) return;
-            if (_stopped) return;
 
-            _stopped = true;
-            _paused = false;
-
-            if (_currentNode != null)
-            {
-                // ⭐ Stop에서는 Complete 금지
-                foreach (var action in _currentNode.Actions)
-                {
-                    if (action is IChoMiniStoppableAction stoppable)
-                        stoppable.Stop();
-                }
-
-                _currentNode = null;
-            }
-        }
         public void Dispose()
         {
             if (_disposed)

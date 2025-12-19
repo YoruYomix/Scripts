@@ -17,7 +17,6 @@ namespace Yoru.ChoMiniEngine
         private bool _hasStarted = false;
         private bool _disposed = false;
         private bool _paused = false;
-        private bool _stopped = false;
 
 
         public ChoMiniOrchestrator(ChoMiniNodeRunner runner)
@@ -69,64 +68,41 @@ namespace Yoru.ChoMiniEngine
         }
         public async UniTask PlaySequence()
         {
-            if (_disposed || _stopped)
-                return;
 
             int count = _factory.Count;
             List<ChoMiniNode> nodes = new List<ChoMiniNode>();
 
             for (int i = 0; i < count; i++)
             {
-                if (_disposed || _stopped)
-                    return;
-
                 ChoMiniNode node = _factory.Create();
                 nodes.Add(node);
             }
 
+            // ---- RunNode 체크 ----
             int runIndex = 0;
             _hasStarted = true;
-
             foreach (var node in nodes)
             {
-                if (_disposed || _stopped)
+                if (_disposed)
                     return;
-
-                Debug.Log($"▶ before RunNode index={runIndex}");
+                Debug.Log($"▶ before RunNode index={runIndex}, node null? {node == null}");
 
                 await _runner.RunNode(node);
-
-                if (_disposed || _stopped)
-                    return;
 
                 Debug.Log($"▶ after RunNode index={runIndex}");
                 runIndex++;
             }
 
-            if (_disposed || _stopped)
-                return;
-
             Debug.Log("[오케스트레이터] PlaySequence COMPLETE");
             PlayCompleteSequence();
         }
 
-        public void Stop()
-        {
-            if (_disposed) return;
-            if (!_hasStarted) return;
-            if (_stopped) return;
 
-            _stopped = true;
-            _paused = false;
-
-            _runner.Stop();   // ⭐ 핵심
-        }
         public void Dispose()
         {
             if (_disposed) return;
             _disposed = true;
 
-            Stop();
             _runner.Dispose();
 
         }

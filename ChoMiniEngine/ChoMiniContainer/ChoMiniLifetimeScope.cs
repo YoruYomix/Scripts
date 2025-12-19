@@ -359,7 +359,6 @@ namespace Yoru.ChoMiniEngine
             _scopeMsg.CleanupPublisher.Publish(new ChoMiniScopeCleanupRequested());
 
 
-            _orchestrator.Stop();
             _orchestrator?.Dispose();
 
             // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
