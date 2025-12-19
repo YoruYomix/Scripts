@@ -80,12 +80,12 @@ namespace Yoru.App
                     .Base<ChoMiniUITextComponentTypingProvider>()
                     .End()
 
-                .RegisterReactor<ChoMiniUITextComponentTypingProvider>()
+                .RegisterReactor<ChoMiniUITextCursorBlinkProvider>()
                     .WhenSequenceCompleted
                     .When(() => MockGameState.State == GameState.Playing)
                     .TargetNodeTag("last-textNode")
                     .LifetimeLoop()
-                    .Do(() => { Debug.Log("리액터 프로바이더 있는 Do 발동됨"); })
+                    .Do()
 
 
                 .Build();
@@ -134,10 +134,8 @@ namespace Yoru.App
                 .Bind<ChoMiniStringInstaller>(Language.CN, scriptCN);
 
 
-            ChoMiniRoot.CommandContext.AdvanceSubscriber
+            ChoMiniRoot.GrovalCommandContext.AdvanceSubscriber
                 .Subscribe(_ => ChoMiniScopeCommand.Advance(scope));
-
-             
         }
 
 

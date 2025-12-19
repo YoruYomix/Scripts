@@ -16,7 +16,7 @@ namespace Yoru.ChoMiniEngine
 
         private static ChoMiniCommandContext _commandContext;
 
-        public static ChoMiniCommandContext CommandContext
+        public static ChoMiniCommandContext GrovalCommandContext
             => _commandContext;
 
         /// <summary>

@@ -6,7 +6,7 @@ namespace Yoru.ChoMiniEngine
     // Schedule
     // -------------------------
 
-    public interface IReactorScheduleCondition
+    public interface IChoMiniReactorScheduleCondition
     {
         bool IsSatisfied(ReactorScheduleContext context);
     }
@@ -26,7 +26,7 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-    public sealed class OnSequenceCompletedCondition : IReactorScheduleCondition
+    public sealed class OnSequenceCompletedCondition : IChoMiniReactorScheduleCondition
     {
         public bool IsSatisfied(ReactorScheduleContext context)
         {
@@ -34,7 +34,7 @@ namespace Yoru.ChoMiniEngine
         }
     }
 
-    public sealed class ExternalPredicateCondition : IReactorScheduleCondition
+    public sealed class ExternalPredicateCondition : IChoMiniReactorScheduleCondition
     {
         private readonly Func<bool> _predicate;
 

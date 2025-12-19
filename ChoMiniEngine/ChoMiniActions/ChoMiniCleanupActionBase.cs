@@ -4,6 +4,8 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
+
+
     /// <summary>
     /// Cleanup이 필요한 Action들을 위한 베이스 클래스
     /// - Cleanup은 메시지 기반
@@ -46,6 +48,14 @@ namespace Yoru.ChoMiniEngine
         {
             if (_disposed) return;
             _disposed = true;
+
+            // Cleanup이 Dispose보다 먼저 호출되지 않았을 경우 대비
+            if (!_cleanedUp)
+            {
+                _cleanedUp = true;
+                OnCleanup();
+            }
+
 
             _cleanupSubscription?.Dispose();
             _cleanupSubscription = null;

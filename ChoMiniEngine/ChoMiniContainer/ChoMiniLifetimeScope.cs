@@ -15,7 +15,7 @@ namespace Yoru.ChoMiniEngine
         private readonly ChoMiniOptions _options;
         private readonly Dictionary<(Type installerType, object? key), object> _bindings = new();
         private ChoMiniComposer _composer;
-        readonly ChoMiniScopeMessageContext _localMsg;
+        readonly ChoMiniScopeMessageContext _scopeMsg;
         ChoMiniOrchestrator _orchestrator;
 
         public IReadOnlyList<BootRule> InstallerRules => _installerRules;
@@ -55,7 +55,7 @@ namespace Yoru.ChoMiniEngine
             _providerRules = providerRules;
             _reactorRules = reactorRules;
             _options = options;
-            _localMsg = localMsg;
+            _scopeMsg = localMsg;
             _orchestrator = orchestrator;
         }
 
@@ -83,14 +83,14 @@ namespace Yoru.ChoMiniEngine
             _reactorScheduler = new ChoMiniReactorScheduler(
                 rules: _reactorRules,
                 nodeSources: _nodeSources,
-                msg: _localMsg);
+                msg: _scopeMsg);
 
             try
             {
-                IChoMiniFactory factory = BuildFactory(_localMsg);
+                IChoMiniFactory factory = BuildFactory(_scopeMsg);
                 _orchestrator.Initialize(
                     factory: factory,
-                    scopeMessageContext: _localMsg
+                    scopeMessageContext: _scopeMsg
                     );
                 await _orchestrator.PlaySequence();
 
@@ -356,13 +356,15 @@ namespace Yoru.ChoMiniEngine
 
             _state = ScopeState.Disposed;
             _paused = false;
-            _localMsg.CleanupPublisher.Publish(new ChoMiniScopeCleanupRequested());
+            _scopeMsg.CleanupPublisher.Publish(new ChoMiniScopeCleanupRequested());
 
+
+            _orchestrator.Stop();
+            _orchestrator?.Dispose();
 
             // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
             _composer?.Dispose();
-            _orchestrator?.Dispose();
-            _localMsg?.Dispose();
+            _scopeMsg?.Dispose();
         }
     }
 

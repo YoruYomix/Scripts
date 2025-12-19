@@ -476,7 +476,7 @@ namespace Yoru.ChoMiniEngine
     public sealed class ReactorRule
     {
         // 언제 실행할지 (Scheduler용)
-        public readonly List<IReactorScheduleCondition> ScheduleConditions = new();
+        public readonly List<IChoMiniReactorScheduleCondition> ScheduleConditions = new();
 
         // 무엇을 실행할지 (ReactorNodeFactory용)
         public readonly List<IReactorNodeCondition> NodeConditions = new();

@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+ï»¿using Cysharp.Threading.Tasks;
 using System;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace Yoru.ChoMiniEngine
         private ChoMiniNode _currentNode;
         private bool _paused;
         private bool _disposed;
-
+        private bool _stopped;
 
         public void Pause()
         {
@@ -75,7 +75,7 @@ namespace Yoru.ChoMiniEngine
                 while (time < node.Duration)
                 {
                     if (_disposed)
-                        return; // Dispose = Áï½Ã Á¾·á
+                        return; // Dispose = ì¦‰ì‹œ ì¢…ë£Œ
 
                     if (!_paused)
                         time += Time.deltaTime;
@@ -96,7 +96,26 @@ namespace Yoru.ChoMiniEngine
                 _currentNode = null;
             }
         }
+        public void Stop()
+        {
+            if (_disposed) return;
+            if (_stopped) return;
 
+            _stopped = true;
+            _paused = false;
+
+            if (_currentNode != null)
+            {
+                // â­ Stopì—ì„œëŠ” Complete ê¸ˆì§€
+                foreach (var action in _currentNode.Actions)
+                {
+                    if (action is IChoMiniStoppableAction stoppable)
+                        stoppable.Stop();
+                }
+
+                _currentNode = null;
+            }
+        }
         public void Dispose()
         {
             if (_disposed)
