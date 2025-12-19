@@ -89,9 +89,6 @@ namespace Yoru.App
 
 
                 .Build();
-
-
-            _container.DebugPrint();
         }
 
         void PlayScope()

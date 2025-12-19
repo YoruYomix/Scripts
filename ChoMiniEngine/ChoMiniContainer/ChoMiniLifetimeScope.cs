@@ -72,7 +72,6 @@ namespace Yoru.ChoMiniEngine
                 throw new InvalidOperationException($"Play() not allowed in state {_state}");
 
             _state = ScopeState.Playing;
-            Debug.Log("[Scope] Play");
 
             // ⭐ NodeSource 합성은 전담 객체에 위임
             _nodeSources =

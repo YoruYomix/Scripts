@@ -30,24 +30,15 @@ namespace Yoru.ChoMiniEngine
 
         private void ResolveFactory()
         {
-            Debug.Log("[Composer] Factory Rules:");
-
-            foreach (var r in _scope.FactoryRules)
-                Debug.Log($"  {r.Kind} / {r.ImplType.Name}");
-
             var selected = RuleSelect.SelectOne(
                 _scope.FactoryRules,
                 _scope.Options);
 
             SelectedFactoryType = selected?.ImplType;
-
-            Debug.Log($"[Composer] Selected Factory = {selected?.ImplType.Name}");
         }
 
         private void ResolveProviders()
         {
-            Debug.Log("[Composer] Resolve Providers Start");
-
             // -------------------------------------------------
             // 0) 이전 결과 초기화
             // -------------------------------------------------
@@ -80,14 +71,7 @@ namespace Yoru.ChoMiniEngine
                 Type providerInterface = pair.Key;
                 List<BootRule> rules = pair.Value;
 
-                Debug.Log($"[Composer] Provider Group: {providerInterface.Name}");
 
-                foreach (BootRule r in rules)
-                {
-                    Debug.Log(
-                        $"  {r.Kind} / Key={r.Key ?? "default"} / Impl={r.ImplType.Name}"
-                    );
-                }
 
                 BootRule selected = RuleSelect.SelectOne(
                     rules,
@@ -98,18 +82,10 @@ namespace Yoru.ChoMiniEngine
                 {
                     // 🔥 여기서 “결정 결과”를 저장
                     SelectedProviderTypes.Add(selected.ImplType);
+                }
 
-                    Debug.Log(
-                        $"[Composer] Selected Provider = {selected.ImplType.Name}"
-                    );
-                }
-                else
-                {
-                    Debug.Log("[Composer] Selected Provider = <none>");
-                }
             }
 
-            Debug.Log("[Composer] Resolve Providers End");
         }
 
 

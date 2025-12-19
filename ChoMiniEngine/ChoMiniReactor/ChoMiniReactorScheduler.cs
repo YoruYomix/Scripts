@@ -24,7 +24,6 @@ namespace Yoru.ChoMiniEngine
             _msg = msg ?? throw new ArgumentNullException(nameof(msg));
 
             Subscribe();
-            Debug.Log("[ReactorScheduler] Created");
         }
 
         // --------------------------------------------------

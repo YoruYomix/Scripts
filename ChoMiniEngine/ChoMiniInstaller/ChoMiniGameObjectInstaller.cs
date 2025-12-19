@@ -35,8 +35,6 @@ namespace Yoru.ChoMiniEngine
             ChoMiniLifetimeScope scope,
             ChoMiniOptions options)
         {
-            Debug.Log("[Installer] BuildNodeSources: GameObject");
-
             if (_gameObjects == null)
                 throw new InvalidOperationException(
                     "Bind() must be called before BuildNodeSources()"
@@ -70,8 +68,6 @@ namespace Yoru.ChoMiniEngine
                 else
                     result.Add(new NodeSource(items));
             }
-
-            Debug.Log("[Installer] NodeSource Steps = " + result.Count);
             return result;
         }
 

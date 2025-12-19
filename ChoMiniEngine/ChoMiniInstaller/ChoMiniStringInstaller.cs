@@ -31,7 +31,6 @@ namespace Yoru.ChoMiniEngine
             ChoMiniLifetimeScope scope,
             ChoMiniOptions options)
         {
-            Debug.Log("[Installer] BuildNodeSources: String");
 
             if (_lines == null)
                 throw new InvalidOperationException(
@@ -53,8 +52,6 @@ namespace Yoru.ChoMiniEngine
 
                 result.Add(new NodeSource(items));
             }
-
-            Debug.Log("[Installer] NodeSource Steps = " + result.Count);
             return result;
         }
     }

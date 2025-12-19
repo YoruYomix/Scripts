@@ -37,8 +37,6 @@ namespace Yoru.ChoMiniEngine
             _messageContext = scopeMessageContext;
 
             _index = 0;
-
-            Debug.Log($"[ReactorFactory] NodeSource Count = {_sources.Count}");
         }
 
         // ------------------------------

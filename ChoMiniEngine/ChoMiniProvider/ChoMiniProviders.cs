@@ -20,7 +20,6 @@ namespace Yoru.ChoMiniEngine
             if (go == null)
                 return;
 
-            Debug.Log("콜렉트 이펙트: " + go.name);
             node.Actions.Add(new ChoMiniGameObjectActivationAction(go));
         }
     }

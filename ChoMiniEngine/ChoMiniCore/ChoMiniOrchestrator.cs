@@ -85,11 +85,9 @@ namespace Yoru.ChoMiniEngine
             {
                 if (_disposed)
                     return;
-                Debug.Log($"▶ before RunNode index={runIndex}, node null? {node == null}");
 
                 await _runner.RunNode(node);
 
-                Debug.Log($"▶ after RunNode index={runIndex}");
                 runIndex++;
             }
 

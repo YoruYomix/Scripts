@@ -97,35 +97,6 @@ namespace Yoru.ChoMiniEngine
 
 
 
-        // 디버그 출력용
-        public void DebugPrint()
-        {
-            Debug.Log("[ChoMiniContainer Rules]");
-
-            foreach (var group in _providerRules.GroupBy(r => r.Category))
-            {
-                Debug.Log($"Category: {group.Key.Name}");
-
-                foreach (var rule in group)
-                {
-                    string kind = rule.Kind == RuleKind.Base
-                        ? "  Base"
-                        : $"  Override({rule.Key})";
-
-                    // ImplType이 있는 경우 (Factory / Provider)
-                    if (rule.ImplType != null)
-                    {
-                        Debug.Log($"{kind} -> {rule.ImplType.Name}");
-                    }
-                    // ImplType이 없는 경우 (Installer)
-                    else
-                    {
-                        Debug.Log(kind);
-                    }
-                }
-            }
-        }
-
 
         //// 빌더
         /// 
