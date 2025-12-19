@@ -6,18 +6,6 @@ using UnityEngine;
 namespace Yoru.ChoMiniEngine
 {
 
-    public interface IChoMiniInstaller
-    {
-        List<NodeSource> BuildNodeSources(
-            ChoMiniLifetimeScope scope,
-            ChoMiniOptions options
-        );
-    }
-
-
-
-
-
     // ======================================================
     // String Installer (예문용 단순형)
     // ======================================================
