@@ -278,13 +278,13 @@ namespace Yoru.ChoMiniEngine
             // Do (외부 훅)
             // -------------------------
 
-            public ChoMiniContainer.Builder Do(Action action)
+            public Builder Do(Action action)
             {
                 _rule.DoHook = action;
                 _container.AddReactorRule(_rule);
                 return _builder;
             }
-            public ChoMiniContainer.Builder Do()
+            public Builder Do()
             {
                 return Do(() => { });
             }
