@@ -12,6 +12,7 @@ namespace Yoru.ChoMiniEngine
         private readonly Action _do;
         private readonly bool _isLifetimeLoop;
         private readonly IDisposable _cleanupSub;
+        private bool _disposed;
 
         private readonly CancellationTokenSource _cts = new();
         private UniTask _runTask;
@@ -53,8 +54,8 @@ namespace Yoru.ChoMiniEngine
 
         public void Dispose()
         {
-            if (_cts.IsCancellationRequested)
-                return;
+            if (_disposed) return;
+            _disposed = true;
 
             _cts.Cancel();
             _cleanupSub.Dispose();

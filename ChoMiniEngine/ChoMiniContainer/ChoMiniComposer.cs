@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Yoru.ChoMiniEngine
 {
-    public sealed class ChoMiniComposer : IDisposable
+    public sealed class ChoMiniComposer
     {
         private readonly ChoMiniLifetimeScope _scope;
         private bool _isComposed;
@@ -138,17 +138,6 @@ namespace Yoru.ChoMiniEngine
             }
         }
 
-        public void Reset()
-        {
-            _isComposed = false;
-            SelectedFactoryType = null;
-            SelectedProviderTypes.Clear();
-        }
-
-        public void Dispose()
-        {
-            Reset();
-        }
     }
 
 }

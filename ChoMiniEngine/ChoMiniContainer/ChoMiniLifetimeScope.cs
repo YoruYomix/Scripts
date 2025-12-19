@@ -360,9 +360,6 @@ namespace Yoru.ChoMiniEngine
 
 
             _orchestrator?.Dispose();
-
-            // TODO: Provider / Factory / 컴포저 라이프사이클 클린업
-            _composer?.Dispose();
             _scopeMsg?.Dispose();
         }
     }
