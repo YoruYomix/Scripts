@@ -11,7 +11,7 @@ namespace Yoru.ChoMiniEngine
         private readonly Image _image;
         private readonly Color _originalColor;
         private Tween _tween;
-        private readonly float _fadeDuration = 2f;
+        private readonly float _fadeDuration = 0.2f;
 
         public ChoMiniUIImageFadeInAction(
             Image image,
