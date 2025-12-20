@@ -8,9 +8,9 @@ namespace Yoru.ChoMiniEngine.Examples
 {
     public sealed class ChoMiniGameObjectInstaller : IChoMiniInstaller
     {
-        private SceneNodeSource _sequence;
+        private SceneSequence _sequence;
 
-        public void Bind(SceneNodeSource sequence)
+        public void Bind(SceneSequence sequence)
         {
             _sequence = sequence
                 ?? throw new ArgumentNullException(nameof(sequence));
