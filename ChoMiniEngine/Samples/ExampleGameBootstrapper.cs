@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
-using Yoru.ChoMiniEngine;
 using MessagePipe;
 using Yoru.ChoMiniEngine.Utility;
+using Yoru.ChoMiniEngine.Examples;
 
-namespace Yoru.App
+namespace Yoru.ChoMiniEngine.Samples
 {
     public class ExampleGameBootstrapper : MonoBehaviour
     {

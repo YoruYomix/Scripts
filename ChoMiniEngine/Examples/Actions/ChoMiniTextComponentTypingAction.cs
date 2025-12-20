@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using MessagePipe;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Examples
 {
     public sealed class ChoMiniTextComponentTypingAction : ChoMiniCleanupActionBase
     {

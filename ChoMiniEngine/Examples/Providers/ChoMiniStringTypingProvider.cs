@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Examples
 {
     public interface IChoMiniStringTypingProvider { }
 

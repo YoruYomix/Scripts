@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Examples
 {
     public sealed class ChoMiniGameObjectInstaller : IChoMiniInstaller
     {

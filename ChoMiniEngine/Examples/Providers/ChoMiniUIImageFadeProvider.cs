@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Examples
 {
     public interface IChoMiniUIImageProvider { }
 

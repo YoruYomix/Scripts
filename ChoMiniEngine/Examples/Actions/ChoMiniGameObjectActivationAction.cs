@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Examples
 {
     public class ChoMiniGameObjectActivationAction : IChoMiniNodeAction
     {

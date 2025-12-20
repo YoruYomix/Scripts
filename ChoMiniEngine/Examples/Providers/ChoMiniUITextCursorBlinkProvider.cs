@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Yoru.ChoMiniEngine;
 
-namespace Yoru.ChoMiniEngine
+namespace Yoru.ChoMiniEngine.Examples
 {
     public class ChoMiniUITextCursorBlinkProvider : IChoMiniProvider
     {
