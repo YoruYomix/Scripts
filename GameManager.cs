@@ -44,29 +44,29 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject ActiveOnPlay;
 
-    GameMode mode;
+    GameModeLegacy _modeLegacy;
 
-    public GameMode GameMode
+    public GameModeLegacy GameModeLegacy
     {
         get
         {
-            return mode;
+            return _modeLegacy;
         }
         set
         {
-            mode = value;
-            switch (mode)
+            _modeLegacy = value;
+            switch (_modeLegacy)
             {
-                case GameMode.Story:
+                case GameModeLegacy.Story:
                     inputManager.inputTable = inputManager.inputTableStorymode;
                     break;
-                case GameMode.ManuOpen:
+                case GameModeLegacy.ManuOpen:
                     inputManager.inputTable = inputManager.inputTableManuOpen;
                     break;
-                case GameMode.Replay:
+                case GameModeLegacy.Replay:
                     inputManager.inputTable = inputManager.inputTableReplayMode;
                     break;
-                case GameMode.LockUI:
+                case GameModeLegacy.LockUI:
                     inputManager.inputTable = inputManager.inputTableLockUI;
                     break;
             }
@@ -81,7 +81,7 @@ public class GameManager : MonoBehaviour
     {
         get
         {
-            return (GameMode == GameMode.Replay);
+            return (GameModeLegacy == GameModeLegacy.Replay);
         }
     }
 
@@ -122,7 +122,7 @@ public class GameManager : MonoBehaviour
 
         /////////// 게임 실행 ////////////
 
-        GameMode = GameMode.LockUI;
+        GameModeLegacy = GameModeLegacy.LockUI;
 
         ///////// 테스트용 챕터가 있는지 확인, 있다면 개발 테스트 모드 실행  //////
         chapter = FindObjectOfType<ChapterObj>();
@@ -245,7 +245,7 @@ public class GameManager : MonoBehaviour
 }
 
 
-public enum GameMode
+public enum GameModeLegacy
 {
     Story,
     ManuOpen,

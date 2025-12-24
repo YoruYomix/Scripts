@@ -40,14 +40,14 @@ public class StoryManager : MonoBehaviour
     public void EnterStoryMode(Page _page)
     {
         ReturnPage();
-        GameManager.Instance.GameMode = GameMode.Story;
+        GameManager.Instance.GameModeLegacy = GameModeLegacy.Story;
         currentPage = _page;
         PlayStoryMode();
     }
 
     public void PlayStoryMode()
     {
-        if (GameManager.Instance.GameMode != GameMode.Story)
+        if (GameManager.Instance.GameModeLegacy != GameModeLegacy.Story)
         {
             return;
         }
@@ -90,7 +90,7 @@ public class StoryManager : MonoBehaviour
     void CallComplateUI()
     {
         GameManager.Instance.replayManager.rePlays.Add(currentPage);
-        GameManager.Instance.GameMode = GameMode.LockUI;
+        GameManager.Instance.GameModeLegacy = GameModeLegacy.LockUI;
         currentPage.mySection.SectionComplate(GameManager.Instance.sceneInfomation.sectionComplateUIParent.transform);
     }
 }

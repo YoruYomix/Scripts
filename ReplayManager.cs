@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class ReplayManager : MonoBehaviour
 {
-    public Replay replay; // ¸®ÇÃ·¹ÀÌ¿¡ µé¾î°£ ¼ø°£ »ý¼º, ¸®ÇÃ·¹ÀÌ¿¡¼­ ³ª¿À¸é ÆÄ±«
+    public Replay replay; // ï¿½ï¿½ï¿½Ã·ï¿½ï¿½Ì¿ï¿½ ï¿½ï¿½î°£ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½, ï¿½ï¿½ï¿½Ã·ï¿½ï¿½Ì¿ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ä±ï¿½
     public List<Page> rePlays;
     Page nowReplayPage;
     Transform replayParent;
@@ -27,7 +27,7 @@ public class ReplayManager : MonoBehaviour
 
     public void EnterReplayMode()
     {
-        GameManager.Instance.GameMode = GameMode.Replay;
+        GameManager.Instance.GameModeLegacy = GameModeLegacy.Replay;
         replay = new Replay(rePlays);
         GameManager.Instance.sceneInfomation.replayUI.SetActive(true);
         EnterReplayModeAction?.Invoke();
@@ -49,7 +49,7 @@ public class ReplayManager : MonoBehaviour
         replay = null;
         ExitReplayModeAction?.Invoke();
         GameManager.Instance.sceneInfomation.replayUI.SetActive(false);
-        GameManager.Instance.GameMode = GameMode.Story;
+        GameManager.Instance.GameModeLegacy = GameModeLegacy.Story;
     }
     public void PrevReplay()
     {
