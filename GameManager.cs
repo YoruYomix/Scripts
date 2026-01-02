@@ -87,7 +87,6 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        return;
         if (Instance == null)
         {
             Instance = this;       // 자기 자신을 Instance로 등록
