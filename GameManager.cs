@@ -102,7 +102,7 @@ public class GameManager : MonoBehaviour
 
     public void Start()
     {
-        return;
+
         /////////// 게임 정보 초기화 /////////
         objectMemoryManager = FindObjectOfType<ObjectMemoryManager>(); // 프리팹 생성기
         titleMenu = FindObjectOfType<TitleMenu>(); // 타이틀 화면
