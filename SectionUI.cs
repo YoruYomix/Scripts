@@ -9,7 +9,7 @@ using static UnityEngine.Rendering.CoreUtils;
 public class SectionUI : MonoBehaviour
 {
     public int index;
-    public InteractiveButton btn;
+    public InteractiveUI btn;
     [SerializeField] Image thumbs;
     [SerializeField] GameObject ending;
     [SerializeField] GameObject clear;
