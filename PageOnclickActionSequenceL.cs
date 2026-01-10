@@ -8,12 +8,12 @@ using Unity.VisualScripting.Antlr3.Runtime;
 
 public class PageOnclickActionSequenceL : PageOnclickActionSequenceBase
 {
-    Dictionary<Language,PageOnclickActionSequenceBase> actionSequenceLanguages;
-    Dictionary<Language, GameObject> languageParents;
+    Dictionary<언어설정,PageOnclickActionSequenceBase> actionSequenceLanguages;
+    Dictionary<언어설정, GameObject> languageParents;
     bool isInit = false;
 
 
-    public void SwapLanguage(Language _language)
+    public void SwapLanguage(언어설정 _language)
     {
         foreach (var kvp in languageParents)
         {
@@ -70,8 +70,8 @@ public class PageOnclickActionSequenceL : PageOnclickActionSequenceBase
         if (!isInit)
         {
             isInit = true;
-            languageParents = new Dictionary<Language, GameObject>();
-            actionSequenceLanguages = new Dictionary<Language, PageOnclickActionSequenceBase>();
+            languageParents = new Dictionary<언어설정, GameObject>();
+            actionSequenceLanguages = new Dictionary<언어설정, PageOnclickActionSequenceBase>();
             // 1단계 자식 개수 가져오기
             int childCount = transform.childCount;
 
@@ -79,7 +79,7 @@ public class PageOnclickActionSequenceL : PageOnclickActionSequenceBase
             for (int i = 0; i < childCount; i++)
             {
                 GameObject child = transform.GetChild(i).gameObject;
-                Language language = ConvertNameToEnum(child);
+                언어설정 language = ConvertNameToEnum(child);
                 languageParents.Add(language, child);
 
 
@@ -126,13 +126,13 @@ public class PageOnclickActionSequenceL : PageOnclickActionSequenceBase
         }
     }
 
-    public Language ConvertNameToEnum(GameObject go)
+    public 언어설정 ConvertNameToEnum(GameObject go)
     {
         // GameObject 이름 가져오기
         string name = go.name;
 
         // 문자열 → enum 변환
-        if (Enum.TryParse<Language>(name, out Language result))
+        if (Enum.TryParse<언어설정>(name, out 언어설정 result))
         {
             return result;
         }

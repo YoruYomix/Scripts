@@ -6,7 +6,7 @@ using UnityEngine.EventSystems;
 public class ImageClickHandlerLanguage : MonoBehaviour, IPointerClickHandler
 {
     Button targetButton;
-    [SerializeField] Language language;
+    [SerializeField] 언어설정 language;
 
     void Start()
     {

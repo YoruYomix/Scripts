@@ -26,10 +26,10 @@ public class GameManager : MonoBehaviour
     ObjectMemoryManager objectMemoryManager;
     public TitleMenu titleMenu;
 
-    Language language;
-    public Action<Language> languageSwapEvent;
+    언어설정 language;
+    public Action<언어설정> languageSwapEvent;
 
-    public Language CurrntLangage
+    public 언어설정 CurrntLangage
     {
         get
         {
