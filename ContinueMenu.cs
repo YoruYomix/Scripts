@@ -27,7 +27,7 @@ public class ContinueMenu : MonoBehaviour
             {
                 continue;
             }
-            customButton.클릭시행동 += () => { onclickOpenPlayPopupBtn(i); }; 
+            customButton.클릭시 += () => { onclickOpenPlayPopupBtn(i); }; 
         }
 
         InitializeNextSectionUIs();
