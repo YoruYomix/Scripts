@@ -1,18 +1,15 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
-using TreeEditor;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
+
 
 public class FlowManager : MonoBehaviour
 {
     public Button button;
     public static FlowManager instance { get; private set; }
 
-    private bool _isProcessing = false;          // ±¤Å¬ ¹æÁö
+    private bool _isProcessing = false;          // ï¿½ï¿½Å¬ ï¿½ï¿½ï¿½ï¿½
 
 
     void Awake()
@@ -30,15 +27,15 @@ public class FlowManager : MonoBehaviour
     [SerializeField] Transform root;
     private void Start()
     {
-        // root¸¦ Å½»öÇÏ¿© Æ®¸® ¿ÀºêÁ§Æ®¸¦ ¼öÁýÇÑ µÚ
-        // ³ëµå¸¦ ÀÎ½ºÅçÇÏ¿© ³ëµå ¸®½ºÆ®¸¦ ¹ÝÈ¯ÇÑ´Ù
+        // rootï¿½ï¿½ Å½ï¿½ï¿½ï¿½Ï¿ï¿½ Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
+        // ï¿½ï¿½å¸¦ ï¿½Î½ï¿½ï¿½ï¿½ï¿½Ï¿ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½È¯ï¿½Ñ´ï¿½
         testNodes = YoruUtilitys.NodeInstaller(root);
 
         HideRoot();
         button.onClick.AddListener(OnClickEvent);
         RunAsync(testNodes);
     }
-    // ·çÆ® ÀüÃ¼ ¾ð¾×Æ¼ºê
+    // ï¿½ï¿½Æ® ï¿½ï¿½Ã¼ ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½
     void HideRoot()
     {
         foreach (var item in testNodes)
@@ -60,8 +57,8 @@ public class FlowManager : MonoBehaviour
     {
         if (node is IPlayable playable)
         {
-            await RunAfterAutoDelay(playable); // ½ÇÇà ÈÄ 2ÃÊ µô·¹ÀÌ
-            return _skipRequested; // ½ÇÇà ³¡³­ ½ÃÁ¡¿¡ skip È®ÀÎ
+            await RunAfterAutoDelay(playable); // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ 2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            return _skipRequested; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ skip È®ï¿½ï¿½
         }
         else
         {
@@ -69,7 +66,7 @@ public class FlowManager : MonoBehaviour
             return _skipRequested;
         }
     }
-    // ÃÖÃÊ ½ÇÇà
+    // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public async void RunAsync(List<NodeLegacy> nodes)
     {
         _skipRequested = false;
@@ -77,10 +74,10 @@ public class FlowManager : MonoBehaviour
         for (int i = 0; i < nodes.Count; i++)
         {
             Debug.Log(i);
-            // ¿¥Æ¼³ëµå¿Í ÇÃ·¹ÀÌ¾îºí ºÐ±âaptj
+            // ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ ï¿½Ã·ï¿½ï¿½Ì¾ï¿½ï¿½ ï¿½Ð±ï¿½aptj
             bool skipped = await HandleNodeAsync(nodes[i]);
 
-            if (skipped) // ½ºÅµ¿äÃ»ÀÌ µé¾î¿Ô´Ù¸é ³²Àº ³ëµå ¿Ï·á
+            if (skipped) // ï¿½ï¿½Åµï¿½ï¿½Ã»ï¿½ï¿½ ï¿½ï¿½ï¿½Ô´Ù¸ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½
             {
                 CompleteRemaining(nodes, i + 1);
                 break;
@@ -102,12 +99,12 @@ public class FlowManager : MonoBehaviour
     }
     public void RequestSkip()
     {
-        Debug.LogWarning("½ºÅµ ¿äÃ»");
+        Debug.LogWarning("ï¿½ï¿½Åµ ï¿½ï¿½Ã»");
         _skipRequested = true;
     }
 
 
-    // ³ëµå Àç»ý ½Ã°£¸¸Å­ ´ë±â ÈÄ ´ÙÀ½³ëµå Àç»ý 
+    // ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ã°ï¿½ï¿½ï¿½Å­ ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ 
     private async UniTask RunAfterAutoDelay(IPlayable playableNode)
     {
         PlayNodeOnce(playableNode);
@@ -120,7 +117,7 @@ public class FlowManager : MonoBehaviour
         }
     }
 
-    // ÀÓ½ÃÀûÀ¸·Î PlayNodeOnce¸¦ Àç»ýÇÏ±â À§ÇØ ¸¸µç Å×½ºÆ®.
+    // ï¿½Ó½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ PlayNodeOnceï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Ï±ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½×½ï¿½Æ®.
     void TestRun()
     {
         NodeLegacy _node = testNodes[curruntRootIndex];
@@ -144,25 +141,15 @@ public class FlowManager : MonoBehaviour
 
 
 
-    // List<Node> ¿¡¼­ Å¬¸¯¿¡ ¹ÝÀÀÇÏ¿© ¼øÂ÷ÀûÀ¸·Î ³ëµåÇÏ³ª¾¿ »©³»´Â ¸Þ½áµå
-    // ³ëµåÀÇ Ãß»óÈ­ Å¸ÀÔÀ» °Ë»çÇÏ¿© ¿¥Æ¼³ëµå¸é »©Áö¾Ê°í Ä«¿îÆ®¸¸ ¿Ã¸²
-    // Å¬¸¯ÇÏÁö ¾Ê¾Æµµ ³ëµåÀÇ Àç»ýÁÖ±â float¿¡ ¸ÂÃç¼­ ÀÚµ¿ÀûÀ¸·Î »«´Ù
-    // ¸ðµç ³ëµåµéÀÇ Àç»ýÀÌ Á¾·áµÇ¸é ³ëµåÁß ILoopable ÀÎÅÍÆäÀÌ½º ±¸ÇöÃ¼Áß¿¡ ¸¶Áö¸·À»
-    // node.Loop() ½ÃÅ²´Ù
-    // ¸ðµçµ¿ÀÛÀÌ ¿Ï·áµÈ ÈÄ ´ÙÀ½  List<Node> ¸¦ ¹Þ¾Ò´Âµ¥ 
-    // ÀÌÀü List<Node>ÀÇ ¸¶Áö¸· ILoopableÀÌ node.IsLooping ÀÌ¸é CancelLoop()ÇÑ´Ù
-
-    // ³ëµå 1°³ ´ÜÀÏÀç»ý 
-
     IPlayable curruntPlayable;
     void PlayNodeOnce(IPlayable _node)
     {
-        Debug.Log("Àç»ý ÁøÀÔ");
+        Debug.Log("ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
         if (curruntPlayable != null)
         {
             if (curruntPlayable.IsPlaying)
             {
-                Debug.Log("¿Ï·á ½ÃÀÛ");
+                Debug.Log("ï¿½Ï·ï¿½ ï¿½ï¿½ï¿½ï¿½");
                 curruntPlayable.Complate();
             }
         }
@@ -177,7 +164,7 @@ public class FlowManager : MonoBehaviour
         {
             if (!newNode.IsPlaying)
             {
-                Debug.Log("Àç»ý ½ÃÀÛ");
+                Debug.Log("ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
                 newNode.Play();
             }
         }
@@ -189,23 +176,3 @@ public class FlowManager : MonoBehaviour
 
 
 
-public class AsyncTreeIterator
-{
-    private readonly IEnumerator<TreeNode> _enumerator;
-
-
-
-    /// <summary>
-    /// ¿äÃ»¹ÞÀ» ¶§¸¶´Ù ÇÑ ³ëµå ¹ÝÈ¯ (¾øÀ¸¸é null)
-    /// </summary>
-    public UniTask<TreeNode> NextAsync()
-    {
-        // ºñµ¿±âÃ³·³ º¸ÀÌÁö¸¸ await ÁöÁ¡ ¾ø´Â ºü¸¥ UniTask
-        if (_enumerator.MoveNext())
-            return UniTask.FromResult(_enumerator.Current);
-
-        return UniTask.FromResult<TreeNode>(null);
-    }
-
-
-}

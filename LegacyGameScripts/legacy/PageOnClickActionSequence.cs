@@ -1,13 +1,8 @@
 using System;
 using System.Threading;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
-using UnityEngine.EventSystems;
-using UnityEditor.VersionControl;
-using Unity.VisualScripting.Antlr3.Runtime;
 
 
 public class PageOnClickActionSequence : MonoBehaviour

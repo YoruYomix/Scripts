@@ -1,18 +1,15 @@
 using DG.Tweening;
-using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using Cysharp.Threading.Tasks;
-using UnityEngine.WSA;
 
-public class FlowNodeLegacy  // ³ëµå È¿°ú¸¦ ´ã°í ÀÖ´Â ¹Ú½º
+
+public class FlowNodeLegacy  // ï¿½ï¿½ï¿½ È¿ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½Ö´ï¿½ ï¿½Ú½ï¿½
 {
-    public FlowAction flowAction;  // °¨Á¤¡¤»óÈ²¿¡ µû¸¥ Run ÈÄº¸µé
-    public List<FlowNodeLegacy> Children;       // ÀÚ½Ä ³ëµåµé(Æ®¸®)
+    public FlowAction flowAction;  // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È²ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ Run ï¿½Äºï¿½ï¿½ï¿½
+    public List<FlowNodeLegacy> Children;       // ï¿½Ú½ï¿½ ï¿½ï¿½ï¿½ï¿½(Æ®ï¿½ï¿½)
     public FlowNodeLegacy(FlowAction _flowAction, List<FlowNodeLegacy> _Children)
     {
         flowAction = _flowAction;
@@ -44,7 +41,7 @@ public abstract class FlowAction
 
     public async UniTask Loop(CancellationToken ct)
     {
-        Debug.Log($"{name}: ¹ø ³ëµå ·çÇÁ ½ÃÀÛ");
+        Debug.Log($"{name}: ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
         try
         {
             while (!ct.IsCancellationRequested)
@@ -54,7 +51,7 @@ public abstract class FlowAction
         }
         finally
         {
-            Debug.Log($"{name}: ¹ø ³ëµå ·çÇÁ ¿Ï·á");
+            Debug.Log($"{name}: ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½");
         }
     }
 
@@ -132,12 +129,12 @@ public class NodeImage : NodeLegacy , IPlayable , IInitializableView
         isPlaying = true;
         _fadeTween?.Kill();
 
-        // ¾ËÆÄ 0À¸·Î ¸¸µç µÚ
+        // ï¿½ï¿½ï¿½ï¿½ 0ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
         Color c = _originalColor;
         c.a = 0f;
         image.color = c;
 
-        // ¿øº» ¾ËÆÄ±îÁö ÆäÀÌµåÀÎ
+        // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ìµï¿½ï¿½ï¿½
         _fadeTween = image
             .DOFade(_originalColor.a, 2f)
             .SetEase(Ease.OutQuad)
@@ -148,8 +145,8 @@ public class NodeImage : NodeLegacy , IPlayable , IInitializableView
     }
     public void Complate()
     {
-        _fadeTween?.Kill();           // ÁøÇà ÁßÀÌ´ø ÆäÀÌµå Áß´Ü
-        image.color = _originalColor; // ¿øº» »ö/¾ËÆÄ º¹±¸
+        _fadeTween?.Kill();           // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì´ï¿½ ï¿½ï¿½ï¿½Ìµï¿½ ï¿½ß´ï¿½
+        image.color = _originalColor; // ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½/ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     }
 
     public void Activate()
@@ -168,44 +165,44 @@ public class TestLogAction : FlowAction
 
     protected override async UniTask MainEffect(CancellationToken ct)
     {
-        Debug.Log($"{name}: ¸ÞÀÎ ½ÃÀÛ");
+        Debug.Log($"{name}: ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½");
         await UniTask.Delay(2000, cancellationToken: ct);
-        Debug.Log($"{name}: ¸ÞÀÎ ¿Ï·á");
+        Debug.Log($"{name}: ï¿½ï¿½ï¿½ï¿½ ï¿½Ï·ï¿½");
     }
 
     protected override UniTask CancelEffect()
     {
-        Debug.Log($"{name}: Äµ½½ È¿°ú");
+        Debug.Log($"{name}: Äµï¿½ï¿½ È¿ï¿½ï¿½");
         return UniTask.CompletedTask;
     }
 
     protected override UniTask CompleteEffect()
     {
-        Debug.Log($"{name}: ¿Ï·á È¿°ú");
+        Debug.Log($"{name}: ï¿½Ï·ï¿½ È¿ï¿½ï¿½");
         return UniTask.CompletedTask;
     }
 
     protected override async UniTask LoopEffect(CancellationToken ct)
     {
-        Debug.Log($"{name}: ·çÇÁ ¹Ýº¹");
+        Debug.Log($"{name}: ï¿½ï¿½ï¿½ï¿½ ï¿½Ýºï¿½");
         await UniTask.Delay(1000, cancellationToken: ct);
     }
 }
 
 public static class TestFlowFactory
 {
-    // ·çÆ® 20°³Â¥¸® Æ®¸® »ý¼º
+    // ï¿½ï¿½Æ® 20ï¿½ï¿½Â¥ï¿½ï¿½ Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
     public static List<FlowNodeLegacy> CreateTestRoots()
     {
         var roots = new List<FlowNodeLegacy>();
 
         for (int i = 0; i < 20; i++)
         {
-            // ÀÌ¸§Àº 1ºÎÅÍ ½ÃÀÛ: "1", "2", ... "20"
+            // ï¿½Ì¸ï¿½ï¿½ï¿½ 1ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½: "1", "2", ... "20"
             string name = (i + 1).ToString();
             var root = CreateNode(
                 path: name,
-                indexInLevel: i,   // ÀÌ ·¹º§¿¡¼­ÀÇ ¼ø¼­(0~19)
+                indexInLevel: i,   // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(0~19)
                 depth: 0
             );
             roots.Add(root);
@@ -216,28 +213,28 @@ public static class TestFlowFactory
 
     private static FlowNodeLegacy CreateNode(string path, int indexInLevel, int depth)
     {
-        // ÀÌ ³ëµåÀÇ ¾×¼Ç ÇÏ³ª »ý¼º
+        // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½×¼ï¿½ ï¿½Ï³ï¿½ ï¿½ï¿½ï¿½ï¿½
         var action = new TestLogAction(indexInLevel, path);
 
         var children = new List<FlowNodeLegacy>();
 
-        // depth 0,1±îÁö¸¸ ÀÚ½Ä 3°³¾¿ »ý¼º (ÃÑ 3·¹º§: 0,1,2)
+        // depth 0,1ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ú½ï¿½ 3ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ 3ï¿½ï¿½ï¿½ï¿½: 0,1,2)
         if (depth < 2)
         {
             for (int i = 0; i < 3; i++)
             {
-                // path: "1-1", "1-2", "1-3" ... "2-1-3" ÀÌ·± ½Ä
+                // path: "1-1", "1-2", "1-3" ... "2-1-3" ï¿½Ì·ï¿½ ï¿½ï¿½
                 string childPath = $"{path}-{i + 1}";
                 var child = CreateNode(
                     path: childPath,
-                    indexInLevel: i,      // ÀÌ ·¹º§ ¾È¿¡¼­ÀÇ ¼ø¼­(0,1,2)
+                    indexInLevel: i,      // ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½È¿ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½(0,1,2)
                     depth: depth + 1
                 );
                 children.Add(child);
             }
         }
 
-        // ³×°¡ ¸¸µç »ý¼ºÀÚ ½Ã±×´ÏÃ³¿¡ ¸ÂÃç »ý¼º
+        // ï¿½×°ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ã±×´ï¿½Ã³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
         return new FlowNodeLegacy(action, children);
     }
 }
