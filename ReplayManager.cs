@@ -27,7 +27,7 @@ public class ReplayManager : MonoBehaviour
 
     public void EnterReplayMode()
     {
-        GameManager.Instance.GameModeLegacy = GameModeLegacy.Replay;
+        GameManager.Instance.GameMode = GameMode.Replay;
         replay = new Replay(rePlays);
         GameManager.Instance.sceneInfomation.replayUI.SetActive(true);
         EnterReplayModeAction?.Invoke();
@@ -49,7 +49,7 @@ public class ReplayManager : MonoBehaviour
         replay = null;
         ExitReplayModeAction?.Invoke();
         GameManager.Instance.sceneInfomation.replayUI.SetActive(false);
-        GameManager.Instance.GameModeLegacy = GameModeLegacy.Story;
+        GameManager.Instance.GameMode = GameMode.Story;
     }
     public void PrevReplay()
     {

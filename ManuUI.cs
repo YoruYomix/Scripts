@@ -141,7 +141,7 @@ public class ManuUI : MonoBehaviour
     {
         if (isAnimationNow) return;
         await AppearUI();
-        GameManager.Instance.GameModeLegacy = GameModeLegacy.ManuOpen;
+        GameManager.Instance.GameMode = GameMode.ManuOpen;
     }
 
     async public UniTask ExitUI()
@@ -156,7 +156,7 @@ public class ManuUI : MonoBehaviour
         Debug.Log("유아이 숨기기");
         await DisAppearUIAsync();
         Debug.Log("유아이 숨기기 완료");
-        GameManager.Instance.GameModeLegacy = GameModeLegacy.Story;
+        GameManager.Instance.GameMode = GameMode.Story;
     }
 
 

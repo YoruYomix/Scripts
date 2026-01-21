@@ -3,7 +3,7 @@ using System;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;  // static으로 어디서든 접근 가능
+    public static GameManager Instance; 
     public ChapterObj chapter;
     public EndingUI endingUI;
     public Page lastSelection;
@@ -11,7 +11,7 @@ public class GameManager : MonoBehaviour
     public ManuUI manuUI;
 
     public SaveData currentSaveData;
-    private int numberOfTotalSections = 10; // 전체 섹션 수
+    private int numberOfTotalSections = 10;
 
     public SceneInfomation sceneInfomation;
     public ReplayManager replayManager;
@@ -38,29 +38,29 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject ActiveOnPlay;
 
-    GameModeLegacy _modeLegacy;
+    GameMode _mode;
 
-    public GameModeLegacy GameModeLegacy
+    public GameMode GameMode
     {
         get
         {
-            return _modeLegacy;
+            return _mode;
         }
         set
         {
-            _modeLegacy = value;
-            switch (_modeLegacy)
+            _mode = value;
+            switch (_mode)
             {
-                case GameModeLegacy.Story:
+                case GameMode.Story:
                     inputManager.inputTable = inputManager.inputTableStorymode;
                     break;
-                case GameModeLegacy.ManuOpen:
+                case GameMode.ManuOpen:
                     inputManager.inputTable = inputManager.inputTableManuOpen;
                     break;
-                case GameModeLegacy.Replay:
+                case GameMode.Replay:
                     inputManager.inputTable = inputManager.inputTableReplayMode;
                     break;
-                case GameModeLegacy.LockUI:
+                case GameMode.LockUI:
                     inputManager.inputTable = inputManager.inputTableLockUI;
                     break;
             }
@@ -75,7 +75,7 @@ public class GameManager : MonoBehaviour
     {
         get
         {
-            return (GameModeLegacy == GameModeLegacy.Replay);
+            return (GameMode == GameMode.Replay);
         }
     }
 
@@ -115,7 +115,7 @@ public class GameManager : MonoBehaviour
 
         /////////// 게임 실행 ////////////
 
-        GameModeLegacy = GameModeLegacy.LockUI;
+        GameMode = GameMode.LockUI;
 
         ///////// 테스트용 챕터가 있는지 확인, 있다면 개발 테스트 모드 실행  //////
         chapter = FindObjectOfType<ChapterObj>();
@@ -238,7 +238,7 @@ public class GameManager : MonoBehaviour
 }
 
 
-public enum GameModeLegacy
+public enum GameMode
 {
     Story,
     ManuOpen,

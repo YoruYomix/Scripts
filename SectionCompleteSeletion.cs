@@ -38,7 +38,7 @@ public class SectionCompleteSeletion : SectionComplete
 
     public override void Open(Transform parent)
     {
-        GameManager.Instance.GameModeLegacy = GameModeLegacy.LockUI;
+        GameManager.Instance.GameMode = GameMode.LockUI;
         Debug.Log("섹견완료, 선택지 오픈");
         GameManager.Instance.lastSelection=GameManager.Instance.storyManager.currentPage;
         gameObject.SetActive(true);
