@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 
 public class GameManager : MonoBehaviour
@@ -196,7 +196,7 @@ public class GameManager : MonoBehaviour
     public void SaveCurrentStateToDisk()
     {
         // 현재 메모리에 있는 currentSaveData 객체를 저장합니다.
-        Debug.Log("데이터 저장");
+        Debug.Log("데이터 저장비동기");
         SaveLoadManager.SaveGame(currentSaveData);
     }
 

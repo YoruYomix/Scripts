@@ -55,7 +55,7 @@ public class Section
         {
             if (isUnlocked == value)
             {
-                Debug.Log("isUnlocked 저장 안함: " + isClear);
+                Debug.Log("isUnlocked 저장비동기 안함: " + isClear);
                 return;
             }
             Debug.Log("isUnlocked 저장함: " + isClear);

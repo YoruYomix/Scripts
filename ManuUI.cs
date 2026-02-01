@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
@@ -153,9 +153,9 @@ public class ManuUI : MonoBehaviour
             GameManager.Instance.replayManager.ExitReplayMode();
             
         }
-        Debug.Log("유아이 숨기기");
+        Debug.Log("유아이 비활성화");
         await DisAppearUIAsync();
-        Debug.Log("유아이 숨기기 완료");
+        Debug.Log("유아이 비활성화 완료");
         GameManager.Instance.GameMode = GameMode.Story;
     }
 
@@ -213,7 +213,7 @@ public class ManuUI : MonoBehaviour
             await storyAnimation.PlayAnimationAsync("ManuUIDisappear");
             Debug.Log("애니메이션 끝: ManuUIDisappear");
 
-            // UI 비활성화
+            // 유아이 비활성화
             gameObject.SetActive(false);
         }
         catch (Exception e)
