@@ -29,7 +29,7 @@ public class FlowManager : MonoBehaviour
     {
         // root�� Ž���Ͽ� Ʈ�� ������Ʈ�� ������ ��
         // ��带 �ν����Ͽ� ��� ����Ʈ�� ��ȯ�Ѵ�
-        testNodes = YoruUtilitys.NodeInstaller(root);
+        // testNodes = YoruUtilitys.NodeInstaller(root);
 
         HideRoot();
         button.onClick.AddListener(OnClickEvent);
