@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -155,7 +155,7 @@ public class DialoguePanel : ComicPanel
     protected override async UniTask PlayVisualAsync(CancellationToken ct)
     {
         panelObject.SetActive(true); // 게임오브젝트 활성화
-        typer.Reset();           // Play 시작 전 UI 초기화 → Panel 책임
+        typer.Reset();           // Play 시작 전 유아이 초기화 → Panel 책임
         // cursorBlinker.StopBlink(); //커서 깜빡임은 끈다
         await typer.PlayAsync(ct); // 플레이 시작
     }

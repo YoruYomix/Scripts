@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.IO;
 
 public static class SaveLoadManager
@@ -16,11 +16,11 @@ public static class SaveLoadManager
         {
             // 2. 파일에 JSON 문자열 쓰기
             File.WriteAllText(savePath, json);
-            Debug.Log($"저장 성공： {savePath}");
+            Debug.Log($"저장비동기 성공： {savePath}");
         }
         catch (System.Exception e)
         {
-            Debug.LogError($"저장 실패： {e.Message}");
+            Debug.LogError($"저장비동기 실패： {e.Message}");
         }
     }
 
@@ -30,7 +30,7 @@ public static class SaveLoadManager
         // 1. 파일이 존재하는지 확인
         if (!File.Exists(savePath))
         {
-            Debug.LogWarning($"저장 파일이 존재하지 않습니다： {savePath}");
+            Debug.LogWarning($"저장비동기 파일이 존재하지 않습니다： {savePath}");
             // 파일이 없으면 기본 데이터로 초기화하여 반환 (예： 섹션 10개)
             return new SaveData(10);
         }

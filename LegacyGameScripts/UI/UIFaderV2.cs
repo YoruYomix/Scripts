@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// UIElements: 특정 UI 패널의 상태(Graphic, TMP_Text, 원본 알파 등)만 관리
+/// UIElements: 특정 유아이 패널의 상태(Graphic, TMP_Text, 원본 알파 등)만 관리
 /// </summary>
 public class UIElements
 {
@@ -107,7 +107,7 @@ public class UIFaderV2
         catch (OperationCanceledException)
         {
             // SRP 준수: 취소 시 Fader는 트윈 Kill만 담당합니다.
-            // UI 상태 복원(RestoreOriginal)은 상위 호출자(PlayAsync)의 책임입니다.
+            // 유아이 상태 복원(RestoreOriginal)은 상위 호출자(PlayAsync)의 책임입니다.
             Debug.Log("FadeInAsync cancelled. Sequence will be killed in finally block.");
 
             // OperationCanceledException을 다시 던져 상위 호출자가 취소되었음을 알립니다.

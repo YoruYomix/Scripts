@@ -20,7 +20,7 @@ public class TypingService
         fullText = uiText.text;      // 원본 텍스트 저장
         delayPerChar = delay;
         CreateListFromText(fullText);
-        // UI 초기화 제거 → SRP 준수
+        // 유아이 초기화 제거 → SRP 준수
     }
 
     private void CreateListFromText(string input)

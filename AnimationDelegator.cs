@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System;
 using Animancer;
 using System.Collections.Generic;
@@ -44,7 +44,7 @@ public class AnimancerDelegator : MonoBehaviour
             }
         }
 
-        Debug.Log($"Animancer 초기화 완료: {clipMap.Count}개의 클립 등록됨.");
+        Debug.Log($"Animancer 전부닫기 완료: {clipMap.Count}개의 클립 등록됨.");
     }
 
     /// <summary>

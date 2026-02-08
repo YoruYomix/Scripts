@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -373,7 +373,7 @@ public class UIButtonHover : MonoBehaviour,
             if (tmp != null) seq.Join(tmp.DOFade(alpha, duration)); // TMP는 DOFade 지원
     }
 
-    // ----------------- 전역 UI 차단 -----------------
+    // ----------------- 전역 유아이 차단 -----------------
     public static void BlockAllUI(bool block)
     {
         IsUIBlocked = block;
