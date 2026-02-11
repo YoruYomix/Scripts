@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -27,7 +27,7 @@ public class ContinueMenu : MonoBehaviour
             {
                 continue;
             }
-            customButton.클릭시 += () => { onclickOpenPlayPopupBtn(i); }; 
+            // customButton.클릭시 += () => { onclickOpenPlayPopupBtn(i); }; 
         }
 
         InitializeNextSectionUIs();
